@@ -1,4 +1,4 @@
-package com.apple.sobok;
+package com.apple.sobok.member;
 
 
 import jakarta.persistence.Entity;
