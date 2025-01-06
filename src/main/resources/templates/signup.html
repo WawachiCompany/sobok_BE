@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<form id="signupForm">
+    <input type="text" name="username" placeholder="아이디" id="username">
+    <input type="text" name="password" placeholder="비밀번호" id="password">
+    <input type="text" name="name" placeholder="이름" id="name">
+    <input type="text" name="displayName" placeholder="닉네임" id="displayName">
+    <input type="text" name="email" placeholder="이메일" id="email">
+    <input type="text" name="phonenumber" placeholder="전화번호" id="phoneNumber">
+    <input type="text" name="birth" placeholder="생년월일" id="birth">
+    <button type="button" onclick="submitForm()">전송</button>
+</form>
+
+<script>
+    function submitForm() {
+        const formData = {
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value,
+            name: document.getElementById('name').value,
+            displayName: document.getElementById('displayName').value,
+            email: document.getElementById('email').value,
+            phoneNumber: document.getElementById('phoneNumber').value,
+            birth: document.getElementById('birth').value
+        };
+
+        fetch('/user/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        }).then(response => response.text())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+</body>
+</html>
