@@ -12,4 +12,10 @@ public class SobokController {
     public String home() {
         return "index";
     }
+
+    @GetMapping("/welcome")
+    @ResponseBody
+    public String welcome() {
+        return "oauth2 성공";
+    }
 }

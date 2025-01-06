@@ -1,0 +1,16 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: "711547315925-s2hf4k8bmh5rrdgva4p6lk76pi13bed2.apps.googleusercontent.com"
+            client-secret: "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"
+            scope: openid, profile, email, https://www.googleapis.com/auth/user.birthday.read, https://www.googleapis.com/auth/user.phonenumbers.read
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub

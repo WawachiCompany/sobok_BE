@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,7 @@ import java.util.Date;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class JwtUtil {
 
     static final SecretKey key =
@@ -21,15 +23,15 @@ public class JwtUtil {
 
     // JWT 만들어주는 함수
     public static String createToken(Authentication auth) {
-        var user = (Member) auth.getPrincipal();
+        var user = (MyUserDetailsService.CustomUser) auth.getPrincipal();
         var authorities = auth.getAuthorities().stream().map(a -> a.getAuthority()).collect(Collectors.joining(","));
 
         String jwt = Jwts.builder()
                 .claim("username", user.getUsername())
-                .claim("displayName", user.getDisplayName())
+                .claim("displayName", user.displayName)
                 .claim("authorities", authorities)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 10000)) //유효기간 10초
+                .expiration(new Date(System.currentTimeMillis() + 3600000)) //유효기간 10초
                 .signWith(key)
                 .compact();
         return jwt;
