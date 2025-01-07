@@ -1,6 +1,9 @@
 package com.apple.sobok;
 
 import com.apple.sobok.member.*;
+import com.apple.sobok.oauth.CustomOAuth2UserService;
+import com.apple.sobok.oauth.OauthAccount;
+import com.apple.sobok.oauth.OauthAccountRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

@@ -1,4 +1,4 @@
-package com.apple.sobok.member;
+package com.apple.sobok.oauth;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -26,7 +26,7 @@ public class PeopleApiService {
             // birthdays 필드 추출
             List<Map<String, Object>> birthdays = (List<Map<String, Object>>) body.get("birthdays");
             if (!birthdays.isEmpty()) {
-                Map<String, Object> date = (Map<String, Object>) birthdays.get(0).get("date");
+                Map<String, Object> date = (Map<String, Object>) birthdays.getFirst().get("date");
                 int year = (int) date.get("year");
                 int month = (int) date.get("month");
                 int day = (int) date.get("day");

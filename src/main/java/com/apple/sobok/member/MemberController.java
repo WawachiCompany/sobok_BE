@@ -1,13 +1,12 @@
 package com.apple.sobok.member;
 
-import jakarta.servlet.http.Cookie;
+import com.apple.sobok.jwt.JwtUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -29,6 +28,7 @@ public class MemberController {
     private final MemberService memberService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final JwtUtil jwtUtil;
 
     @GetMapping("/user/create")
     public String create() {
@@ -59,6 +59,7 @@ public class MemberController {
             member.setBirth(memberDto.getBirth());
             member.setPoint(0);
             member.setCreatedAt(LocalDateTime.now());
+            member.setIsOauth(false);
             memberRepository.save(member);
 
             Map<String, Object> response = new HashMap<>();
@@ -85,28 +86,35 @@ public class MemberController {
 
 
     @PostMapping("/user/login/jwt")
-    public ResponseEntity<Map<String, Object>> loginJWT(@RequestBody MemberLoginDto memberLoginDto) {
+    public ResponseEntity<Map<String, Object>> loginJWT(@RequestBody MemberLoginDto memberLoginDto, HttpServletResponse response) {
         try {
-            var authToken = new UsernamePasswordAuthenticationToken(memberLoginDto.getUsername(), memberLoginDto.getPassword());
+            var authToken = new UsernamePasswordAuthenticationToken(
+                    memberLoginDto.getUsername(),
+                    memberLoginDto.getPassword());
             var auth = authenticationManagerBuilder.getObject().authenticate(authToken);
             SecurityContextHolder.getContext().setAuthentication(auth); // 인증 정보 저장
 
-            var jwt = JwtUtil.createToken(SecurityContextHolder.getContext().getAuthentication()); // JWT 생성
+            var jwt = jwtUtil.createToken(SecurityContextHolder.getContext().getAuthentication()); // JWT 생성
+            var refreshToken = jwtUtil.createRefreshToken(SecurityContextHolder.getContext().getAuthentication()); // Refresh Token 생성
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("token", jwt);
-            response.put("username", memberLoginDto.getUsername()); //리턴으로 보내줄 거
-            response.put("message", "로그인 성공");
+            //HttpOnly 쿠키 설정
+            memberService.setCookie(response, refreshToken);
 
-            return ResponseEntity.ok(response); // JSON 형식으로 응답 반환
+            //Access Token ResponseEntity에 저장
+            Map<String, Object> responseBody = memberService.memberLoginSuccess(memberLoginDto, jwt);
+
+            return ResponseEntity.ok(responseBody); // JSON 형식으로 응답 반환
 
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("timestamp", LocalDateTime.now());
-            response.put("message", "로그인 실패: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("timestamp", LocalDateTime.now());
+            responseBody.put("message", "로그인 실패: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
         }
     }
+
+
+
 
     @GetMapping("/user/info")
     public ResponseEntity<Map<String, Object>> info() {

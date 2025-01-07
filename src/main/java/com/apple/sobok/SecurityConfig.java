@@ -1,7 +1,9 @@
 package com.apple.sobok;
 
-import com.apple.sobok.member.CustomOAuth2UserService;
+import com.apple.sobok.oauth.CustomOAuth2UserService;
+import com.apple.sobok.oauth.OAuth2LoginSuccessHandler;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,14 +19,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @Setter
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
 
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
-    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService) {
-        this.customOAuth2UserService = customOAuth2UserService;
-    }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable); // CSRF 보안 기능 비활성화
@@ -43,7 +44,7 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo
                                 .oidcUserService(customOAuth2UserService) // 사용자 정보를 처리할 CustomOAuth2UserService
                         )
-                        .defaultSuccessUrl("/welcome", true) // 로그인 성공 후 리다이렉트 URL
+                        .successHandler(oAuth2LoginSuccessHandler) // 로그인 성공 시 핸들러
                         .failureUrl("/login?error=true") // 로그인 실패 시 URL
                 );
 

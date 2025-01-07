@@ -29,7 +29,7 @@ public class MyUserDetailsService implements UserDetailsService {
         return new CustomUser(user.getUsername(), user.getPassword(), authorities);
     }
 
-    static class CustomUser extends User {
+    public static class CustomUser extends User {
         public Long id;
         public String name;
         public String displayName;
@@ -42,6 +42,7 @@ public class MyUserDetailsService implements UserDetailsService {
                           List<GrantedAuthority> authorities ) {
             super(username, password, authorities);
         }
+
     }
 
 }

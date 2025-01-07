@@ -6,7 +6,7 @@ spring:
           google:
             client-id: "711547315925-s2hf4k8bmh5rrdgva4p6lk76pi13bed2.apps.googleusercontent.com"
             client-secret: "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"
-            scope: openid, profile, email, https://www.googleapis.com/auth/user.birthday.read, https://www.googleapis.com/auth/user.phonenumbers.read
+            scope: openid, profile, email, https://www.googleapis.com/auth/user.birthday.read
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
         provider:
           google:

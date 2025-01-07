@@ -1,5 +1,6 @@
-package com.apple.sobok.member;
+package com.apple.sobok.oauth;
 
+import com.apple.sobok.member.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,11 @@ public class OauthAccount {
 
     private String oauthId;
     private String provider;
-    private Long userId;
+
+    @ManyToOne
+    @JoinColumn(
+            name = "user_id",
+            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Member member;
     private LocalDateTime createdAt;
 }

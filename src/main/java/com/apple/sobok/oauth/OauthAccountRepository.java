@@ -1,4 +1,4 @@
-package com.apple.sobok.member;
+package com.apple.sobok.oauth;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

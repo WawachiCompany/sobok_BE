@@ -1,6 +1,9 @@
 package com.apple.sobok.member;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +60,31 @@ public class MemberService {
             return memberRepository.save(member);
         }
     }
+
+    public void setCookie(HttpServletResponse response, String refreshToken) {
+        // HttpOnly 쿠키 설정
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        refreshTokenCookie.setHttpOnly(true);
+//            refreshTokenCookie.setSecure(true); // HTTPS에서만 전송
+        refreshTokenCookie.setPath("/"); // 전체 경로에서 사용 가능
+        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7일 유효
+        response.addCookie(refreshTokenCookie);
+
+        System.out.println("refreshTokenCookie = " + refreshTokenCookie);
+    }
+
+    // member로 로그인 성공 시 응답 바디
+    public Map<String, Object> memberLoginSuccess(MemberLoginDto memberLoginDto, String jwt) {
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("accessToken", jwt);
+        responseBody.put("username", memberLoginDto.getUsername()); //리턴으로 보내줄 거
+        responseBody.put("message", "로그인 성공");
+        responseBody.put("timestamp", LocalDateTime.now());
+        responseBody.put("status", HttpStatus.OK.value());
+        return responseBody;
+    }
+
+
 }
 
 
