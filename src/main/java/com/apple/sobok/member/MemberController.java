@@ -1,6 +1,7 @@
 package com.apple.sobok.member;
 
 import com.apple.sobok.jwt.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -132,7 +133,48 @@ public class MemberController {
         }
     }
 
+    @PostMapping("/user/logout")
+    public ResponseEntity<Map<String, Object>> logout(HttpServletResponse response, HttpServletRequest request) {
+        try {
+            memberService.removeCookie(response, "refreshToken");
 
+            String refreshToken = jwtUtil.extractTokenFromRequest(request);
+            System.out.println("refreshToken = " + refreshToken);
+            jwtUtil.deleteRefreshToken(refreshToken);
+
+            Map<String, Object> responseMap = new HashMap<>();
+            responseMap.put("message", "로그아웃 성공");
+            responseMap.put("timestamp", LocalDateTime.now());
+            return ResponseEntity.ok(responseMap);
+
+        } catch (Exception e) {
+            Map<String, Object> responseMap = new HashMap<>();
+            responseMap.put("message", "로그아웃 실패: " + e.getMessage());
+            responseMap.put("timestamp", LocalDateTime.now());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseMap);
+        }
+    }
+
+    @PostMapping("/user/refresh-token")
+    public ResponseEntity<Map<String, Object>> refreshToken(HttpServletRequest request) {
+        try {
+            String refreshToken = jwtUtil.extractTokenFromRequest(request);
+            if (refreshToken != null) {
+                String newAccessToken = jwtUtil.refreshAccessToken(refreshToken);
+                Map<String, Object> response = new HashMap<>();
+                response.put("accessToken", newAccessToken);
+                response.put("message", "토큰 갱신 성공");
+                return ResponseEntity.ok(response);
+            } else {
+                throw new IllegalArgumentException("No refresh token found");
+            }
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "토큰 갱신 실패: " + e.getMessage());
+            response.put("timestamp", LocalDateTime.now());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+    }
 
 
 }

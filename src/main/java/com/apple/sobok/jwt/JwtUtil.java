@@ -5,6 +5,9 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,6 +29,29 @@ public class JwtUtil {
     private static final long ACCESS_TOKEN_EXPIRATION = 900_000; // 15분
     private static final long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60 * 1000L; // 7일
     private final RefreshTokenRepository refreshTokenRepository;
+
+    // 리프레시 토큰을 사용하여 새로운 액세스 토큰 발급
+    @Transactional
+    public String refreshAccessToken(String refreshToken) {
+        if (validateToken(refreshToken)) {
+            Claims claims = extractToken(refreshToken);
+            String username = claims.get("username", String.class);
+            // 새로운 액세스 토큰 생성
+            return createToken(username);
+        } else {
+            throw new IllegalArgumentException("Invalid refresh token");
+        }
+    }
+
+    // JWT 만들어주는 함수 (username을 인자로 받는 오버로드 메서드)
+    public String createToken(String username) {
+        return Jwts.builder()
+                .claim("username", username)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
+                .signWith(key)
+                .compact();
+    }
 
     // JWT 만들어주는 함수
     public String createToken(Authentication auth) {
@@ -49,7 +75,7 @@ public class JwtUtil {
                     .claim("displayName", user.displayName)
                     .claim("authorities", authorities)
                     .issuedAt(new Date(System.currentTimeMillis()))
-                    .expiration(new Date(System.currentTimeMillis() + 3600000)) //유효기간 10초
+                    .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION)) //유효기간 10초
                     .signWith(key)
                     .compact();
         }
@@ -104,6 +130,25 @@ public class JwtUtil {
     public Claims extractToken(String token) {
         return Jwts.parser().verifyWith(key).build()
                 .parseSignedClaims(token).getPayload();
+    }
+
+    // Refresh Token DB에서 삭제
+    @Transactional
+    public void deleteRefreshToken(String refreshToken) {
+        refreshTokenRepository.deleteByRefreshToken(refreshToken);
+    }
+
+    // Request에서 Refresh Token 추출
+    public String extractTokenFromRequest(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 
 

@@ -73,6 +73,15 @@ public class MemberService {
         System.out.println("refreshTokenCookie = " + refreshTokenCookie);
     }
 
+    // 쿠키 제거
+    public void removeCookie(HttpServletResponse response, String cookieName) {
+        Cookie cookie = new Cookie(cookieName, null);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0); // 쿠키 제거
+        response.addCookie(cookie);
+    }
+
     // member로 로그인 성공 시 응답 바디
     public Map<String, Object> memberLoginSuccess(MemberLoginDto memberLoginDto, String jwt) {
         Map<String, Object> responseBody = new HashMap<>();
