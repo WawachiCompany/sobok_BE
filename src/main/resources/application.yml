@@ -8,9 +8,31 @@ spring:
             client-secret: "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"
             scope: openid, profile, email, https://www.googleapis.com/auth/user.birthday.read
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+          kakao:
+            client-id: "e81a0ee7698bada2bc92c4816efe0454"
+            client-secret: ""
+            authorization-grant-type: authorization_code
+#            client-authentication-method: POST
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - account_email
+              - profile_nickname
+              - openid
         provider:
           google:
             authorization-uri: https://accounts.google.com/o/oauth2/auth
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
             user-name-attribute: sub
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: sub
+            jwk-set-uri: https://kauth.kakao.com/.well-known/jwks.json
+  data:
+    redis:
+      host: redis-12046.c340.ap-northeast-2-1.ec2.redns.redis-cloud.com
+      port: 12046
+      password: vevMWP4tcyEYI2xWLDlljcpr2zZASo5f
+      timeout: 6000

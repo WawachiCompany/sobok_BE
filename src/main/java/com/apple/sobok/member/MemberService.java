@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,19 +32,22 @@ public class MemberService {
     }
 
     // MemberController에서 유저 정보 조회
-    public Map<String, Object> getUserInfo(Authentication auth) {
-        var user = (MyUserDetailsService.CustomUser) auth.getPrincipal();
+    public Map<String, Object> getUserInfo(MyUserDetailsService.CustomUser user) {
 
+        System.out.println(user);
+        var result = memberRepository.findByUsername(user.getUsername());
         Map<String, Object> response = new HashMap<>();
-        response.put("username", user.getUsername());
-        response.put("id", user.id);
-        response.put("name", user.name);
-        response.put("displayName", user.displayName);
-        response.put("point", user.point);
-        response.put("email", user.email);
-        response.put("phoneNumber", user.phoneNumber);
-        response.put("birth", user.birth);
-        response.put("message", "유저 정보 조회 성공");
+        result.ifPresent(member -> {
+            response.put("username", member.getUsername());
+            response.put("id", member.getId());
+            response.put("name", member.getName());
+            response.put("displayName", member.getDisplayName());
+            response.put("point", member.getPoint());
+            response.put("email", member.getEmail());
+            response.put("phoneNumber", member.getPhoneNumber());
+            response.put("birth", member.getBirth());
+            response.put("message", "유저 정보 조회 성공");
+        });
         return response;
     }
 
@@ -61,7 +65,19 @@ public class MemberService {
         }
     }
 
-    public void setCookie(HttpServletResponse response, String refreshToken) {
+    public void setAccessCookie(HttpServletResponse response, String accessToken) {
+        // HttpOnly 쿠키 설정
+        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+        accessTokenCookie.setHttpOnly(true);
+//            refreshTokenCookie.setSecure(true); // HTTPS에서만 전송
+        accessTokenCookie.setPath("/"); // 전체 경로에서 사용 가능
+        accessTokenCookie.setMaxAge(15 * 60); // 15분 유효
+        response.addCookie(accessTokenCookie);
+
+        System.out.println("accessTokenCookie = " + accessTokenCookie);
+    }
+
+    public void setRefreshCookie(HttpServletResponse response, String refreshToken) {
         // HttpOnly 쿠키 설정
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);

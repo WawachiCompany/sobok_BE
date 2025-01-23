@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Test</title>
+</head>
+<body>
+<h1>Account Test</h1>
+<button id="sendAccount">Send Survey</button>
+
+<script>
+    document.getElementById('sendAccount').addEventListener('click', function() {
+        const surveyData = {
+            category : "english",
+            title : "test",
+            target : "test",
+            is_public : true,
+            period : "daily",
+            time : 60,
+            duration : 12
+        };
+
+        fetch(`/account/new`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(surveyData)
+        })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+    });
+</script>
+</body>
+</html>

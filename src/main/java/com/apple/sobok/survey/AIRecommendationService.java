@@ -1,7 +1,6 @@
 package com.apple.sobok.survey;
 
 
-import com.apple.sobok.routine.AiRoutine;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +20,7 @@ public class AIRecommendationService {
     private static final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
     private static final String OPENAI_API_KEY = "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";
 
-    // AI 추천 루틴 생성
+    // AI 추천 루틴 생성 (MAIN)
     public List<Map<String, String>> generateAiRoutine(Survey survey) {
         // AI에 전달할 입력 데이터 생성
         String prompt = createPromptFromSurvey(survey);

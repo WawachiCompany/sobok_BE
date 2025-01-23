@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -18,8 +19,8 @@ public class AiRoutine {
     private Long userId;
 
     private String title;
-    private String startTime;
-    private String endTime;
+    private LocalTime startTime;
+    private LocalTime endTime;
     @ElementCollection
     @CollectionTable(name = "ai_routine_days", joinColumns = @JoinColumn(name = "ai_routine_id"))
     @Column(name = "day")

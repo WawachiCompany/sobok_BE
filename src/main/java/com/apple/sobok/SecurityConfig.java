@@ -1,5 +1,6 @@
 package com.apple.sobok;
 
+import com.apple.sobok.jwt.JwtFilter;
 import com.apple.sobok.oauth.CustomOAuth2UserService;
 import com.apple.sobok.oauth.OAuth2LoginSuccessHandler;
 import lombok.Getter;
@@ -14,6 +15,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 
 @Getter
 @Setter
@@ -34,13 +36,14 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         ); // 세션 생성 정책을 STATELESS로 변경(JWT 토큰 사용)
 
+        http.addFilterBefore(new JwtFilter(), ExceptionTranslationFilter.class);
+
         http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/**").permitAll()
+                        .requestMatchers("/**", "/oauth2/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login") // 커스텀 로그인 페이지
                         .userInfoEndpoint(userInfo -> userInfo
                                 .oidcUserService(customOAuth2UserService) // 사용자 정보를 처리할 CustomOAuth2UserService
                         )

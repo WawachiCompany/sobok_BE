@@ -68,6 +68,7 @@ public class JwtUtil {
         }
         else {
             var user = (MyUserDetailsService.CustomUser) auth.getPrincipal();
+            System.out.println("jwt에서의 auth:" + user.toString());
             var authorities = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
             //유효기간 10초
             return Jwts.builder()
@@ -81,7 +82,7 @@ public class JwtUtil {
         }
     }
 
-    // JWT Refresh Token 생성 및 refreshToeknRepository에 저장
+    // JWT Refresh Token 생성 및 refreshTokenRepository에 저장
     public String createRefreshToken(Authentication auth) {
         if(auth.getPrincipal() instanceof DefaultOidcUser user) {
             var jwt = Jwts.builder()
@@ -127,7 +128,7 @@ public class JwtUtil {
     }
 
     // JWT 까주는 함수
-    public Claims extractToken(String token) {
+    public static Claims extractToken(String token) {
         return Jwts.parser().verifyWith(key).build()
                 .parseSignedClaims(token).getPayload();
     }

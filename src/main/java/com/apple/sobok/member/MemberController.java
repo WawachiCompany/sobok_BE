@@ -8,7 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -99,7 +102,8 @@ public class MemberController {
             var refreshToken = jwtUtil.createRefreshToken(SecurityContextHolder.getContext().getAuthentication()); // Refresh Token 생성
 
             //HttpOnly 쿠키 설정
-            memberService.setCookie(response, refreshToken);
+            memberService.setAccessCookie(response, jwt);
+            memberService.setRefreshCookie(response, refreshToken);
 
             //Access Token ResponseEntity에 저장
             Map<String, Object> responseBody = memberService.memberLoginSuccess(memberLoginDto, jwt);
@@ -119,9 +123,10 @@ public class MemberController {
 
     @GetMapping("/user/info")
     public ResponseEntity<Map<String, Object>> info() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        var user = (MyUserDetailsService.CustomUser) auth.getPrincipal();
         try {
-            var auth = SecurityContextHolder.getContext().getAuthentication();
-            Map<String, Object> response = memberService.getUserInfo(auth);
+            Map<String, Object> response = memberService.getUserInfo(user);
 
             return ResponseEntity.ok(response);
 
@@ -137,6 +142,7 @@ public class MemberController {
     public ResponseEntity<Map<String, Object>> logout(HttpServletResponse response, HttpServletRequest request) {
         try {
             memberService.removeCookie(response, "refreshToken");
+            memberService.removeCookie(response, "accessToken");
 
             String refreshToken = jwtUtil.extractTokenFromRequest(request);
             System.out.println("refreshToken = " + refreshToken);

@@ -1,7 +1,6 @@
 package com.apple.sobok.survey;
 
 
-import com.apple.sobok.routine.AiRoutine;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

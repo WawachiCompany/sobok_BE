@@ -1,7 +1,7 @@
 package com.apple.sobok.member;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,9 +24,18 @@ public class MyUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("그런 아이디 없음");
         }
         var user = result.get();
-        List<GrantedAuthority> authorities = new ArrayList<>();
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("일반유저"));
-        return new CustomUser(user.getUsername(), user.getPassword(), authorities);
+
+        CustomUser customUser = new CustomUser(user.getUsername(), user.getPassword(), authorities);
+        customUser.id = user.getId();
+        customUser.name = user.getName();
+        customUser.displayName = user.getDisplayName();
+        customUser.birth = user.getBirth();
+        customUser.email = user.getEmail();
+        customUser.phoneNumber = user.getPhoneNumber();
+        customUser.point = user.getPoint();
+        return customUser;
     }
 
     public static class CustomUser extends User {
@@ -39,7 +48,7 @@ public class MyUserDetailsService implements UserDetailsService {
         public Integer point;
         public CustomUser(String username,
                           String password,
-                          List<GrantedAuthority> authorities ) {
+                          List<SimpleGrantedAuthority> authorities ) {
             super(username, password, authorities);
         }
 

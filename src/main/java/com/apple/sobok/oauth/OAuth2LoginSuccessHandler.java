@@ -26,7 +26,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String jwt = jwtUtil.createToken(authentication);
         String refreshToken = jwtUtil.createRefreshToken(authentication);
 
-        memberService.setCookie(response, refreshToken);
+        memberService.setAccessCookie(response, jwt);
+        memberService.setRefreshCookie(response, refreshToken);
 
         Map<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", jwt);
