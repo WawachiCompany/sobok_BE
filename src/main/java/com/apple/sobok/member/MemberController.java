@@ -9,14 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -25,6 +21,7 @@ import java.util.Map;
 
 
 @Controller
+@RequestMapping("/user")
 @RequiredArgsConstructor
 public class MemberController {
 
@@ -34,12 +31,7 @@ public class MemberController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtUtil jwtUtil;
 
-    @GetMapping("/user/create")
-    public String create() {
-        return "signup.html";
-    }
-
-    @PostMapping("/user/create")
+    @PostMapping("/create")
     public ResponseEntity<Map<String, Object>> createMember(@RequestBody MemberDto memberDto) {
         try {
             Member member = new Member();
@@ -64,6 +56,8 @@ public class MemberController {
             member.setPoint(0);
             member.setCreatedAt(LocalDateTime.now());
             member.setIsOauth(false);
+            member.setIsPremium(false);
+            member.setConsecutiveAchieveCount(0);
             memberRepository.save(member);
 
             Map<String, Object> response = new HashMap<>();
@@ -83,13 +77,13 @@ public class MemberController {
     }
 
 
-    @GetMapping("/user/login")
+    @GetMapping("/login")
     public String login() {
         return "login.html";
     }
 
 
-    @PostMapping("/user/login/jwt")
+    @PostMapping("/login/jwt")
     public ResponseEntity<Map<String, Object>> loginJWT(@RequestBody MemberLoginDto memberLoginDto, HttpServletResponse response) {
         try {
             var authToken = new UsernamePasswordAuthenticationToken(
@@ -121,7 +115,7 @@ public class MemberController {
 
 
 
-    @GetMapping("/user/info")
+    @GetMapping("/info")
     public ResponseEntity<Map<String, Object>> info() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         var user = (MyUserDetailsService.CustomUser) auth.getPrincipal();
@@ -138,7 +132,7 @@ public class MemberController {
         }
     }
 
-    @PostMapping("/user/logout")
+    @PostMapping("/logout")
     public ResponseEntity<Map<String, Object>> logout(HttpServletResponse response, HttpServletRequest request) {
         try {
             memberService.removeCookie(response, "refreshToken");
@@ -161,7 +155,7 @@ public class MemberController {
         }
     }
 
-    @PostMapping("/user/refresh-token")
+    @PostMapping("/refresh-token")
     public ResponseEntity<Map<String, Object>> refreshToken(HttpServletRequest request) {
         try {
             String refreshToken = jwtUtil.extractTokenFromRequest(request);
@@ -179,6 +173,43 @@ public class MemberController {
             response.put("message", "토큰 갱신 실패: " + e.getMessage());
             response.put("timestamp", LocalDateTime.now());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+    }
+
+    @PutMapping("/premium")
+    public ResponseEntity<?> upgradeToPremium() {
+        try {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            Member member = memberRepository.findByUsername(username)
+                    .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+            memberService.upgradeToPremium(member);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "구독권 등록 성공");
+            response.put("timestamp", LocalDateTime.now());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "구독권 등록 실패: " + e.getMessage());
+            response.put("timestamp", LocalDateTime.now());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+
+    @GetMapping("/achieve")
+    public ResponseEntity<?> getAchieveCount() {
+        try {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            Member member = memberRepository.findByUsername(username)
+                    .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+            Map<String, Object> response = new HashMap<>();
+            response.put("achieveCount", member.getConsecutiveAchieveCount());
+            response.put("message", "연속 달성일 조회 성공");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "연속 달성일 조회 실패: " + e.getMessage());
+            response.put("timestamp", LocalDateTime.now());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 

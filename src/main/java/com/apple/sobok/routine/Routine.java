@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.Cascade;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -40,6 +40,7 @@ public class Routine {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "routine_days", joinColumns = @JoinColumn(name = "routine_id"))
     @Column(name = "day")
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<String> days; // 요일 리스트(월 ~ 일)
 
     private LocalDateTime createdAt;

@@ -39,6 +39,7 @@ public class Account {
 
     private Boolean isValid; //활성화 요건 갖추었는지 확인
     private Float interest; // 이율
+    private Long interestBalance; // 이자 잔액
 
     private LocalDate expiredAt; // 만기된 날짜
     private LocalDateTime updatedAt; // 수정된 시간

@@ -11,4 +11,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     Optional<Account> findByMemberAndId(Member member, Long id);
 
+    List<Account> findByMemberAndIsValid(Member member, Boolean isValid);
+
+    List<Account> findByIsExpired(Boolean isExpired);
+
 }

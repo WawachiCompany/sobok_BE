@@ -14,7 +14,7 @@ public class AccountExpirationScheduler {
 
     private final AccountRepository accountRepository;
 
-    @Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
+    @Scheduled(cron = "0 10 0 * * ?") // 매일 00:10에 실행
     public void checkAndExpireAccounts() {
         LocalDate today = LocalDate.now();
         List<Account> accounts = accountRepository.findAll();

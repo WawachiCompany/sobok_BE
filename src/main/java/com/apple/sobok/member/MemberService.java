@@ -1,14 +1,15 @@
 package com.apple.sobok.member;
 
+import com.apple.sobok.member.point.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +19,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final PremiumRepository premiumRepository;
+    private final PointLogService pointLogService;
 
     public boolean isEmailDuplicated(String email) {
         return memberRepository.existsByEmail(email);
@@ -107,6 +110,38 @@ public class MemberService {
         responseBody.put("timestamp", LocalDateTime.now());
         responseBody.put("status", HttpStatus.OK.value());
         return responseBody;
+    }
+
+    public void upgradeToPremium(Member member) {
+        Integer point = member.getPoint();
+        if(point < 3000) {
+            throw new IllegalArgumentException("포인트가 부족합니다.");
+        }
+        PointLog pointLog = new PointLog();
+        pointLog.setMember(member);
+        pointLog.setPoint(-3000);
+        pointLog.setBalance(point - 3000);
+        pointLog.setCategory("구독권 구매");
+        pointLog.setCreatedAt(LocalDateTime.now());
+        member.setPoint(point - 3000);
+        Premium premium = premiumRepository.findByMember(member)
+                .orElseGet(() -> {
+                    Premium newPremium = new Premium();
+                    newPremium.setMember(member);
+                    return newPremium;
+                });
+        premium.setStartAt(LocalDate.now());
+        premium.setEndAt(LocalDate.now().plusMonths(1));
+//        premium.setIsAutoRenewal(false);
+        premiumRepository.save(premium);
+        memberRepository.save(member);
+        pointLogService.save(pointLog);
+    }
+
+    public Member getMember() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return memberRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
     }
 
 

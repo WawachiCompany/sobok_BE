@@ -1,6 +1,8 @@
 package com.apple.sobok.member;
 
 
+import com.apple.sobok.routine.Routine;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +10,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Setter
 @Getter
@@ -29,4 +32,10 @@ public class Member {
     private Integer point;
     private LocalDateTime createdAt;
     private Boolean isOauth;
+    private Boolean isPremium;
+    private Integer consecutiveAchieveCount;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Routine> routines;
 }
