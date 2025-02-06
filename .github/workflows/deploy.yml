@@ -1,0 +1,41 @@
+name: Deploy to AWS Elastic Beanstalk
+
+on:
+  push:
+    branches:
+      - main  # main 브랜치에 push될 때 실행
+
+permissions:
+  id-token: write  # GitHub에서 OIDC 토큰 발급을 허용
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ GitHub 저장소에서 코드 가져오기
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2️⃣ OIDC를 사용하여 AWS 로그인 (IAM 역할 사용)
+      - name: Configure AWS credentials using OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # 3️⃣ Docker 이미지 빌드 & Docker Hub에 푸시
+      - name: Build and push Docker image
+        run: |
+          docker build -t hjkim4842/sobok-app:latest .
+          echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+          docker push hjkim4842/sobok-app:latest
+
+      # 4️⃣ Elastic Beanstalk 환경에 배포 (멀티 컨테이너 설정 제거)
+      - name: Deploy to Elastic Beanstalk (Single Container)
+        run: |
+          aws elasticbeanstalk update-environment --application-name sobok-app \
+          --environment-name sobok-env \
+          --version-label v${{ github.run_number }} \
+          --option-settings file://.ebextensions/options.config

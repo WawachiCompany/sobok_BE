@@ -1,15 +1,17 @@
 spring:
+  application:
+    name: sobok
   security:
     oauth2:
       client:
         registration:
           google:
-            client-id: "711547315925-s2hf4k8bmh5rrdgva4p6lk76pi13bed2.apps.googleusercontent.com"
-            client-secret: "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"
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
             scope: openid, profile, email, https://www.googleapis.com/auth/user.birthday.read
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
           kakao:
-            client-id: "e81a0ee7698bada2bc92c4816efe0454"
+            client-id: ${KAKAO_CLIENT_ID}
             client-secret: ""
             authorization-grant-type: authorization_code
 #            client-authentication-method: POST
@@ -32,7 +34,23 @@ spring:
             jwk-set-uri: https://kauth.kakao.com/.well-known/jwks.json
   data:
     redis:
-      host: redis-12046.c340.ap-northeast-2-1.ec2.redns.redis-cloud.com
-      port: 12046
-      password: vevMWP4tcyEYI2xWLDlljcpr2zZASo5f
+      host: ${SPRING_REDIS_HOST}
+      port: ${SPRING_REDIS_PORT}
+      password: ${SPRING_REDIS_PASSWORD}
       timeout: 6000
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+coolsms:
+  apiKey: ${COOLSMS_API_KEY}
+  apiSecret: ${COOLSMS_API_SECRET}
+  apiFrom: ${COOLSMS_API_FROM}
