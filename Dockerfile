@@ -5,7 +5,7 @@ FROM openjdk:21-jdk
 WORKDIR /app
 
 # 3. JAR 파일 복사
-COPY target/*.jar app.jar
+COPY build/libs/*.jar app.jar
 
 # 4. 환경 변수를 ARG로 전달받아 ENV로 설정
 ARG SPRING_PROFILES_ACTIVE
