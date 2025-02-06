@@ -43,4 +43,3 @@ jobs:
           aws elasticbeanstalk update-environment --application-name sobok-app \
           --environment-name sobok-app-env \
           --version-label v${{ github.run_number }} \
-          --option-settings file://.ebextensions/options.config
