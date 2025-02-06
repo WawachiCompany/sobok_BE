@@ -37,6 +37,12 @@ jobs:
           docker push hjkim4842/sobok-app:latest
           docker logout # 로그아웃
 
+      # 4.5. 애플리케이션 패키지 압축 및 업로드
+      - name: Upload application package to S3
+        run: |
+          zip -r sobok-app-v${{ github.run_number }}.zip .
+          aws s3 cp sobok-app-v${{ github.run_number }}.zip s3://elasticbeanstalk-ap-northeast-2-140023384172/
+
       # 5. Elastic Beanstalk 애플리케이션 버전 생성
       - name: Create new Elastic Beanstalk application version
         run: |
