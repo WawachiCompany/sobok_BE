@@ -35,6 +35,7 @@ jobs:
           docker build -t hjkim4842/sobok-app:latest .
           echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
           docker push hjkim4842/sobok-app:latest
+          docker logout # 로그아웃
 
       # 4️⃣ Elastic Beanstalk 환경에 배포 (멀티 컨테이너 설정 제거)
       - name: Deploy to Elastic Beanstalk (Single Container)
