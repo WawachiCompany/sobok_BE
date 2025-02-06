@@ -1,6 +1,7 @@
 package com.apple.sobok.account;
 
 
+import com.apple.sobok.routine.RoutineRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import java.util.List;
 public class AccountExpirationScheduler {
 
     private final AccountRepository accountRepository;
+    private final RoutineRepository routineRepository;
 
     @Scheduled(cron = "0 10 0 * * ?") // 매일 00:10에 실행
     public void checkAndExpireAccounts() {
@@ -26,6 +28,7 @@ public class AccountExpirationScheduler {
                 // 계좌에 연결된 루틴도 모두 종료 처리
                 account.getRoutines().forEach(routine -> {
                     routine.setIsEnded(true);
+                    routineRepository.save(routine);
                 });
             }
         }

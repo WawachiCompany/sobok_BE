@@ -58,6 +58,7 @@ public class MemberController {
             member.setIsOauth(false);
             member.setIsPremium(false);
             member.setConsecutiveAchieveCount(0);
+            member.setPremiumPrice(9999);
             memberRepository.save(member);
 
             Map<String, Object> response = new HashMap<>();
@@ -179,9 +180,7 @@ public class MemberController {
     @PutMapping("/premium")
     public ResponseEntity<?> upgradeToPremium() {
         try {
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            Member member = memberRepository.findByUsername(username)
-                    .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+            Member member = memberService.getMember();
             memberService.upgradeToPremium(member);
             Map<String, Object> response = new HashMap<>();
             response.put("message", "구독권 등록 성공");
@@ -198,9 +197,7 @@ public class MemberController {
     @GetMapping("/achieve")
     public ResponseEntity<?> getAchieveCount() {
         try {
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            Member member = memberRepository.findByUsername(username)
-                    .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+            Member member = memberService.getMember();
             Map<String, Object> response = new HashMap<>();
             response.put("achieveCount", member.getConsecutiveAchieveCount());
             response.put("message", "연속 달성일 조회 성공");
@@ -208,6 +205,22 @@ public class MemberController {
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "연속 달성일 조회 실패: " + e.getMessage());
+            response.put("timestamp", LocalDateTime.now());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+
+    @GetMapping("/premium")
+    public ResponseEntity<?> getPremiumPrice() {
+        try {
+            Member member = memberService.getMember();
+            Map<String, Object> response = new HashMap<>();
+            response.put("price", member.getPremiumPrice());
+            response.put("message", "구독권 가격 조회 성공");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "구독권 가격 조회 실패: " + e.getMessage());
             response.put("timestamp", LocalDateTime.now());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }

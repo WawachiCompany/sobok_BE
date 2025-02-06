@@ -3,6 +3,7 @@ package com.apple.sobok.account;
 
 import com.apple.sobok.member.Member;
 import com.apple.sobok.routine.Routine;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -21,14 +22,15 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private Member member;
 
     private String title;
-    private String target;
+//    private String target;
     private Integer balance; // 단위: 분
-    private Boolean isPublic;
+//    private Boolean isPublic;
 
 
     private Integer time; // 단위: 분
@@ -39,13 +41,14 @@ public class Account {
 
     private Boolean isValid; //활성화 요건 갖추었는지 확인
     private Float interest; // 이율
-    private Long interestBalance; // 이자 잔액
+    private Integer interestBalance; // 이자 잔액
 
     private LocalDate expiredAt; // 만기된 날짜
     private LocalDateTime updatedAt; // 수정된 시간
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Routine> routines = new ArrayList<>();
+
 
 }

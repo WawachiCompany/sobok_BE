@@ -9,9 +9,9 @@ import java.util.Optional;
 public interface AccountRepository extends JpaRepository<Account, Long> {
     List<Account> findByMemberAndIsExpired(Member member, Boolean isExpired);
 
-    Optional<Account> findByMemberAndId(Member member, Long id);
+    Account findByMemberAndId(Member member, Long id);
 
-    List<Account> findByMemberAndIsValid(Member member, Boolean isValid);
+    List<Account> findByMemberAndIsValidAndIsExpired(Member member, Boolean isValid, Boolean isExpired);
 
     List<Account> findByIsExpired(Boolean isExpired);
 

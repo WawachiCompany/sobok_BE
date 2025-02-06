@@ -2,7 +2,6 @@ package com.apple.sobok.account;
 
 import com.apple.sobok.member.Member;
 import com.apple.sobok.member.point.PointLog;
-import com.apple.sobok.member.point.PointLogRepository;
 import com.apple.sobok.member.point.PointLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -35,7 +34,7 @@ public class AccountPointScheduler {
             // 이전 달에 목표 달성한 비율 곱해서 이자 지급
             account.setInterestBalance(
                     account.getInterestBalance() + Math.round(
-                            account.getInterest() * lastMonthTotalTime * ((float) lastMonthTotalTime / account.getTime()))); // 이자 포인트 반올림해서 적립
+                            lastMonthTotalTime * account.getInterest() / 100 * ((float) lastMonthTotalTime / account.getTime()))); // 이자 포인트 반올림해서 적립
             accountRepository.save(account);
 
            Member member = account.getMember();

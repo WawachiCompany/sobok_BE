@@ -40,7 +40,7 @@ public class SurveyService {
             if(surveyRequestDto.getExtraRequest() != null) {
                 survey.setExtraRequest(surveyRequestDto.getExtraRequest());
             }
-            else{
+            else {
                 survey.setExtraRequest("없음");
             }
         } else {

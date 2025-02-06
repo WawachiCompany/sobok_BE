@@ -24,7 +24,7 @@ public class Routine {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "account_id")
+    @JoinColumn(name = "account_id", nullable = true)
     @JsonBackReference
     private Account account;
 
@@ -47,9 +47,9 @@ public class Routine {
 
     private Boolean isSuspended; // 보류 여부
 
-    private Boolean isCompleted; // 완료 여부
+    private Boolean isAchieved; // 달성 여부(하나라도 완료했는지)
 
-    private Boolean isEnded; // 종료 여부(적금 만기)
+    private Boolean isEnded; // 종료 여부(적금 만기 또는 삭제)
 
     @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL)
     List<Todo> todos = new ArrayList<>();

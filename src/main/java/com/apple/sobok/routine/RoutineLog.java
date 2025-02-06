@@ -1,24 +1,26 @@
-package com.apple.sobok.account;
+package com.apple.sobok.routine;
+
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-
 import java.time.LocalDateTime;
 
 @Entity
-@Getter
 @Setter
-public class AccountLog {
+@Getter
+public class RoutineLog {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "account_id")
-    private Account account;
+    @JoinColumn(name = "routine_id")
+    private Routine routine;
 
-    private Integer depositTime;
-    private LocalDateTime createdAt;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+
+    private Boolean isCompleted;
 }

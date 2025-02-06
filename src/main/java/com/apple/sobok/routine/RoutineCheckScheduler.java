@@ -21,6 +21,7 @@ public class RoutineCheckScheduler {
 
 
 
+    // 연속 달성일 계산
     @Scheduled(cron = "0 5 0 * * ?") // 매일 00:05에 실행
     public void checkAndExpireRoutines() {
         List<Member> members = memberRepository.findAll();
@@ -30,13 +31,13 @@ public class RoutineCheckScheduler {
         for(Member member: members){
             boolean allCompleted = member.getRoutines().stream()
                     .filter(routine -> routine.getDays().contains(targetDay))
-                    .allMatch(Routine::getIsCompleted);
+                    .anyMatch(Routine::getIsAchieved); // 완료한 루틴 하나라도 있으면 연속달성일 인정
             if (allCompleted) {
                 member.setConsecutiveAchieveCount(member.getConsecutiveAchieveCount() + 1);
             } else {
                 member.setConsecutiveAchieveCount(0);
             }
-            member.getRoutines().forEach(routine -> routine.setIsCompleted(false));
+            member.getRoutines().forEach(routine -> routine.setIsAchieved(false));
             memberRepository.save(member);
         }
     }

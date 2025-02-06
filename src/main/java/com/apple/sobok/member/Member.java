@@ -1,6 +1,7 @@
 package com.apple.sobok.member;
 
 
+import com.apple.sobok.account.Account;
 import com.apple.sobok.routine.Routine;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -34,8 +35,13 @@ public class Member {
     private Boolean isOauth;
     private Boolean isPremium;
     private Integer consecutiveAchieveCount;
+    private Integer premiumPrice;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Routine> routines;
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Account> accounts;
 }

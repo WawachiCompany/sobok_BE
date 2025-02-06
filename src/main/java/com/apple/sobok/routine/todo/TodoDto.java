@@ -9,6 +9,7 @@ import java.time.LocalTime;
 @Setter
 public class TodoDto {
     private String title;
+    private String category;
     private LocalTime startTime;
     private LocalTime endTime;
     private String linkApp;

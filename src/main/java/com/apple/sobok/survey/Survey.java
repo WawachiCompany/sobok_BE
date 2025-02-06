@@ -2,6 +2,7 @@ package com.apple.sobok.survey;
 
 
 import com.apple.sobok.member.Member;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,7 +25,7 @@ public class Survey {
 
     private String spareTpo;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "survey_spare_time", joinColumns = @JoinColumn(name = "survey_id"))
     @Column(name = "spare_time")
     @Cascade(CascadeType.ALL)
@@ -34,7 +35,7 @@ public class Survey {
     private String preference2;
     private String preference3;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "survey_like_option", joinColumns = @JoinColumn(name = "survey_id"))
     @Column(name = "like_option")
     @Cascade(CascadeType.ALL)

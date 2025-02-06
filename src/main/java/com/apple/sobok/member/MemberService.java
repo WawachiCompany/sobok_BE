@@ -1,5 +1,6 @@
 package com.apple.sobok.member;
 
+import com.apple.sobok.account.Account;
 import com.apple.sobok.member.point.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -114,16 +116,17 @@ public class MemberService {
 
     public void upgradeToPremium(Member member) {
         Integer point = member.getPoint();
-        if(point < 3000) {
+        Integer premiumPrice = member.getPremiumPrice();
+        if(point < premiumPrice) {
             throw new IllegalArgumentException("포인트가 부족합니다.");
         }
         PointLog pointLog = new PointLog();
         pointLog.setMember(member);
-        pointLog.setPoint(-3000);
-        pointLog.setBalance(point - 3000);
+        pointLog.setPoint(-premiumPrice);
+        pointLog.setBalance(point - premiumPrice);
         pointLog.setCategory("구독권 구매");
         pointLog.setCreatedAt(LocalDateTime.now());
-        member.setPoint(point - 3000);
+        member.setPoint(point - premiumPrice);
         Premium premium = premiumRepository.findByMember(member)
                 .orElseGet(() -> {
                     Premium newPremium = new Premium();
@@ -142,6 +145,14 @@ public class MemberService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return memberRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+    }
+
+    public Integer calculatePremiumPrice(Member member) {
+        List<Account> accounts = member.getAccounts();
+        long totalTimeOfAccounts = accounts.stream()
+                .mapToLong(Account::getTime)
+                .sum();
+        return (int) (totalTimeOfAccounts * 0.9);
     }
 
 

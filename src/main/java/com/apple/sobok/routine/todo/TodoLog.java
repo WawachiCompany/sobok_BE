@@ -5,26 +5,22 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Entity
-@Getter
 @Setter
-public class Todo {
-
+@Getter
+public class TodoLog {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "routine_id")
-    private Routine routine;
+    @JoinColumn(name = "todo_id")
+    private Todo todo;
 
-    private String title;
-    private String category;
-    private LocalTime startTime;
-    private LocalTime endTime;
-    private Long duration;
-    private String linkApp;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+
     private Boolean isCompleted;
 }

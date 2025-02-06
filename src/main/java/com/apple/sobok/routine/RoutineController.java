@@ -1,37 +1,23 @@
 package com.apple.sobok.routine;
 
 
-import com.apple.sobok.account.Account;
-import com.apple.sobok.account.AccountRepository;
-import com.apple.sobok.account.AccountService;
+
 import com.apple.sobok.member.Member;
-import com.apple.sobok.member.MemberRepository;
 import com.apple.sobok.member.MemberService;
-import com.apple.sobok.routine.todo.Todo;
-import com.apple.sobok.routine.todo.TodoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 
 @Controller
 @RequestMapping("/routine")
 @RequiredArgsConstructor
 public class RoutineController {
-    private final RoutineRepository routineRepository;
-    private final AccountRepository accountRepository;
-    private final TodoRepository todoRepository;
-    private final AccountService accountService;
     private final MemberService memberService;
     private final RoutineService routineService;
 
@@ -108,6 +94,12 @@ public class RoutineController {
     private ResponseEntity<?> suspendRoutine(@RequestParam Long routineId) {
         Member member = memberService.getMember();
         return routineService.suspendRoutine(member, routineId);
+    }
+
+    @PutMapping("/account")
+    private ResponseEntity<?> connectAccount(@RequestParam Long routineId, @RequestParam Long accountId) {
+        Member member = memberService.getMember();
+        return routineService.connectAccount(member, routineId, accountId);
     }
 
 

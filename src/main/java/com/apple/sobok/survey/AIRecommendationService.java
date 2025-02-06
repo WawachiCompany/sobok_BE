@@ -42,19 +42,23 @@ public class AIRecommendationService {
                         루틴 속성: %s, %s, %s
                         취향: %s
                         요청사항: %s
-                        다음과 같은 JSON 형식으로 결과를 제공해줘 (예시):
+                        다음과 같은 JSON 형식으로 결과를 제공해줘.
+                        이 때 duration의 단위는 분이야.(예시):
                         [
                           {
                             "title": "아침 운동",
                             "start_time": "06:00",
-                            "end_time": "07:00"
+                            "end_time": "07:00",
+                            "duration": "60"
                           },
                           {
                             "title": "저녁 독서",
                             "start_time": "20:00",
                             "end_time": "21:00"
+                            "duration": "60"
                           }
                         ]
+                        여기서 루틴 리스트의 키는 todos야.
                         또한 해당 루틴을 포괄하는 제목도 제공해줘. 키는 title이야.
                         응답 값을 바로 사용할 수 있도록 JSON 형식으로 제공해줘.
                         """,
@@ -71,7 +75,6 @@ public class AIRecommendationService {
     // OpenAI API 호출
     private String callOpenAiApi(String prompt) {
         RestTemplate restTemplate = new RestTemplate();
-        System.out.println("Prompt being sent to API: " + prompt); // 디버깅용 출력
         Map<String, Object> requestBody = Map.of(
                 "model", "gpt-4o-mini",
                 "messages", List.of(
@@ -98,18 +101,14 @@ public class AIRecommendationService {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(aiResponse);
-            System.out.println("AI response JSON: " + rootNode.path("choices").get(0).path("message").path("content")); // 디버깅용 출력
-
 
             // 1. content 필드 가져오기
             String content = rootNode.path("choices").get(0).path("message").path("content").asText();
 
             // 2. JSON을 Map으로 변환
-            Map<String, Object> contentMap = objectMapper.readValue(content, new TypeReference<>() {
-            });
-            System.out.println("Content Map: " + contentMap); // 디버깅용 출력
 
-            return contentMap;
+            return objectMapper.readValue(content, new TypeReference<>() {
+            });
 
         } catch (Exception e) {
             throw new RuntimeException("AI 응답 파싱 중 오류 발생: " + e.getMessage());

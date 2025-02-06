@@ -2,12 +2,20 @@ package com.apple.sobok.account;
 
 
 import com.apple.sobok.member.Member;
+import com.apple.sobok.member.MemberRepository;
 import com.apple.sobok.member.MemberService;
+import com.apple.sobok.member.point.PointLog;
+import com.apple.sobok.member.point.PointLogRepository;
 import com.apple.sobok.routine.Routine;
 import com.apple.sobok.routine.RoutineDto;
+import com.apple.sobok.routine.RoutineRepository;
+import com.apple.sobok.routine.RoutineService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,21 +31,30 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final AccountLogRepository accountLogRepository;
+    private final PointLogRepository pointLogRepository;
+    private final MemberRepository memberRepository;
+    private final RoutineRepository routineRepository;
+    private final MemberService memberService;
 
+    @PersistenceContext
+    private final EntityManager entityManager;
+
+    @Transactional
     public void createAccount(AccountDto accountDto, Member member) {
+        member = entityManager.merge(member);
         Account account = new Account();
         account.setMember(member);
         account.setTitle(accountDto.getTitle());
-        account.setTarget(accountDto.getTarget());
-        account.setIsPublic(accountDto.getIsPublic());
+//        account.setTarget(accountDto.getTarget());
+//        account.setIsPublic(accountDto.getIsPublic());
         account.setTime(accountDto.getTime());
         account.setDuration(accountDto.getDuration());
         account.setBalance(0);
         account.setIsExpired(false);
         account.setCreatedAt(LocalDate.now());
         account.setIsValid(false);
-        account.setInterest(3.14f); // 이율 계산 필요
-        account.setInterestBalance(0L);
+        account.setInterest(calculateInitialInterest(account)); // 이율 계산 필요
+        account.setInterestBalance(0);
         account.setExpiredAt(LocalDate.now().plusMonths(accountDto.getDuration()));
         account.setUpdatedAt(LocalDateTime.now());
         accountRepository.save(account);
@@ -48,8 +65,8 @@ public class AccountService {
             AccountDto dto = new AccountDto();
             dto.setId(account.getId());
             dto.setTitle(account.getTitle());
-            dto.setTarget(account.getTarget());
-            dto.setIsPublic(account.getIsPublic());
+//            dto.setTarget(account.getTarget());
+//            dto.setIsPublic(account.getIsPublic());
             dto.setTime(account.getTime());
             dto.setDuration(account.getDuration());
             dto.setIsValid(account.getIsValid());
@@ -60,14 +77,10 @@ public class AccountService {
     }
 
     public Map<String, Object> getAccountDetails(Member member, Long accountId) {
-        Optional<Account> result = accountRepository.findByMemberAndId(member, accountId);
-        if (result.isEmpty()) {
-            throw new IllegalArgumentException("적금을 찾을 수 없습니다.");
-        }
-        Account account = result.get();
+        Account account = accountRepository.findByMemberAndId(member, accountId);
         Map<String, Object> response = new HashMap<>();
         response.put("title", account.getTitle());    // 적금 제목
-        response.put("target", account.getTarget());    // 적금 목표 금액
+//        response.put("target", account.getTarget());    // 적금 목표
         response.put("balance", account.getBalance());    // 현재 잔액
         response.put("time", account.getTime());    // 저금 시간
         response.put("duration", account.getDuration());    // 적금 기간
@@ -84,31 +97,75 @@ public class AccountService {
         return response;
     }
 
-    public void deleteAccount(Member member, Long accountId) {
-        Optional<Account> result = accountRepository.findByMemberAndId(member, accountId);
-        if (result.isEmpty()) {
-            throw new IllegalArgumentException("적금을 찾을 수 없습니다.");
+    @Transactional
+    public void deleteAccount(Long accountId) {
+
+        Member member = memberService.getMember();
+
+        Account account = accountRepository.findById(accountId).orElseThrow(
+                () -> new IllegalArgumentException("해당 적금을 찾을 수 없습니다."));
+
+        // 적금 시작일과 만기일을 전체로 봤을 때 적금을 삭제하는 시점까지의 비율 계산
+        LocalDate startDate = account.getCreatedAt();
+        LocalDate endDate = account.getExpiredAt();
+        LocalDate now = LocalDate.now();
+        long totalDays = java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate);
+        long daysPassed = java.time.temporal.ChronoUnit.DAYS.between(startDate, now);
+        float ratio = (float) daysPassed / totalDays;
+
+        // 이자 지급
+        member.setPoint(member.getPoint() + Math.round(account.getInterestBalance() * ratio));
+        memberRepository.save(member);
+
+        if(Math.round(account.getInterestBalance() * ratio) != 0) {
+            PointLog pointLog = new PointLog();
+            pointLog.setMember(member);
+            pointLog.setPoint(Math.round(account.getInterestBalance() * ratio));
+            pointLog.setBalance(member.getPoint() + pointLog.getPoint());
+            pointLog.setCategory("적금 해지 이자 지급");
+            pointLog.setCreatedAt(LocalDateTime.now());
+            pointLogRepository.save(pointLog);
         }
-        Account account = result.get();
+
+        // 적금에 연결된 루틴 모두 종료 처리 및 적금 연결 해제
+        List<Routine> routines = account.getRoutines();
+        if(!routines.isEmpty()) {
+            for (Routine routine : routines) {
+                routine.setIsEnded(true);
+                routine.setAccount(null);
+            }
+            routineRepository.saveAll(routines);
+        }
+
+
+        // 적금 로그 삭제
+        accountLogRepository.deleteAllByAccount(account);
+
+        // 멤버의 accounts 리스트에서도 적금 제거
+        member.getAccounts().remove(account);
+        memberRepository.save(member);
+
+
+        // 멤버와 적금 연결 해제
+        account.setMember(null);
+        accountRepository.save(account);
+
+
+        // 적금 삭제
         accountRepository.delete(account);
     }
 
     public Account updateAccount(Member member, Long accountId, AccountDto accountDto) {
-        Optional<Account> result = accountRepository.findByMemberAndId(member, accountId);
-        if (result.isEmpty()) {
-            throw new IllegalArgumentException("적금을 찾을 수 없습니다.");
-        }
-
-        Account account = result.get();
+        Account account = accountRepository.findByMemberAndId(member, accountId);
         if (accountDto.getTitle() != null) {
             account.setTitle(accountDto.getTitle());
         }
-        if (accountDto.getTarget() != null) {
-            account.setTarget(accountDto.getTarget());
-        }
-        if (accountDto.getIsPublic() != null) {
-            account.setIsPublic(accountDto.getIsPublic());
-        }
+//        if (accountDto.getTarget() != null) {
+//            account.setTarget(accountDto.getTarget());
+//        }
+//        if (accountDto.getIsPublic() != null) {
+//            account.setIsPublic(accountDto.getIsPublic());
+//        }
         if (accountDto.getTime() != null) {
             account.setTime(accountDto.getTime());
         }
@@ -120,12 +177,8 @@ public class AccountService {
         return account;
     }
 
-    public Map<String, Object> depositAccount(Member member, Long accountId, Integer amount) {
-        Optional<Account> result = accountRepository.findByMemberAndId(member, accountId);
-        if (result.isEmpty()) {
-            throw new IllegalArgumentException("적금을 찾을 수 없습니다.");
-        }
-        Account account = result.get();
+    public ResponseEntity<?> depositAccount(Member member, Long accountId, Integer amount) {
+        Account account = accountRepository.findByMemberAndId(member, accountId);
         account.setBalance(account.getBalance() + amount);
         accountRepository.save(account);
 
@@ -133,14 +186,14 @@ public class AccountService {
         AccountLog accountLog = new AccountLog();
         accountLog.setAccount(account);
         accountLog.setDepositTime(amount);
-        accountLog.setCreatedAt(LocalDateTime.now().minusMonths(1));
+        accountLog.setCreatedAt(LocalDateTime.now());
         accountLogRepository.save(accountLog);
 
         Map<String, Object> response = new HashMap<>();
         response.put("account_id", account.getId());
         response.put("balance", account.getBalance());
         response.put("message", "적금 입금 완료");
-        return response;
+        return ResponseEntity.ok(response);
     }
 
     public void validateAccount(Account account) {
@@ -156,6 +209,22 @@ public class AccountService {
         else {
             account.setIsValid(false);
             accountRepository.save(account);
+        }
+    }
+
+    public float calculateInitialInterest(Account account) {
+        Integer time = account.getTime();
+        if(time < 600) {
+            return 3f;
+        }
+        else if(time < 1200) {
+            return 4f;
+        }
+        else if(time < 2400) {
+            return 5f;
+        }
+        else {
+            return 7f;
         }
     }
 

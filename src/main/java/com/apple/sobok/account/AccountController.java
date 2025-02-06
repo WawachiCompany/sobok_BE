@@ -40,6 +40,10 @@ public class AccountController {
 
             accountService.createAccount(accountDto, member);
 
+            // 적금 생성 후 구독권 가격 계산
+            member.setPremiumPrice(memberService.calculatePremiumPrice(member));
+            memberRepository.save(member);
+
             Map<String, Object> response = new HashMap<>();
             response.put("timestamp", LocalDateTime.now());
             response.put("message", "적금 생성 완료");
@@ -101,9 +105,14 @@ public class AccountController {
         try {
             Member member = memberService.getMember();
 
-            List<Account> result = accountRepository.findByMemberAndIsValid(member, true);
-            List<AccountDto> accountList = accountService.getAccountList(result);
+            List<Account> result = accountRepository.findByMemberAndIsValidAndIsExpired(member, true, false);
 
+            if(result.isEmpty()) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "활성화된 적금이 없습니다.");
+                return ResponseEntity.ok(response);
+            }
+            List<AccountDto> accountList = accountService.getAccountList(result);
             Map<String, Object> response = new HashMap<>();
             response.put("account_list", accountList);
             response.put("message", "활성화된 적금 조회 성공");
@@ -122,9 +131,13 @@ public class AccountController {
         try {
             Member member = memberService.getMember();
 
-            List<Account> result = accountRepository.findByMemberAndIsValid(member, false);
+            List<Account> result = accountRepository.findByMemberAndIsValidAndIsExpired(member, false, false);
+            if(result.isEmpty()) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "비활성화된 적금이 없습니다.");
+                return ResponseEntity.ok(response);
+            }
             List<AccountDto> accountList = accountService.getAccountList(result);
-
             Map<String, Object> response = new HashMap<>();
             response.put("account_list", accountList);
             response.put("message", "비활성화된 적금 조회 성공");
@@ -157,9 +170,14 @@ public class AccountController {
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteAccount(@RequestParam Long accountId) {
         try {
+
+           accountService.deleteAccount(accountId);
+
             Member member = memberService.getMember();
 
-           accountService.deleteAccount(member, accountId);
+            // 적금 삭제 후 구독권 가격 계산
+            member.setPremiumPrice(memberService.calculatePremiumPrice(member));
+            memberRepository.save(member);
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "적금 삭제 성공");
@@ -180,6 +198,10 @@ public class AccountController {
 
             Account account = accountService.updateAccount(member, accountId, accountDto);
 
+            // 적금 수정 후 구독권 가격 계산
+            member.setPremiumPrice(memberService.calculatePremiumPrice(member));
+            memberRepository.save(member);
+
             Map<String, Object> response = new HashMap<>();
             response.put("account_id", account.getId());
             response.put("timestamp", account.getUpdatedAt());
@@ -198,10 +220,7 @@ public class AccountController {
     public ResponseEntity<?> depositAccount(@RequestParam Long accountId, @RequestParam Integer amount) {
         try {
             Member member = memberService.getMember();
-
-            Map<String, Object> response = accountService.depositAccount(member, accountId, amount);
-            return ResponseEntity.ok(response);
-
+            return accountService.depositAccount(member, accountId, amount);
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("timestamp", LocalDateTime.now());
