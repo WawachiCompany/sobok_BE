@@ -1,6 +1,6 @@
 package com.apple.sobok.routine.todo;
 
-import com.apple.sobok.routine.Routine;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

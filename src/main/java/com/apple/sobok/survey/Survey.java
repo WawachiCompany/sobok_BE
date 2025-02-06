@@ -2,7 +2,6 @@ package com.apple.sobok.survey;
 
 
 import com.apple.sobok.member.Member;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

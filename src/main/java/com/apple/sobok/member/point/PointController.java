@@ -1,14 +1,11 @@
 package com.apple.sobok.member.point;
 
 import com.apple.sobok.member.Member;
-import com.apple.sobok.member.MemberRepository;
 import com.apple.sobok.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
