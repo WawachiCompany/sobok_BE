@@ -42,7 +42,7 @@ jobs:
         run: |
           aws elasticbeanstalk create-application-version --application-name sobok-app \
           --version-label v${{ github.run_number }} \
-          --source-bundle S3Bucket="elasticbeanstalk-ap-northeast-2",S3Key="sobok-app-v${{ github.run_number }}.zip"
+          --source-bundle S3Bucket="elasticbeanstalk-ap-northeast-2-140023384172",S3Key="sobok-app-v${{ github.run_number }}.zip"
 
       # 6. Elastic Beanstalk 환경에 배포 (멀티 컨테이너 설정 제거)
       - name: Deploy to Elastic Beanstalk (Single Container)
