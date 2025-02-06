@@ -20,7 +20,7 @@ jobs:
 
       # 2. OIDC를 사용하여 AWS 로그인 (IAM 역할 사용)
       - name: Configure AWS credentials using OIDC
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v3
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
