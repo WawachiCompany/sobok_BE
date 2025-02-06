@@ -25,6 +25,10 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      # 3️⃣ Build the JAR file
+      - name: Build JAR file
+        run: ./gradlew clean build
+
       # 3️⃣ Docker 이미지 빌드 & Docker Hub에 푸시
       - name: Build and push Docker image
         run: |
@@ -36,6 +40,6 @@ jobs:
       - name: Deploy to Elastic Beanstalk (Single Container)
         run: |
           aws elasticbeanstalk update-environment --application-name sobok-app \
-          --environment-name sobok-env \
+          --environment-name sobok-app-env \
           --version-label v${{ github.run_number }} \
           --option-settings file://.ebextensions/options.config
