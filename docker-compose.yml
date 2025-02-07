@@ -23,6 +23,7 @@ services:
       COOLSMS_API_KEY: ${COOLSMS_API_KEY}
       COOLSMS_API_SECRET: ${COOLSMS_API_SECRET}
       COOLSMS_API_FROM: ${COOLSMS_API_FROM}
+      DOCKER_ENV: "true"
 #    depends_on:
 #      - mysql
 #      - redis
