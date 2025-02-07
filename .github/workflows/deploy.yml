@@ -32,9 +32,9 @@ jobs:
       # 4. Docker 이미지 빌드 & Docker Hub에 푸시
       - name: Build and push Docker image
         run: |
-          docker build -t hjkim4842/sobok-app:latest .
+          docker build -t hjkim4842/sobok:latest .
           echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
-          docker push hjkim4842/sobok-app:latest
+          docker push hjkim4842/sobok:latest
           docker logout # 로그아웃
 
       # 5-1. 고유한 버전 라벨 생성 (중복 방지)
@@ -44,19 +44,19 @@ jobs:
       # 5-2. 애플리케이션 패키지 압축 및 업로드
       - name: Upload application package to S3
         run: |
-          zip -r sobok-app-v${{ github.run_number }}.zip .
-          aws s3 cp sobok-app-v${{ github.run_number }}.zip s3://elasticbeanstalk-ap-northeast-2-140023384172/
+          zip -r sobok-v${{ github.run_number }}.zip .
+          aws s3 cp sobok-v${{ github.run_number }}.zip s3://elasticbeanstalk-ap-northeast-2-140023384172/
 
       # 5-3. Elastic Beanstalk 애플리케이션 버전 생성
       - name: Create new Elastic Beanstalk application version
         run: |
-          aws elasticbeanstalk create-application-version --application-name sobok-app \
+          aws elasticbeanstalk create-application-version --application-name sobok \
           --version-label v${{ env.VERSION_LABEL }} \
-          --source-bundle S3Bucket="elasticbeanstalk-ap-northeast-2-140023384172",S3Key="sobok-app-v${{ github.run_number }}.zip"
+          --source-bundle S3Bucket="elasticbeanstalk-ap-northeast-2-140023384172",S3Key="sobok-v${{ github.run_number }}.zip"
 
       # 6. Elastic Beanstalk 환경에 배포 (멀티 컨테이너 설정 제거)
       - name: Deploy to Elastic Beanstalk (Single Container)
         run: |
-          aws elasticbeanstalk update-environment --application-name sobok-app \
-          --environment-name sobok-app-env \
+          aws elasticbeanstalk update-environment --application-name sobok \
+          --environment-name sobok-env \
           --version-label v${{ env.VERSION_LABEL }} \
