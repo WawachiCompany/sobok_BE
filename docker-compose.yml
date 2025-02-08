@@ -7,7 +7,7 @@ services:
     depends_on:
       - spring-boot-app
     networks:
-      - backend
+      - app-network
   spring-boot-app:
     build:
         context: .
@@ -17,7 +17,7 @@ services:
     expose:
       - "8080"
     networks:
-      - backend
+      - app-network
     env_file:
       - .env
     environment:
@@ -36,5 +36,5 @@ services:
       COOLSMS_API_FROM: ${COOLSMS_API_FROM}
       DOCKER_ENV: "true"
 networks:
-    backend:
+    app-network:
         driver: bridge
