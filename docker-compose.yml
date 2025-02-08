@@ -5,12 +5,10 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - spring-boot-app
+      - app
     networks:
-      - app-network
-    volumes:
-      - ./nginx/custom-nginx.conf:/etc/nginx/conf.d/default.conf:ro # Read-only
-  spring-boot-app:
+      - backend
+  app:
     build:
         context: .
         args:
@@ -19,7 +17,7 @@ services:
     expose:
       - "8080"
     networks:
-      - app-network
+      - backend
     env_file:
       - .env
     environment:
@@ -38,5 +36,5 @@ services:
       COOLSMS_API_FROM: ${COOLSMS_API_FROM}
       DOCKER_ENV: "true"
 networks:
-    app-network:
+    backend:
         driver: bridge
