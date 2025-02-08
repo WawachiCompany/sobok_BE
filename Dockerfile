@@ -11,5 +11,8 @@ COPY build/libs/*.jar app.jar
 ARG SPRING_PROFILES_ACTIVE
 ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
 
+# Nginx 설정 파일을 컨테이너 내부로 복사
+COPY nginx/custom-nginx.conf /etc/nginx/conf.d/default.conf
+
 # 5. 애플리케이션 실행
 CMD ["java", "-jar", "-Dspring.profiles.active=prod", "-Xms256m", "-Xmx512m", "app.jar"]
