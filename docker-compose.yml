@@ -5,12 +5,12 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - app
+      - spring-boot-app
     networks:
-      - backend
+      - app-network
     volumes:
       - ./nginx/custom-nginx.conf:/etc/nginx/conf.d/default.conf:ro # Read-only
-  app:
+  spring-boot-app:
     build:
         context: .
         args:
