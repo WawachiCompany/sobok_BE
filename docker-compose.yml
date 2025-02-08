@@ -5,10 +5,10 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - app
+      - spring-boot-app
     networks:
       - backend
-  app:
+  spring-boot-app:
     build:
         context: .
         args:
