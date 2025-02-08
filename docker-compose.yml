@@ -19,7 +19,7 @@ services:
     expose:
       - "8080"
     networks:
-      - backend
+      - app-network
     env_file:
       - .env
     environment:
@@ -38,5 +38,5 @@ services:
       COOLSMS_API_FROM: ${COOLSMS_API_FROM}
       DOCKER_ENV: "true"
 networks:
-    backend:
+    app-network:
         driver: bridge
