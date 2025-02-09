@@ -1,5 +1,6 @@
 package com.apple.sobok.sms;
 
+import com.apple.sobok.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -11,12 +12,18 @@ import org.springframework.web.bind.annotation.*;
 public class SmsController {
 
     private final SmsService smsService;
+    private final MemberService memberService;
 
 
     @PostMapping("/send")
     public ResponseEntity<String> sendSms(@Validated @RequestBody SmsRequestDto requestDto) {
 
         try {
+            String phoneNumber = requestDto.getPhoneNumber();
+            boolean isDuplicated = memberService.isPhoneNumberDuplicated(phoneNumber);
+            if (isDuplicated) {
+                return ResponseEntity.badRequest().body("이미 가입된 전화번호입니다.");
+            }
             smsService.sendSms(requestDto.getPhoneNumber());
             return ResponseEntity.ok("인증번호 전송 성공");
         } catch (Exception e) {

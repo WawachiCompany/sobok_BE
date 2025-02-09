@@ -55,3 +55,9 @@ coolsms:
   apiKey: ${COOLSMS_API_KEY}
   apiSecret: ${COOLSMS_API_SECRET}
   apiFrom: ${COOLSMS_API_FROM}
+server:
+  forward-headers-strategy: framework
+  tomcat:
+    remoteip:
+      remote-ip-header: x-forwarded-for
+      protocol-header: x-forwarded-proto
