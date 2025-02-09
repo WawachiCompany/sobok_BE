@@ -39,19 +39,8 @@ public class MemberController {
             member.setPassword(passwordEncoder.encode(memberDto.getPassword())); // 비밀번호 암호화
             member.setName(memberDto.getName());
             member.setDisplayName(memberDto.getDisplayName());
-
-            if (memberService.isEmailDuplicated(memberDto.getEmail())) {
-                throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
-            } else {
-                member.setEmail(memberDto.getEmail());
-            }
-
-            if (memberService.isPhoneNumberDuplicated(memberDto.getPhoneNumber())) {
-                throw new IllegalArgumentException("이미 사용중인 전화번호입니다.");
-            } else {
-                member.setPhoneNumber(memberDto.getPhoneNumber());
-            }
-
+            member.setEmail(memberDto.getEmail());
+            member.setPhoneNumber(memberDto.getPhoneNumber());
             member.setBirth(memberDto.getBirth());
             member.setPoint(0);
             member.setCreatedAt(LocalDateTime.now());
@@ -75,6 +64,27 @@ public class MemberController {
             response.put("message", "회원가입 실패: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
+    }
+
+    @GetMapping("/is-duplicated/email")
+    public ResponseEntity<Map<String, Object>> isEmailDuplicated(@RequestParam String email) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("isDuplicated", memberService.isEmailDuplicated(email));
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/is-duplicated/phone-number")
+    public ResponseEntity<Map<String, Object>> isPhoneNumberDuplicated(@RequestParam String phoneNumber) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("isDuplicated", memberService.isPhoneNumberDuplicated(phoneNumber));
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/is-duplicated/username")
+    public ResponseEntity<Map<String, Object>> isUsernameDuplicated(@RequestParam String username) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("isDuplicated", memberService.isUsernameDuplicated(username));
+        return ResponseEntity.ok(response);
     }
 
 

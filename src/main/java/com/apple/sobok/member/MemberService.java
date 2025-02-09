@@ -32,6 +32,10 @@ public class MemberService {
         return memberRepository.existsByPhoneNumber(phoneNumber);
     }
 
+    public boolean isUsernameDuplicated(String username) {
+        return memberRepository.existsByUsername(username);
+    }
+
     public Optional<Member> findByEmail(String email) {
         return memberRepository.findByEmail(email);
     }
