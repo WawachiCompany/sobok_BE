@@ -87,6 +87,13 @@ public class MemberController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/is-duplicated/display-name")
+    public ResponseEntity<Map<String, Object>> isDisplayNameDuplicated(@RequestParam String displayName) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("isDuplicated", memberService.isDisplayNameDuplicated(displayName));
+        return ResponseEntity.ok(response);
+    }
+
 
     @GetMapping("/login")
     public String login() {

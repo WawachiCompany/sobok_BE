@@ -36,6 +36,10 @@ public class MemberService {
         return memberRepository.existsByUsername(username);
     }
 
+    public boolean isDisplayNameDuplicated(String displayName) {
+        return memberRepository.existsByDisplayName(displayName);
+    }
+
     public Optional<Member> findByEmail(String email) {
         return memberRepository.findByEmail(email);
     }
