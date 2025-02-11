@@ -6,10 +6,7 @@ import com.apple.sobok.member.MemberRepository;
 import com.apple.sobok.member.MemberService;
 import com.apple.sobok.member.point.PointLog;
 import com.apple.sobok.member.point.PointLogRepository;
-import com.apple.sobok.routine.Routine;
-import com.apple.sobok.routine.RoutineDto;
-import com.apple.sobok.routine.RoutineRepository;
-import com.apple.sobok.routine.RoutineService;
+import com.apple.sobok.routine.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +19,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -87,11 +83,16 @@ public class AccountService {
         response.put("is_expired", account.getIsExpired());    // 만기 여부
         response.put("is_valid", account.getIsValid());    // 활성화 여부
         response.put("interest", account.getInterest());    // 이율
+        response.put("created_at", account.getCreatedAt());    // 생성일
         response.put("expired_at", account.getExpiredAt());    // 만기일
         response.put("routines", account.getRoutines().stream().map(routine -> {
-            RoutineDto routineDto = new RoutineDto();
-            routineDto.setTitle(routine.getTitle());
-            return routineDto;
+            RoutineAccountDto routineAccountDto = new RoutineAccountDto();
+            routineAccountDto.setTitle(routine.getTitle());
+            routineAccountDto.setId(routine.getId());
+            routineAccountDto.setStartTime(routine.getStartTime());
+            routineAccountDto.setEndTime(routine.getEndTime());
+            routineAccountDto.setDuration(routine.getDuration());
+            return routineAccountDto;
         }).collect(Collectors.toList()));    // 루틴 목록(제목만 가져옴)
         response.put("message", "적금 상세 조회 성공");
         return response;
@@ -186,6 +187,7 @@ public class AccountService {
         AccountLog accountLog = new AccountLog();
         accountLog.setAccount(account);
         accountLog.setDepositTime(amount);
+        accountLog.setBalance(account.getBalance());
         accountLog.setCreatedAt(LocalDateTime.now());
         accountLogRepository.save(accountLog);
 
@@ -226,6 +228,25 @@ public class AccountService {
         else {
             return 7f;
         }
+    }
+
+    public ResponseEntity<?> getAccountLog(Account account, LocalDateTime start, LocalDateTime end) {
+        Map<String, Object> response = new HashMap<>();
+        List<AccountLog> accountLogs = accountLogRepository.findByAccountAndCreatedAtBetween(account, start, end);
+
+        // AccountLogDto로 변환(account 데이터 제거)
+        List<AccountLogDto> accountLogDtos = accountLogs.stream().map(log -> {
+            AccountLogDto dto = new AccountLogDto();
+            dto.setId(log.getId());
+            dto.setDepositTime(log.getDepositTime());
+            dto.setBalance(log.getBalance());
+            dto.setCreatedAt(log.getCreatedAt());
+            return dto;
+        }).toList();
+
+        response.put("account_logs", accountLogDtos);
+        response.put("message", "적금 로그 조회 성공");
+        return ResponseEntity.ok(response);
     }
 
 }

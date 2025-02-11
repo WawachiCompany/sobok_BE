@@ -11,7 +11,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -225,6 +228,36 @@ public class AccountController {
             Map<String, Object> response = new HashMap<>();
             response.put("timestamp", LocalDateTime.now());
             response.put("message", "적금 입금 실패: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+
+    @GetMapping("/log")
+    public ResponseEntity<?> getAccountLog(@RequestParam Long accountId, @RequestParam(required = false) String startDate, @RequestParam(required = false) String endDate) {
+        try {
+            Member member = memberService.getMember();
+            LocalDateTime start;
+            LocalDateTime end;
+            // 시작일과 종료일이 없으면 이번 달의 시작일과 종료일로 설정
+            if(startDate == null || endDate == null) {
+                LocalDate now = LocalDate.now();
+                start = now.with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay();
+                end = now.with(TemporalAdjusters.lastDayOfMonth()).atTime(23, 59, 59);
+            }
+            else{
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDate startLocalDate = LocalDate.parse(startDate, formatter);
+                LocalDate endLocalDate = LocalDate.parse(endDate, formatter);
+
+                start = startLocalDate.atStartOfDay();
+                end = endLocalDate.atTime(23, 59, 59);
+            }
+            Account account = accountRepository.findByMemberAndId(member, accountId);
+            return accountService.getAccountLog(account, start, end);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "적금 내역 조회 실패: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }

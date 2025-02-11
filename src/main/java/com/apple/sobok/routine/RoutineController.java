@@ -67,8 +67,8 @@ public class RoutineController {
 
     @GetMapping("/detail")
     public ResponseEntity<?> getRoutine(@RequestParam Long routineId) {
-        Member member = memberService.getMember();
-        return routineService.getRoutine(member, routineId);
+//        Member member = memberService.getMember();
+        return routineService.getRoutine(routineId);
     }
 
 

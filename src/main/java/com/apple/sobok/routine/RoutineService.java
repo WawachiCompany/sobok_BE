@@ -207,8 +207,8 @@ public class RoutineService {
         );
     }
 
-    public ResponseEntity<?> getRoutine(Member member, Long routineId) {
-        var result = routineRepository.findByMemberAndId(member, routineId);
+    public ResponseEntity<?> getRoutine(Long routineId) {
+        var result = routineRepository.findById(routineId);
         if (result.isPresent()) {
             return ResponseEntity.ok(convertToMap(result.get()));
         }
