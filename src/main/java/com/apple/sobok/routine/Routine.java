@@ -51,7 +51,7 @@ public class Routine {
 
     private Boolean isEnded; // 종료 여부(적금 만기 또는 삭제)
 
-    @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     List<Todo> todos = new ArrayList<>();
 }
 
