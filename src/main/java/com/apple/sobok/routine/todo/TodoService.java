@@ -83,6 +83,7 @@ public class TodoService {
             Integer depositTime = (int) Duration.between(todoLog.getStartTime(), todoLog.getEndTime()).toMinutes();
             accountService.depositAccount(member, accountId, depositTime);
 
+
             todoLogRepository.save(todoLog); // 로그인 안 한 상태에서 할 일 완료 시 로그 저장 방지 위해 memberService 다음으로 위치
 
             if(!routine.getIsAchieved()) {

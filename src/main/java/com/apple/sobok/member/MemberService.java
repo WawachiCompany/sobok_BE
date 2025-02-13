@@ -56,6 +56,7 @@ public class MemberService {
         response.put("phoneNumber", member.getPhoneNumber());
         response.put("birth", member.getBirth());
         response.put("isPremium", member.getIsPremium());
+        response.put("totalAchievedTime", member.getTotalAchievedTime());
         if(member.getIsPremium()) {
             Premium premium = premiumRepository.findByMember(member)
                     .orElseThrow(() -> new IllegalArgumentException("프리미엄 정보를 찾을 수 없습니다."));
