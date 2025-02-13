@@ -18,6 +18,7 @@ public class PremiumExpirationScheduler {
         List<Premium> premiums = premiumRepository.findAll();
         for (Premium premium : premiums) {
             if (premium.getEndAt().isBefore(today)) {
+                premium.getMember().setIsPremium(false);
                 premiumRepository.delete(premium);
             }
         }

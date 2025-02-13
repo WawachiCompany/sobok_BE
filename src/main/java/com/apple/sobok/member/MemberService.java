@@ -45,22 +45,23 @@ public class MemberService {
     }
 
     // MemberController에서 유저 정보 조회
-    public Map<String, Object> getUserInfo(MyUserDetailsService.CustomUser user) {
-
-        System.out.println(user);
-        var result = memberRepository.findByUsername(user.getUsername());
+    public Map<String, Object> getUserInfo(Member member) {
         Map<String, Object> response = new HashMap<>();
-        result.ifPresent(member -> {
-            response.put("username", member.getUsername());
-            response.put("id", member.getId());
-            response.put("name", member.getName());
-            response.put("displayName", member.getDisplayName());
-            response.put("point", member.getPoint());
-            response.put("email", member.getEmail());
-            response.put("phoneNumber", member.getPhoneNumber());
-            response.put("birth", member.getBirth());
-            response.put("message", "유저 정보 조회 성공");
-        });
+        response.put("username", member.getUsername());
+        response.put("id", member.getId());
+        response.put("name", member.getName());
+        response.put("displayName", member.getDisplayName());
+        response.put("point", member.getPoint());
+        response.put("email", member.getEmail());
+        response.put("phoneNumber", member.getPhoneNumber());
+        response.put("birth", member.getBirth());
+        response.put("isPremium", member.getIsPremium());
+        if(member.getIsPremium()) {
+            Premium premium = premiumRepository.findByMember(member)
+                    .orElseThrow(() -> new IllegalArgumentException("프리미엄 정보를 찾을 수 없습니다."));
+            response.put("premiumEndAt", premium.getEndAt());
+        }
+        response.put("message", "유저 정보 조회 성공");
         return response;
     }
 
@@ -134,7 +135,10 @@ public class MemberService {
         pointLog.setBalance(point - premiumPrice);
         pointLog.setCategory("구독권 구매");
         pointLog.setCreatedAt(LocalDateTime.now());
+
         member.setPoint(point - premiumPrice);
+        member.setIsPremium(true);
+
         Premium premium = premiumRepository.findByMember(member)
                 .orElseGet(() -> {
                     Premium newPremium = new Premium();

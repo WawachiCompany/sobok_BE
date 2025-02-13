@@ -135,10 +135,9 @@ public class MemberController {
 
     @GetMapping("/info")
     public ResponseEntity<Map<String, Object>> info() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        var user = (MyUserDetailsService.CustomUser) auth.getPrincipal();
         try {
-            Map<String, Object> response = memberService.getUserInfo(user);
+            Member member = memberService.getMember();
+            Map<String, Object> response = memberService.getUserInfo(member);
 
             return ResponseEntity.ok(response);
 
