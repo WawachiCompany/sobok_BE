@@ -178,7 +178,7 @@ public class RoutineService {
         return Map.of(
                 "id", routine.getId(),
                 "title", routine.getTitle(),
-                "accountTitle", routine.getAccount().getTitle(),
+                "accountTitle", routine.getAccount() != null ? routine.getAccount().getTitle() : "",
                 "startTime", routine.getStartTime(),
                 "endTime", routine.getEndTime(),
                 "duration", routine.getDuration()
@@ -201,7 +201,7 @@ public class RoutineService {
         return Map.of(
                 "id", routine.getId(),
                 "title", routine.getTitle(),
-                "accountTitle", routine.getAccount().getTitle(),
+                "accountTitle", routine.getAccount() != null ? routine.getAccount().getTitle() : "",
                 "duration", routine.getDuration(),
                 "isSuspended", routine.getIsSuspended()
         );
@@ -218,7 +218,7 @@ public class RoutineService {
     private Map<String, Object> convertToMap(Routine routine) {
         Map<String, Object> response = new HashMap<>();
         response.put("id", routine.getId());
-        response.put("accountTitle", routine.getAccount().getTitle());
+        response.put("accountTitle", routine.getAccount() != null ? routine.getAccount().getTitle() : "");
         response.put("title", routine.getTitle());
         response.put("days", routine.getDays());
         response.put("startTime", routine.getStartTime());

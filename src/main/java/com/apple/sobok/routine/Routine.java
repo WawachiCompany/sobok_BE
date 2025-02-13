@@ -24,7 +24,7 @@ public class Routine {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "account_id", nullable = true)
+    @JoinColumn(name = "account_id")
     @JsonBackReference
     private Account account;
 
