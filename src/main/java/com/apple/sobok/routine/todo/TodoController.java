@@ -16,13 +16,13 @@ public class TodoController {
     private final TodoService todoService;
 
     @PostMapping("/start")
-    public void startTodo(@RequestParam Long todoId) {
-        todoService.startTodo(todoId);
+    public ResponseEntity<?> startTodo(@RequestParam Long todoId) {
+        return todoService.startTodo(todoId);
     }
 
     @PostMapping("/end")
-    public void endTodo(@RequestParam Long todoLogId) {
-        todoService.endTodo(todoLogId);
+    public ResponseEntity<?> endTodo(@RequestParam Long todoId) {
+        return todoService.endTodo(todoId);
     }
 
     @GetMapping("/category")

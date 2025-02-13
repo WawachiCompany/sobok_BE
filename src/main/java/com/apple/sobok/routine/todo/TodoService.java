@@ -31,60 +31,78 @@ public class TodoService {
     private final MemberService memberService;
 
 
-    public void startTodo(Long todoId) {
-        Todo todo = todoRepository.findById(todoId).orElseThrow(
-                () -> new IllegalArgumentException("해당 ID의 할 일이 존재하지 않습니다."));
+    public ResponseEntity<?> startTodo(Long todoId) {
+        try {
+            Todo todo = todoRepository.findById(todoId).orElseThrow(
+                    () -> new IllegalArgumentException("해당 ID의 할 일이 존재하지 않습니다."));
 
-        TodoLog todoLog = new TodoLog();
-        todoLog.setTodo(todo);
-        todoLog.setStartTime(LocalDateTime.now());
-        todoLog.setIsCompleted(false);
-        todoLogRepository.save(todoLog);
+            TodoLog todoLog = new TodoLog();
+            todoLog.setTodo(todo);
+            todoLog.setStartTime(LocalDateTime.now());
+            todoLog.setIsCompleted(false);
+            todoLogRepository.save(todoLog);
 
-        List<Todo> relatedTodos = todo.getRoutine().getTodos();
-        boolean isFirstTodo = relatedTodos.getFirst().getId().equals(todoId);
+            List<Todo> relatedTodos = todo.getRoutine().getTodos();
+            boolean isFirstTodo = relatedTodos.getFirst().getId().equals(todoId);
 
-        // 첫 할 일인 경우 루틴 로그 생성
-        if(isFirstTodo) {
-            RoutineLog routineLog = new RoutineLog();
-            routineLog.setRoutine(todo.getRoutine());
-            routineLog.setStartTime(LocalDateTime.now());
-            routineLog.setIsCompleted(false);
-            routineLogRepository.save(routineLog);
+            // 첫 할 일인 경우 루틴 로그 생성
+            if(isFirstTodo) {
+                RoutineLog routineLog = new RoutineLog();
+                routineLog.setRoutine(todo.getRoutine());
+                routineLog.setStartTime(LocalDateTime.now());
+                routineLog.setIsCompleted(false);
+                routineLogRepository.save(routineLog);
+            }
+            return ResponseEntity.ok(Map.of(
+                    "message", "할 일이 시작되었습니다.",
+                    "todoLogId", todoLog.getId()));
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "할 일 시작에 실패했습니다: " + e.getMessage()));
         }
 
     }
 
-    public void endTodo(Long todoLogId) {
-        TodoLog todoLog = todoLogRepository.findById(todoLogId).orElseThrow(
-                () -> new IllegalArgumentException("해당 ID의 할 일 로그가 존재하지 않습니다."));
-        todoLog.setEndTime(LocalDateTime.now());
-        todoLog.setIsCompleted(true);
-        todoLogRepository.save(todoLog);
+    public ResponseEntity<?> endTodo(Long todoId) {
+        try {
+            Todo todo = todoRepository.findById(todoId).orElseThrow(
+                    () -> new IllegalArgumentException("해당 ID의 할 일이 존재하지 않습니다."));
 
-        Todo todo = todoLog.getTodo();
-        Routine routine = todo.getRoutine();
+            TodoLog todoLog = todoLogRepository.findByTodoAndIsCompleted(todo, false).orElseThrow(
+                    () -> new IllegalArgumentException("해당 ID의 할 일 로그가 존재하지 않습니다."));
 
-        // 할 일 완료 시 적금에 시간 적립 및 로그 생성
-        Member member = memberService.getMember();
-        Long accountId = routine.getAccount().getId();
-        Integer depositTime = (int) Duration.between(todoLog.getStartTime(), todoLog.getEndTime()).toMinutes();
-        accountService.depositAccount(member, accountId, depositTime);
+            todoLog.setEndTime(LocalDateTime.now());
+            todoLog.setIsCompleted(true);
 
-        if(!routine.getIsAchieved()) {
-            routine.setIsAchieved(true);
-            routineRepository.save(routine);
-        }
-        List<Todo> relatedTodos = todo.getRoutine().getTodos();
-        boolean isLastTodo = relatedTodos.getLast().getId().equals(todo.getId());
 
-        // 마지막 할 일인 경우 루틴 로그 종료 처리
-        if(isLastTodo) {
-            RoutineLog routineLog = routineLogRepository.findByRoutineAndIsCompleted(todo.getRoutine(), false).orElseThrow(
-                    () -> new IllegalArgumentException("해당 루틴의 진행 중인 로그가 존재하지 않습니다."));
-            routineLog.setEndTime(LocalDateTime.now());
-            routineLog.setIsCompleted(true);
-            routineLogRepository.save(routineLog);
+            Routine routine = todo.getRoutine();
+
+            // 할 일 완료 시 적금에 시간 적립 및 로그 생성
+            Member member = memberService.getMember();
+            Long accountId = routine.getAccount().getId();
+            Integer depositTime = (int) Duration.between(todoLog.getStartTime(), todoLog.getEndTime()).toMinutes();
+            accountService.depositAccount(member, accountId, depositTime);
+
+            todoLogRepository.save(todoLog); // 로그인 안 한 상태에서 할 일 완료 시 로그 저장 방지 위해 memberService 다음으로 위치
+
+            if(!routine.getIsAchieved()) {
+                routine.setIsAchieved(true);
+                routineRepository.save(routine);
+            }
+            List<Todo> relatedTodos = todo.getRoutine().getTodos();
+            boolean isLastTodo = relatedTodos.getLast().getId().equals(todo.getId());
+
+            // 마지막 할 일인 경우 루틴 로그 종료 처리
+            if(isLastTodo) {
+                RoutineLog routineLog = routineLogRepository.findByRoutineAndIsCompleted(todo.getRoutine(), false).orElseThrow(
+                        () -> new IllegalArgumentException("해당 루틴의 진행 중인 로그가 존재하지 않습니다."));
+                routineLog.setEndTime(LocalDateTime.now());
+                routineLog.setIsCompleted(true);
+                routineLogRepository.save(routineLog);
+            }
+            return ResponseEntity.ok(Map.of("message", "할 일이 완료되었습니다."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "할 일 완료에 실패했습니다: " + e.getMessage()));
         }
     }
 

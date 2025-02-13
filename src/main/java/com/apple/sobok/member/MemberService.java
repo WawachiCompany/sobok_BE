@@ -87,8 +87,6 @@ public class MemberService {
         accessTokenCookie.setPath("/"); // 전체 경로에서 사용 가능
         accessTokenCookie.setMaxAge(15 * 60); // 15분 유효
         response.addCookie(accessTokenCookie);
-
-        System.out.println("accessTokenCookie = " + accessTokenCookie);
     }
 
     public void setRefreshCookie(HttpServletResponse response, String refreshToken) {
@@ -100,7 +98,6 @@ public class MemberService {
         refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7일 유효
         response.addCookie(refreshTokenCookie);
 
-        System.out.println("refreshTokenCookie = " + refreshTokenCookie);
     }
 
     // 쿠키 제거
