@@ -13,6 +13,7 @@ if [ -f "$CERT_PATH" ] && [ -f "$KEY_PATH" ]; then
     cp "$NGINX_CONF_DIR/default-https.conf" "$NGINX_CONF_DIR/default.conf"
 else
     echo "⚠️ 인증서가 존재하지 않습니다. HTTP 모드로 실행합니다."
+    mv "$NGINX_CONF_DIR/default-https.conf" "$NGINX_CONF_DIR/default-https.conf.disabled"
     cp "$NGINX_CONF_DIR/default-http.conf" "$NGINX_CONF_DIR/default.conf"
 fi
 
@@ -27,6 +28,7 @@ done
 
 # 인증서가 발급되었으면 HTTPS 설정 적용
 echo "✅ 인증서 발급 확인 완료. HTTPS 설정을 적용합니다."
+mv "$NGINX_CONF_DIR/default-https.conf.disabled" "$NGINX_CONF_DIR/default-https.conf"
 cp "$NGINX_CONF_DIR/default-https.conf" "$NGINX_CONF_DIR/default.conf"
 nginx -s reload
 
