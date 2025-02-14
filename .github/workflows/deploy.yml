@@ -44,7 +44,7 @@ jobs:
       # 5-2. 애플리케이션 패키지 압축 및 업로드
       - name: Upload application package to S3
         run: |
-          zip -r sobok-v${{ github.run_number }}.zip .
+          zip -r sobok-app-v${{ github.run_number }}.zip .
           aws s3 cp sobok-v${{ github.run_number }}.zip s3://elasticbeanstalk-ap-northeast-2-140023384172/
 
       # 5-3. Elastic Beanstalk 애플리케이션 버전 생성
