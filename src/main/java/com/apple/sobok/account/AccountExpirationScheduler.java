@@ -28,6 +28,7 @@ public class AccountExpirationScheduler {
                 // 계좌에 연결된 루틴도 모두 종료 처리
                 account.getRoutines().forEach(routine -> {
                     routine.setIsEnded(true);
+                    routine.setAccount(null);
                     routineRepository.save(routine);
                 });
             }

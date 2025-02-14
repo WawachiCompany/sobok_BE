@@ -191,6 +191,10 @@ public class AccountService {
         accountLog.setCreatedAt(LocalDateTime.now());
         accountLogRepository.save(accountLog);
 
+        // totalAccountBalance 업데이트
+        member.setTotalAccountBalance(member.getTotalAccountBalance() + amount);
+        memberRepository.save(member);
+
         Map<String, Object> response = new HashMap<>();
         response.put("account_id", account.getId());
         response.put("balance", account.getBalance());

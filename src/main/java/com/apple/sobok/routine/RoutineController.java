@@ -28,6 +28,9 @@ public class RoutineController {
 
         routineService.createRoutine(routineDto, member);
 
+        // 루틴 생성 후 주간 루틴 시간 계산
+        routineService.calculateWeeklyRoutineTime(member);
+
         Map<String, Object> response = Map.of(
                 "message", "루틴이 생성되었습니다.",
                 "timestamp", LocalDateTime.now()
@@ -39,6 +42,9 @@ public class RoutineController {
     public ResponseEntity<?> updateRoutine(@RequestBody RoutineDto routineDto, @RequestParam Long routineId) {
         Member member = memberService.getMember();
         routineService.updateRoutine(routineDto, member, routineId);
+
+        // 루틴 수정 후 주간 루틴 시간 계산
+        routineService.calculateWeeklyRoutineTime(member);
         return ResponseEntity.ok(Map.of("message", "루틴이 업데이트되었습니다."));
     }
 
@@ -46,6 +52,9 @@ public class RoutineController {
     public ResponseEntity<?> deleteRoutine(@RequestParam Long routineId) {
         Member member = memberService.getMember();
         routineService.deleteRoutine(member, routineId);
+
+        // 루틴 삭제 후 주간 루틴 시간 계산
+        routineService.calculateWeeklyRoutineTime(member);
 
         return ResponseEntity.ok(Map.of("message", "루틴이 삭제되었습니다."));
 

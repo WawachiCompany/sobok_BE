@@ -36,7 +36,10 @@ public class Member {
     private Boolean isPremium;
     private Integer consecutiveAchieveCount;
     private Integer premiumPrice;
+
     private Integer totalAchievedTime; // 총 달성 시간(분)
+    private Integer totalAccountBalance; // 총 적금 잔액(분)
+    private Integer weeklyRoutineTime; // 일주일 루틴 시간(분)
 
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference

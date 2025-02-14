@@ -22,4 +22,6 @@ public interface RoutineRepository extends JpaRepository<Routine, Long> {
     Optional<Routine> findByMemberAndId(Member member, Long id);
 
     List<Routine> findByMemberAndIsEnded(Member member, Boolean isEnded);
+
+    List<Routine> findByMemberAndIsSuspendedAndIsEnded(Member member, Boolean isSuspended, Boolean isEnded);
 }

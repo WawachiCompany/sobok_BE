@@ -127,6 +127,7 @@ public class RoutineService {
         accountService.validateAccount(account);
     }
 
+    @Transactional
     public void deleteRoutine(Member member, Long routineId) {
         var result = routineRepository.findByMemberAndId(member, routineId);
         if(result.isEmpty()) {
@@ -313,7 +314,15 @@ public class RoutineService {
         else{
             throw new IllegalArgumentException("해당 ID의 루틴이 없습니다.");
         }
+    }
 
+    public void calculateWeeklyRoutineTime(Member member) {
+        List<Routine> routines = routineRepository.findByMemberAndIsSuspendedAndIsEnded(member, false, false);
+        long totalTime = routines.stream()
+                .mapToLong(routine -> routine.getDuration() * routine.getDays().size())
+                .sum();
+        member.setWeeklyRoutineTime((int) totalTime);
+        memberRepository.save(member);
     }
 
 

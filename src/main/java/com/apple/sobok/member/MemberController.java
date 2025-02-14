@@ -48,6 +48,8 @@ public class MemberController {
             member.setConsecutiveAchieveCount(0);
             member.setPremiumPrice(9999);
             member.setTotalAchievedTime(0);
+            member.setTotalAccountBalance(0);
+            member.setWeeklyRoutineTime(0);
             memberRepository.save(member);
 
             Map<String, Object> response = new HashMap<>();
