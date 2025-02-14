@@ -9,6 +9,8 @@ CERTBOT_WEBROOT="/var/www/certbot"
 if [ ! -f "$CERT_PATH" ] || [ ! -f "$KEY_PATH" ]; then
   echo "🔄 SSL 인증서가 없습니다. HTTP 모드로 Nginx를 시작합니다..."
 
+  mkdir -p /var/www/certbot/.well-known/acme-challenge
+
   # HTTPS 설정 비활성화, HTTP 설정 활성화
   mv /etc/nginx/conf.d/default-https.conf /etc/nginx/conf.d/default-https.conf.disabled 2>/dev/null
   mv /etc/nginx/conf.d/default-http.conf.disabled /etc/nginx/conf.d/default-http.conf 2>/dev/null

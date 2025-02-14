@@ -1,8 +1,6 @@
 # Nginx 기반
 FROM nginx
 
-# 커스텀 설정 복사
-COPY custom-nginx.conf /etc/nginx/conf.d/default.conf
 
 # 엔트리포인트 설정
 COPY entrypoint.sh /etc/nginx/entrypoint.sh
