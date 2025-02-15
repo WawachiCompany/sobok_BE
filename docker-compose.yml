@@ -12,9 +12,7 @@ services:
       - app-network
     volumes:
       - ./nginx/default-http.conf:/etc/nginx/conf.d/default-http.conf:ro
-      - ./nginx/default-https.conf:/etc/nginx/conf.d/default-https.conf:ro
-      - ./nginx/html:/usr/share/nginx/html
-      - ./nginx/conf:/etc/nginx/conf.d
+      - ./nginx/default-https.conf.disabled:/etc/nginx/conf.d/default-https.conf.disabled:ro
       - /etc/letsencrypt:/etc/letsencrypt  # 인증서 공유
       - ./certbot/www:/var/www/certbot  # certbot 웹 인증 디렉토리 공유
     entrypoint: ["/bin/sh", "-c", "/etc/nginx/entrypoint.sh"]

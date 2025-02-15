@@ -10,11 +10,10 @@ nginx -s stop 2>/dev/null
 # 인증서가 존재하면 HTTPS 모드로 실행
 if [ -f "$CERT_PATH" ] && [ -f "$KEY_PATH" ]; then
     echo "✅ 인증서가 존재합니다. HTTPS 모드로 실행합니다."
+    mv "$NGINX_CONF_DIR/default-https.conf.disabled" "$NGINX_CONF_DIR/default-https.conf"
     cp "$NGINX_CONF_DIR/default-https.conf" "$NGINX_CONF_DIR/default.conf"
 else
     echo "⚠️ 인증서가 존재하지 않습니다. HTTP 모드로 실행합니다."
-    cp "$NGINX_CONF_DIR/default-https.conf $NGINX_CONF_DIR/default-https.conf.disabled"
-    rm "$NGINX_CONF_DIR/default-https.conf"
     cp "$NGINX_CONF_DIR/default-http.conf" "$NGINX_CONF_DIR/default.conf"
 fi
 
