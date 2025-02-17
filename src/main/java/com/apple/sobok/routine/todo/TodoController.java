@@ -29,4 +29,9 @@ public class TodoController {
     public ResponseEntity<?> getTodoCategory() {
         return todoService.getTodoCategory();
     }
+
+    @GetMapping("/today")
+    public ResponseEntity<?> getTodayTodos() {
+        return todoService.getTodayTodos();
+    }
 }

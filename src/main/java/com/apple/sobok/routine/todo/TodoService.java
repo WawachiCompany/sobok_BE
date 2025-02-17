@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -116,5 +117,21 @@ public class TodoService {
         response.put("art", "미술");
         response.put("music", "음악");
         return ResponseEntity.ok(response);
+    }
+
+    public ResponseEntity<?> getTodayTodos() {
+        List<Todo> todos = todoRepository.findByMemberAndDay(memberService.getMember(), LocalDateTime.now().getDayOfWeek().name());
+        List<TodoDto> todoDtos = todos.stream().map(this::convertToDto).collect(Collectors.toList());
+        return ResponseEntity.ok(todoDtos);
+    }
+
+    private TodoDto convertToDto(Todo todo) {
+        TodoDto todoDto = new TodoDto();
+        todoDto.setTitle(todo.getTitle());
+        todoDto.setCategory(todo.getCategory());
+        todoDto.setStartTime(todo.getStartTime());
+        todoDto.setEndTime(todo.getEndTime());
+        todoDto.setLinkApp(todo.getLinkApp());
+        return todoDto;
     }
 }
