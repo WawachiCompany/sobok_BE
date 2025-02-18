@@ -6,7 +6,10 @@ import com.apple.sobok.account.AccountRepository;
 import com.apple.sobok.account.AccountService;
 import com.apple.sobok.member.Member;
 import com.apple.sobok.member.MemberRepository;
+import com.apple.sobok.member.MemberService;
 import com.apple.sobok.routine.todo.Todo;
+import com.apple.sobok.routine.todo.TodoLog;
+import com.apple.sobok.routine.todo.TodoLogRepository;
 import com.apple.sobok.routine.todo.TodoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +35,7 @@ public class RoutineService {
     private final TodoRepository todoRepository;
     private final AccountService accountService;
     private final MemberRepository memberRepository;
+    private final TodoLogRepository todoLogRepository;
 
     @Transactional
     public void createRoutine(RoutineDto routineDto, Member member) {
@@ -247,12 +251,45 @@ public class RoutineService {
         List<Routine> routines = routineRepository.findByUserIdAndDay(member.getId(), dayOfWeek);
         List<Map<String, Object>> result = routines.stream()
                 .filter(routine -> !routine.getIsAchieved())
-                .map(this::convertToMapList)
+                .map(this::convertToMapTimer)
                 .toList();
         if (result.isEmpty()) {
             return ResponseEntity.ok(Map.of("message", "오늘 완료하지 않은 루틴이 없습니다."));
         }
         return ResponseEntity.ok(result);
+    }
+
+    private Map<String, Object> convertToMapTimer(Routine routine) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", routine.getId());
+        response.put("accountTitle", routine.getAccount() != null ? routine.getAccount().getTitle() : "");
+        response.put("title", routine.getTitle());
+        response.put("startTime", routine.getStartTime());
+        response.put("endTime", routine.getEndTime());
+        response.put("duration", routine.getDuration());
+        response.put("todos", routine.getTodos().stream()
+                .map(todo -> Map.of(
+                        "id", todo.getId(),
+                        "title", todo.getTitle(),
+                        "startTime", todo.getStartTime(),
+                        "endTime", todo.getEndTime(),
+                        "duration", todo.getDuration(),
+                        "linkApp", todo.getLinkApp()
+                ))
+                .toList());
+        return response;
+    }
+
+    public ResponseEntity<?> getTodayCompletedTime(Member member) {
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+
+        List<TodoLog> completedLogs = todoLogRepository.findTodayCompletedLogs(member, startOfDay, endOfDay);
+        long totalTime = completedLogs.stream()
+                .mapToLong(log -> Duration.between(log.getStartTime(), log.getEndTime()).toMinutes())
+                .sum();
+
+        return ResponseEntity.ok(Map.of("totalTime", totalTime));
     }
 
     public ResponseEntity<?> getTodayDoneRoutine(Member member) {

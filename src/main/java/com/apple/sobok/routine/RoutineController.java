@@ -111,5 +111,11 @@ public class RoutineController {
         return routineService.connectAccount(member, routineId, accountId);
     }
 
+    @GetMapping("/today/completed-time")
+    private ResponseEntity<?> getTodayDoneRoutineTime() {
+        Member member = memberService.getMember();
+        return routineService.getTodayCompletedTime(member);
+    }
+
 
 }

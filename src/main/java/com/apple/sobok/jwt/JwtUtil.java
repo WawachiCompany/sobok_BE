@@ -27,7 +27,7 @@ public class JwtUtil {
                     "jwtpassword123jwtpassword123jwtpassword123jwtpassword123jwtpassword"
             ));
     private static final long ACCESS_TOKEN_EXPIRATION = 900_000; // 15분
-    private static final long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60 * 1000L; // 7일
+    private static final long REFRESH_TOKEN_EXPIRATION = 30 * 24 * 60 * 60 * 1000L; // 30일
     private final RefreshTokenRepository refreshTokenRepository;
 
     // 리프레시 토큰을 사용하여 새로운 액세스 토큰 발급
@@ -70,7 +70,6 @@ public class JwtUtil {
             var user = (MyUserDetailsService.CustomUser) auth.getPrincipal();
             System.out.println("jwt에서의 auth:" + user.toString());
             var authorities = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
-            //유효기간 10초
             return Jwts.builder()
                     .claim("username", user.getUsername())
                     .claim("displayName", user.displayName)
