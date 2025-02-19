@@ -268,6 +268,7 @@ public class RoutineService {
         response.put("endTime", routine.getEndTime());
         response.put("duration", routine.getDuration());
         response.put("todos", routine.getTodos().stream()
+                .filter(todo -> !todo.getIsCompleted())
                 .map(todo -> Map.of(
                         "id", todo.getId(),
                         "title", todo.getTitle(),
