@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -141,7 +142,7 @@ public class TodoService {
 
     public ResponseEntity<?> getClosestTodo() {
         List<Todo> todos = todoRepository.findByMemberAndDay(memberService.getMember(), LocalDateTime.now().getDayOfWeek().name());
-        LocalDateTime now = LocalDateTime.now();
+        LocalTime now = LocalTime.now();
 
         Todo closestTodo = todos.stream()
                 .min(Comparator.comparing(todo -> Duration.between(now, todo.getStartTime()).abs()))
