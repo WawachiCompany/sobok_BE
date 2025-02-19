@@ -193,6 +193,7 @@ public class AccountService {
 
         // totalAccountBalance 업데이트
         member.setTotalAccountBalance(member.getTotalAccountBalance() + amount);
+        member.setTotalAchievedTime(member.getTotalAchievedTime() + amount);
         memberRepository.save(member);
 
         Map<String, Object> response = new HashMap<>();
