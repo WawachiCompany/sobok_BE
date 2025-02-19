@@ -131,6 +131,7 @@ public class TodoService {
 
     private TodoDto convertToDto(Todo todo) {
         TodoDto todoDto = new TodoDto();
+        todoDto.setId(todo.getId());
         todoDto.setTitle(todo.getTitle());
         todoDto.setCategory(todo.getCategory());
         todoDto.setStartTime(todo.getStartTime());
@@ -144,14 +145,24 @@ public class TodoService {
         List<Todo> todos = todoRepository.findByMemberAndDay(memberService.getMember(), LocalDateTime.now().getDayOfWeek().name());
         LocalTime now = LocalTime.now();
 
-        Todo closestTodo = todos.stream()
-                .min(Comparator.comparing(todo -> Duration.between(now, todo.getStartTime()).abs()))
-                .orElse(null);
+        Todo closestTodo = null;
+        Duration minDiff = null;
+
+        for (Todo todo : todos) {
+            // todo의 시작 시간을 가져와서 절대 차이를 계산
+            LocalTime startTime = todo.getStartTime();
+            Duration diff = Duration.between(now, startTime).abs();
+
+            if (minDiff == null || diff.compareTo(minDiff) < 0) {
+                minDiff = diff;
+                closestTodo = todo;
+            }
+        }
+
         if (closestTodo != null) {
-            TodoDto todoDto = convertToDto(closestTodo);
-            return ResponseEntity.ok(todoDto);
+            return ResponseEntity.ok(convertToDto(closestTodo));
         } else {
-            return ResponseEntity.ok(Map.of("message", "오늘 할 일이 없습니다."));
+            return ResponseEntity.ok(Map.of("message", "오늘의 할 일이 없습니다."));
         }
     }
 }

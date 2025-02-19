@@ -38,7 +38,7 @@ public class StatisticsService {
         DailyAchieveDto dto = new DailyAchieveDto();
         dto.setDate(dailyAchieve.getDate().toString());
         dto.setStatus(dailyAchieve.getStatus());
-        return  dto;
+        return dto;
     }
 
     public List<?> getDailyRoutineAchieve(Long routineId, String startDate, String endDate) {

@@ -8,6 +8,7 @@ import java.time.LocalTime;
 @Getter
 @Setter
 public class TodoDto {
+    private Long id;
     private String title;
     private String category;
     private LocalTime startTime;
