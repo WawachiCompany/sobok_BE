@@ -10,6 +10,6 @@ import java.util.List;
 
 public interface TodoRepository extends JpaRepository<Todo, Long> {
     List<Todo> findByRoutine(Routine routine);
-    @Query("SELECT t FROM Todo t WHERE t.routine.member = :member AND :day MEMBER OF t.routine.days")
+    @Query("SELECT t FROM Todo t WHERE t.routine.member = :member AND :day MEMBER OF t.routine.days AND t.routine.isSuspended = false AND t.routine.isEnded = false")
     List<Todo> findByMemberAndDay(@Param("member") Member member, @Param("day") String day);
 }
