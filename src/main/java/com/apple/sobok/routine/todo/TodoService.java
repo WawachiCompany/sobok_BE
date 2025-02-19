@@ -66,19 +66,16 @@ public class TodoService {
 
     }
 
-    public ResponseEntity<?> endTodo(Long todoId, Long duration) {
+    public ResponseEntity<?> endTodo(Long todoLogId, Long duration) {
         try {
-            Todo todo = todoRepository.findById(todoId).orElseThrow(
-                    () -> new IllegalArgumentException("해당 ID의 할 일이 존재하지 않습니다."));
-
-            TodoLog todoLog = todoLogRepository.findByTodoAndIsCompleted(todo, false).orElseThrow(
+            TodoLog todoLog = todoLogRepository.findById(todoLogId).orElseThrow(
                     () -> new IllegalArgumentException("해당 ID의 할 일 로그가 존재하지 않습니다."));
 
             todoLog.setEndTime(LocalDateTime.now());
             todoLog.setDuration(duration);
             todoLog.setIsCompleted(true);
 
-
+            Todo todo = todoLog.getTodo();
             Routine routine = todo.getRoutine();
 
             // 할 일 완료 시 적금에 시간 적립 및 로그 생성

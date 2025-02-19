@@ -23,8 +23,8 @@ public class TodoController {
     }
 
     @PostMapping("/end")
-    public ResponseEntity<?> endTodo(@RequestParam Long todoId, @RequestParam Long duration) {
-        return todoService.endTodo(todoId, duration);
+    public ResponseEntity<?> endTodo(@RequestParam Long todoLogId, @RequestParam Long duration) {
+        return todoService.endTodo(todoLogId, duration);
     }
 
     @GetMapping("/category")
