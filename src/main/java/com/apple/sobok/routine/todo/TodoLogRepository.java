@@ -17,4 +17,6 @@ public interface TodoLogRepository extends JpaRepository<TodoLog, Long> {
     List<TodoLog> findTodayCompletedLogs(@Param("member") Member member,
                                          @Param("startTime") LocalDateTime startTime,
                                          @Param("endTime") LocalDateTime endTime);
+
+    List<TodoLog> findByTodoAndEndTimeBetween(Todo todo, LocalDateTime endTimeAfter, LocalDateTime endTimeBefore);
 }

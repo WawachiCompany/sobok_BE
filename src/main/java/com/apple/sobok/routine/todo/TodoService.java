@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,7 @@ public class TodoService {
 
     }
 
-    public ResponseEntity<?> endTodo(Long todoId) {
+    public ResponseEntity<?> endTodo(Long todoId, Long duration) {
         try {
             Todo todo = todoRepository.findById(todoId).orElseThrow(
                     () -> new IllegalArgumentException("해당 ID의 할 일이 존재하지 않습니다."));
@@ -73,6 +74,7 @@ public class TodoService {
                     () -> new IllegalArgumentException("해당 ID의 할 일 로그가 존재하지 않습니다."));
 
             todoLog.setEndTime(LocalDateTime.now());
+            todoLog.setDuration(duration);
             todoLog.setIsCompleted(true);
 
 
@@ -81,8 +83,8 @@ public class TodoService {
             // 할 일 완료 시 적금에 시간 적립 및 로그 생성
             Member member = memberService.getMember();
             Long accountId = routine.getAccount().getId();
-            Integer depositTime = (int) Duration.between(todoLog.getStartTime(), todoLog.getEndTime()).toMinutes();
-            accountService.depositAccount(member, accountId, depositTime);
+
+            accountService.depositAccount(member, accountId, Math.toIntExact(duration));
 
 
             todoLogRepository.save(todoLog); // 로그인 안 한 상태에서 할 일 완료 시 로그 저장 방지 위해 memberService 다음으로 위치
@@ -99,6 +101,7 @@ public class TodoService {
                 RoutineLog routineLog = routineLogRepository.findByRoutineAndIsCompleted(todo.getRoutine(), false).orElseThrow(
                         () -> new IllegalArgumentException("해당 루틴의 진행 중인 로그가 존재하지 않습니다."));
                 routineLog.setEndTime(LocalDateTime.now());
+                routineLog.setDuration(Duration.between(routineLog.getStartTime(), routineLog.getEndTime()).toMinutes());
                 routineLog.setIsCompleted(true);
                 routineLogRepository.save(routineLog);
             }
@@ -132,6 +135,22 @@ public class TodoService {
         todoDto.setStartTime(todo.getStartTime());
         todoDto.setEndTime(todo.getEndTime());
         todoDto.setLinkApp(todo.getLinkApp());
+        todoDto.setRoutineId(todo.getRoutine().getId());
         return todoDto;
+    }
+
+    public ResponseEntity<?> getClosestTodo() {
+        List<Todo> todos = todoRepository.findByMemberAndDay(memberService.getMember(), LocalDateTime.now().getDayOfWeek().name());
+        LocalDateTime now = LocalDateTime.now();
+
+        Todo closestTodo = todos.stream()
+                .min(Comparator.comparing(todo -> Duration.between(now, todo.getStartTime()).abs()))
+                .orElse(null);
+        if (closestTodo != null) {
+            TodoDto todoDto = convertToDto(closestTodo);
+            return ResponseEntity.ok(todoDto);
+        } else {
+            return ResponseEntity.ok(Map.of("message", "오늘 할 일이 없습니다."));
+        }
     }
 }

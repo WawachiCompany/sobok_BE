@@ -10,4 +10,6 @@ public interface RoutineLogRepository extends JpaRepository<RoutineLog, Long> {
     Optional<RoutineLog> findByRoutineAndIsCompleted(Routine routine, Boolean isCompleted);
 
     List<RoutineLog> findByRoutineAndEndTimeBetween(Routine routine, LocalDateTime endTimeAfter, LocalDateTime endTimeBefore);
+
+    Optional<RoutineLog> findAllByRoutineAndIsCompletedAndEndTimeBetween(Routine routine, Boolean isCompleted, LocalDateTime endTimeAfter, LocalDateTime endTimeBefore);
 }

@@ -21,8 +21,8 @@ public class TodoController {
     }
 
     @PostMapping("/end")
-    public ResponseEntity<?> endTodo(@RequestParam Long todoId) {
-        return todoService.endTodo(todoId);
+    public ResponseEntity<?> endTodo(@RequestParam Long todoId, @RequestParam Long duration) {
+        return todoService.endTodo(todoId, duration);
     }
 
     @GetMapping("/category")
@@ -33,5 +33,10 @@ public class TodoController {
     @GetMapping("/today")
     public ResponseEntity<?> getTodayTodos() {
         return todoService.getTodayTodos();
+    }
+
+    @GetMapping("/closest")
+    public ResponseEntity<?> getClosestTodo() {
+        return todoService.getClosestTodo();
     }
 }

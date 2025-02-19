@@ -21,6 +21,7 @@ public class TodoLog {
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private Long duration;
 
     private Boolean isCompleted;
 }

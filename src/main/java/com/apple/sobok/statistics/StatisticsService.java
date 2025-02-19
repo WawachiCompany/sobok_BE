@@ -5,6 +5,8 @@ import com.apple.sobok.member.Member;
 import com.apple.sobok.routine.Routine;
 import com.apple.sobok.routine.RoutineLog;
 import com.apple.sobok.routine.RoutineLogRepository;
+import com.apple.sobok.routine.RoutineRepository;
+import com.apple.sobok.routine.todo.TodoLogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,6 +24,8 @@ public class StatisticsService {
 
     private final DailyAchieveRepository dailyAchieveRepository;
     private final RoutineLogRepository routineLogRepository;
+    private final RoutineRepository routineRepository;
+    private final TodoLogRepository todoLogRepository;
 
     public List<DailyAchieveDto> getDailyAchieve(Member member, String startDate, String endDate) {
         LocalDate start = LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE);
@@ -49,6 +54,34 @@ public class StatisticsService {
                         return map;
                     })
                     .collect(Collectors.toList());
+    }
+
+    public List<?> getDailyAchieveLog(Member member, String date){
+        LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ISO_DATE);
+        return routineRepository.findByMember(member).stream()
+                .map(routine -> {
+                    Map<String, Object> map = new HashMap<>();
+                    Optional<RoutineLog> routineLog = routineLogRepository.findAllByRoutineAndIsCompletedAndEndTimeBetween(routine, true, localDate.atStartOfDay(), localDate.plusDays(1).atStartOfDay());
+                    if(routineLog.isPresent()){
+
+                        map.put("title", routine.getTitle());
+                        map.put("accountTitle", routine.getAccount().getTitle());
+                        map.put("duration", routineLog.get().getDuration());
+                        List<Map<String, Object>> todoLogs = routine.getTodos().stream()
+                                .flatMap(todo -> todoLogRepository.findByTodoAndEndTimeBetween(todo, localDate.atStartOfDay(), localDate.plusDays(1).atStartOfDay()).stream()
+                                        .map(todoLog -> {
+                                            Map<String, Object> todoMap = new HashMap<>();
+                                            todoMap.put("title", todo.getTitle());
+                                            todoMap.put("linkApp", todo.getLinkApp());
+                                            todoMap.put("duration", todoLog.getDuration());
+                                            return todoMap;
+                                        }))
+                                .collect(Collectors.toList());
+                        map.put("todoLogs", todoLogs);
+                    }
+                    return map;
+                })
+                .toList();
     }
 
 

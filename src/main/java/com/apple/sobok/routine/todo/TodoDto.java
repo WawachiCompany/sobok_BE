@@ -13,4 +13,5 @@ public class TodoDto {
     private LocalTime startTime;
     private LocalTime endTime;
     private String linkApp;
+    private Long routineId;
 }
