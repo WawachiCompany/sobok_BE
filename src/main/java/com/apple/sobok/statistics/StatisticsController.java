@@ -31,14 +31,17 @@ public class StatisticsController {
 
     @GetMapping("/routine")
     public ResponseEntity<?> getDailyRoutineAchieve(@RequestParam Long routineId, @RequestBody DateRangeDto dateRangeDto) {
-        Routine routine = routineRepository.findById(routineId).orElseThrow(
-                () -> new IllegalArgumentException("해당 ID의 루틴이 존재하지 않습니다."));
-        return ResponseEntity.ok(statisticsService.getDailyRoutineAchieve(routine, dateRangeDto.getStartDate(), dateRangeDto.getEndDate()));
+        return ResponseEntity.ok(statisticsService.getDailyRoutineAchieve(routineId, dateRangeDto.getStartDate(), dateRangeDto.getEndDate()));
     }
 
     @GetMapping("/date/log")
     public ResponseEntity<?> getDailyAchieveLog(@RequestParam String date) {
         Member member = memberService.getMember();
         return ResponseEntity.ok(statisticsService.getDailyAchieveLog(member, date));
+    }
+
+    @GetMapping("/routine/log")
+    public ResponseEntity<?> getDailyRoutineAchieveLog(@RequestParam Long routineId, @RequestParam String date) {
+        return ResponseEntity.ok(statisticsService.getDailyRoutineAchieveLog(routineId, date));
     }
 }

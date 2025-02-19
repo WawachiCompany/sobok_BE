@@ -41,7 +41,9 @@ public class StatisticsService {
         return  dto;
     }
 
-    public List<?> getDailyRoutineAchieve(Routine routine, String startDate, String endDate) {
+    public List<?> getDailyRoutineAchieve(Long routineId, String startDate, String endDate) {
+        Routine routine = routineRepository.findById(routineId).orElseThrow(
+                () -> new IllegalArgumentException("해당 ID의 루틴이 존재하지 않습니다."));
         LocalDate start = LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE);
         LocalDate end = LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE);
         return start.datesUntil(end.plusDays(1))
@@ -63,7 +65,6 @@ public class StatisticsService {
                     Map<String, Object> map = new HashMap<>();
                     Optional<RoutineLog> routineLog = routineLogRepository.findAllByRoutineAndIsCompletedAndEndTimeBetween(routine, true, localDate.atStartOfDay(), localDate.plusDays(1).atStartOfDay());
                     if(routineLog.isPresent()){
-
                         map.put("title", routine.getTitle());
                         map.put("accountTitle", routine.getAccount().getTitle());
                         map.put("duration", routineLog.get().getDuration());
@@ -82,6 +83,22 @@ public class StatisticsService {
                     return map;
                 })
                 .toList();
+    }
+
+    public List<?> getDailyRoutineAchieveLog(Long routineId, String date){
+        LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ISO_DATE);
+        Routine routine = routineRepository.findById(routineId).orElseThrow(
+                () -> new IllegalArgumentException("해당 ID의 루틴이 존재하지 않습니다."));
+        return routine.getTodos().stream()
+                .flatMap(todo -> todoLogRepository.findByTodoAndEndTimeBetween(todo, localDate.atStartOfDay(), localDate.plusDays(1).atStartOfDay()).stream()
+                        .map(todoLog -> {
+                            Map<String, Object> todoMap = new HashMap<>();
+                            todoMap.put("title", todo.getTitle());
+                            todoMap.put("linkApp", todo.getLinkApp());
+                            todoMap.put("duration", todoLog.getDuration());
+                            return todoMap;
+                        }))
+                .collect(Collectors.toList());
     }
 
 
