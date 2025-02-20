@@ -12,4 +12,4 @@ ARG SPRING_PROFILES_ACTIVE
 ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
 
 # 5. 애플리케이션 실행
-CMD ["java", "-jar", "-Dspring.profiles.active=prod", "-Xms256m", "-Xmx512m", "app.jar"]
+CMD ["java", "-Duser.timezone=Asia/Seoul", "-jar", "-Dspring.profiles.active=prod", "-Xms256m", "-Xmx512m", "app.jar"]
