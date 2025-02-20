@@ -41,8 +41,6 @@ public class AccountService {
         Account account = new Account();
         account.setMember(member);
         account.setTitle(accountDto.getTitle());
-//        account.setTarget(accountDto.getTarget());
-//        account.setIsPublic(accountDto.getIsPublic());
         account.setTime(accountDto.getTime());
         account.setDuration(accountDto.getDuration());
         account.setBalance(0);
@@ -53,6 +51,21 @@ public class AccountService {
         account.setInterestBalance(0);
         account.setExpiredAt(LocalDate.now().plusMonths(accountDto.getDuration()));
         account.setUpdatedAt(LocalDateTime.now());
+
+        if (accountDto.getRoutineIds() != null) {
+            // 루틴 연결
+            List<Long> routineIds = accountDto.getRoutineIds().stream()
+                    .map(Integer::longValue)
+                    .collect(Collectors.toList());
+            List<Routine> routines = routineRepository.findAllById(routineIds);
+            account.setRoutines(routines);
+            for (Routine routine : routines) {
+                routine.setAccount(account);
+                routineRepository.save(routine);
+            }
+        }
+
+
         accountRepository.save(account);
     }
 
@@ -61,8 +74,6 @@ public class AccountService {
             AccountDto dto = new AccountDto();
             dto.setId(account.getId());
             dto.setTitle(account.getTitle());
-//            dto.setTarget(account.getTarget());
-//            dto.setIsPublic(account.getIsPublic());
             dto.setTime(account.getTime());
             dto.setDuration(account.getDuration());
             dto.setIsValid(account.getIsValid());
@@ -76,7 +87,6 @@ public class AccountService {
         Account account = accountRepository.findByMemberAndId(member, accountId);
         Map<String, Object> response = new HashMap<>();
         response.put("title", account.getTitle());    // 적금 제목
-//        response.put("target", account.getTarget());    // 적금 목표
         response.put("balance", account.getBalance());    // 현재 잔액
         response.put("time", account.getTime());    // 저금 시간
         response.put("duration", account.getDuration());    // 적금 기간
@@ -161,19 +171,13 @@ public class AccountService {
         if (accountDto.getTitle() != null) {
             account.setTitle(accountDto.getTitle());
         }
-//        if (accountDto.getTarget() != null) {
-//            account.setTarget(accountDto.getTarget());
-//        }
-//        if (accountDto.getIsPublic() != null) {
-//            account.setIsPublic(accountDto.getIsPublic());
-//        }
         if (accountDto.getTime() != null) {
             account.setTime(accountDto.getTime());
         }
-        if (accountDto.getInterest() != null) {
-            account.setInterest(accountDto.getInterest());
-        }
+
+        account.setInterest(calculateInitialInterest(account)); // 이율 계산 필요
         account.setUpdatedAt(LocalDateTime.now());
+
         accountRepository.save(account);
         return account;
     }
@@ -191,8 +195,12 @@ public class AccountService {
         accountLog.setCreatedAt(LocalDateTime.now());
         accountLogRepository.save(accountLog);
 
+        // totalAchievedTime 업데이트
         // totalAccountBalance 업데이트
-        member.setTotalAccountBalance(member.getTotalAccountBalance() + amount);
+        int totalAccountBalance = member.getAccounts().stream()
+                .mapToInt(Account::getBalance)
+                .sum();
+        member.setTotalAccountBalance(totalAccountBalance);
         member.setTotalAchievedTime(member.getTotalAchievedTime() + amount);
         memberRepository.save(member);
 

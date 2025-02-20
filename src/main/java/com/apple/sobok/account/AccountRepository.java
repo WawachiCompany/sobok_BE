@@ -14,4 +14,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     List<Account> findByIsExpired(Boolean isExpired);
 
+    List<Account> findByMember(Member member);
+
 }
