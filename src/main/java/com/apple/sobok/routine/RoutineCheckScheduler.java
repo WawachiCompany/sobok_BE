@@ -37,11 +37,21 @@ public class RoutineCheckScheduler {
             dailyAchieve.setMember(member);
             dailyAchieve.setDate(yesterday);
 
-            boolean isCompleted = member.getRoutines().stream()
+            List<Routine> todayRoutines = member.getRoutines().stream()
                     .filter(routine -> routine.getDays().contains(targetDay))
+                    .toList();
+
+            if(todayRoutines.isEmpty()){
+                dailyAchieve.setStatus("NO_ROUTINE");
+                dailyAchieveRepository.save(dailyAchieve);
+                continue;
+            }
+
+            boolean isCompleted = todayRoutines
+                    .stream()
                     .anyMatch(Routine::getIsAchieved); // 완료한 루틴 하나라도 있으면 연속달성일 인정
-            boolean isAllAchieved = member.getRoutines().stream()
-                    .filter(routine -> routine.getDays().contains(targetDay))
+            boolean isAllAchieved = todayRoutines
+                    .stream()
                     .allMatch(Routine::getIsAchieved); // 모든 루틴을 완료했는지 확인
             if (isCompleted) {
                 member.setConsecutiveAchieveCount(member.getConsecutiveAchieveCount() + 1);

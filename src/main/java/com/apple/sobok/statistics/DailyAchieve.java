@@ -20,5 +20,5 @@ public class DailyAchieve {
     private Member member;
 
     private LocalDate date;
-    private String status; // 달성 여부(All_ACHEIVED, SOME_ACHIEVED, NONE_ACHIEVED)
+    private String status; // 달성 여부(All_ACHEIVED, SOME_ACHIEVED, NONE_ACHIEVED, NO_ROUTINE)
 }
