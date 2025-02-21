@@ -35,7 +35,7 @@ public class StatisticsService {
         return dailyAchieves.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
-    private DailyAchieveDto convertToDto(DailyAchieve dailyAchieve) {
+    public DailyAchieveDto convertToDto(DailyAchieve dailyAchieve) {
         DailyAchieveDto dto = new DailyAchieveDto();
         dto.setDate(dailyAchieve.getDate().toString());
         dto.setStatus(dailyAchieve.getStatus());
