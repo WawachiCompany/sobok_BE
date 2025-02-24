@@ -7,6 +7,7 @@ import com.apple.sobok.member.MemberRepository;
 import com.apple.sobok.routine.Routine;
 import com.apple.sobok.routine.RoutineRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Profile("prod")
 public class AccumulatedAggregationScheduler {
 
     private final MemberRepository memberRepository;

@@ -4,6 +4,7 @@ import com.apple.sobok.member.Member;
 import com.apple.sobok.member.point.PointLog;
 import com.apple.sobok.member.point.PointLogService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Profile("prod")
 public class AccountPointScheduler {
 
     private final AccountRepository accountRepository;

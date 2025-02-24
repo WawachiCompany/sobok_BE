@@ -6,6 +6,7 @@ import com.apple.sobok.member.MemberRepository;
 import com.apple.sobok.statistics.DailyAchieve;
 import com.apple.sobok.statistics.DailyAchieveRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,7 @@ import java.util.Locale;
 
 @Component
 @RequiredArgsConstructor
+@Profile("prod")
 public class RoutineCheckScheduler {
 
     private final MemberRepository memberRepository;

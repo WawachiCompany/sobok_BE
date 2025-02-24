@@ -3,6 +3,7 @@ package com.apple.sobok.account;
 
 import com.apple.sobok.routine.RoutineRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Profile("prod")
 public class AccountExpirationScheduler {
 
     private final AccountRepository accountRepository;
