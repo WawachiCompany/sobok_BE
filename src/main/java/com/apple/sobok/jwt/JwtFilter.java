@@ -36,12 +36,10 @@ public class JwtFilter extends OncePerRequestFilter {
                 jwtCookie = cookie.getValue();
             }
         }
-        System.out.println("accessToken : " + jwtCookie);
 
         Claims claim;
         try {
             claim = JwtUtil.extractToken(jwtCookie);
-            System.out.println("액세스 토큰 검증 완료");
 
         } catch (Exception e) {
             filterChain.doFilter(request, response);
@@ -64,7 +62,6 @@ public class JwtFilter extends OncePerRequestFilter {
                 .buildDetails(request)
         );
         SecurityContextHolder.getContext().setAuthentication(authToken);
-        System.out.println("필터에서 확인한 인증정보 : " + SecurityContextHolder.getContext().getAuthentication());
 
         filterChain.doFilter(request, response);
     }
