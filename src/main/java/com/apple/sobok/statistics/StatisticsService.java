@@ -16,7 +16,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -69,15 +68,17 @@ public class StatisticsService {
     public List<?> getDailyAchieveLog(Member member, String date){
         LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ISO_DATE);
         return routineRepository.findByMember(member).stream()
+                .filter(routine -> routineLogRepository.findByRoutineAndIsCompletedAndEndTimeBetween(
+                        routine, true, localDate.atStartOfDay(), localDate.plusDays(1).atStartOfDay()
+                ).isPresent())
                 .map(routine -> {
                     Map<String, Object> map = new HashMap<>();
-                    Optional<RoutineLog> routineLog = routineLogRepository.findByRoutineAndIsCompletedAndEndTimeBetween(routine, true, localDate.atStartOfDay(), localDate.plusDays(1).atStartOfDay());
-                    if(routineLog.isPresent()){
+                    RoutineLog routineLog = routineLogRepository.findByRoutineAndIsCompletedAndEndTimeBetween(routine, true, localDate.atStartOfDay(), localDate.plusDays(1).atStartOfDay()).get();
                         map.put("title", routine.getTitle());
                         map.put("accountTitle", routine.getAccount().getTitle());
-                        map.put("duration", routineLog.get().getDuration());
-                        map.put("startTime", routineLog.get().getStartTime());
-                        map.put("endTime", routineLog.get().getEndTime());
+                        map.put("duration", routineLog.getDuration());
+                        map.put("startTime", routineLog.getStartTime());
+                        map.put("endTime", routineLog.getEndTime());
                         List<Map<String, Object>> todoLogs = routine.getTodos().stream()
                                 .flatMap(todo -> todoLogRepository.findByTodoAndEndTimeBetween(todo, localDate.atStartOfDay(), localDate.plusDays(1).atStartOfDay()).stream()
                                         .map(todoLog -> {
@@ -89,7 +90,6 @@ public class StatisticsService {
                                         }))
                                 .collect(Collectors.toList());
                         map.put("todoLogs", todoLogs);
-                    }
                     return map;
                 })
                 .toList();

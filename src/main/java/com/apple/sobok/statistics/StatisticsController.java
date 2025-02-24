@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import com.apple.sobok.statistics.StatisticsService;
 
 
 @Controller
@@ -21,14 +21,14 @@ public class StatisticsController {
     private final StatisticsService statisticsService;
 
     @GetMapping("/date")
-    public ResponseEntity<?> getDailyAchieve(@RequestBody DateRangeDto dateRangeDto) {
+    public ResponseEntity<?> getDailyAchieve(@RequestParam String startDate, @RequestParam String endDate) {
         Member member = memberService.getMember();
-        return ResponseEntity.ok(statisticsService.getDailyAchieve(member, dateRangeDto.getStartDate(), dateRangeDto.getEndDate()));
+        return ResponseEntity.ok(statisticsService.getDailyAchieve(member, startDate, endDate));
     }
 
     @GetMapping("/routine")
-    public ResponseEntity<?> getDailyRoutineAchieve(@RequestParam Long routineId, @RequestBody DateRangeDto dateRangeDto) {
-        return ResponseEntity.ok(statisticsService.getDailyRoutineAchieve(routineId, dateRangeDto.getStartDate(), dateRangeDto.getEndDate()));
+    public ResponseEntity<?> getDailyRoutineAchieve(@RequestParam Long routineId, @RequestParam String startDate, @RequestParam String endDate) {
+        return ResponseEntity.ok(statisticsService.getDailyRoutineAchieve(routineId, startDate, endDate));
     }
 
     @GetMapping("/date/log")
@@ -43,9 +43,9 @@ public class StatisticsController {
     }
 
     @GetMapping("/date/count")
-    public ResponseEntity<?> getDateTimeStatistics(@RequestBody DateRangeDto dateRangeDto) {
+    public ResponseEntity<?> getDateTimeStatistics(@RequestParam String startDate, @RequestParam String endDate) {
         Member member = memberService.getMember();
-        return ResponseEntity.ok(statisticsService.getDateTimeStatistics(member, dateRangeDto.getStartDate(), dateRangeDto.getEndDate()));
+        return ResponseEntity.ok(statisticsService.getDateTimeStatistics(member, startDate, endDate));
     }
 
     @GetMapping("/routine/count")
