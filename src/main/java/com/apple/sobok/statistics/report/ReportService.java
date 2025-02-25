@@ -43,9 +43,9 @@ public class ReportService {
 
     public ResponseEntity<?> getReport() {
         Member member = memberService.getMember();
-        String startDate = YearMonth.now().atDay(1).toString();
-        String endDate = YearMonth.now().atEndOfMonth().toString();
-        MonthlyUserReport monthlyUserReport = monthlyUserReportRepository.findByMemberIdAndYearMonth(member.getId(), YearMonth.now().toString());
+        String startDate = YearMonth.now().minusMonths(1).atDay(1).toString();
+        String endDate = YearMonth.now().minusMonths(1).atEndOfMonth().toString();
+        MonthlyUserReport monthlyUserReport = monthlyUserReportRepository.findByMemberIdAndYearMonth(member.getId(), YearMonth.now().minusMonths(1).toString());
         Map<String, Object> response = new HashMap<>();
         response.put("totalTime", monthlyUserReport.getTotalAccumulatedTime()); // 1페이지 총 누적시간
         response.put("totalTimePercent", getTotalTimePercent(member)); // 1페이지 누적시간 순위
@@ -69,7 +69,7 @@ public class ReportService {
     }
 
     public double getTotalTimePercent(Member member){
-        String currentMonth = YearMonth.now().toString();
+        String currentMonth = YearMonth.now().minusMonths(1).toString();
         List<MonthlyUserReport> reports = monthlyUserReportRepository.findAll().stream()
                 .filter(report -> report.getYearMonth().equals(currentMonth))
                 .sorted((r1, r2) -> Long.compare(r2.getTotalAccumulatedTime(), r1.getTotalAccumulatedTime()))
@@ -88,7 +88,7 @@ public class ReportService {
     }
 
     public long getAverageTimeCompare(Member member){
-        String currentMonth = YearMonth.now().toString();
+        String currentMonth = YearMonth.now().minusMonths(1).toString();
         long averageTime = Math.round(monthlyUserReportRepository.findAll().stream()
                 .mapToLong(MonthlyUserReport::getAverageAccumulatedTime)
                 .average().orElse(0));
@@ -97,7 +97,7 @@ public class ReportService {
     }
 
     public List<Map<String, Object>> getMonthlyRoutineStatistics(Member member) {
-        YearMonth currentMonth = YearMonth.now();
+        YearMonth currentMonth = YearMonth.now().minusMonths(1);
         LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
         LocalDateTime endOfMonth = currentMonth.atEndOfMonth().atTime(23, 59, 59);
 
@@ -116,7 +116,7 @@ public class ReportService {
     }
 
     public List<Map<String, Object>> getMonthlyAccountStatistics(Member member) {
-        YearMonth currentMonth = YearMonth.now();
+        YearMonth currentMonth = YearMonth.now().minusMonths(1);
         LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
         LocalDateTime endOfMonth = currentMonth.atEndOfMonth().atTime(23, 59, 59);
 
@@ -174,7 +174,7 @@ public class ReportService {
 
     // 월별 루틴 달성현황 출력(월별 연속 달성일 계산용)
     public List<DailyAchieveDto> getDailyAchievesForCurrentMonth(Member member) {
-        YearMonth currentMonth = YearMonth.now();
+        YearMonth currentMonth = YearMonth.now().minusMonths(1);
         LocalDate startDate = currentMonth.atDay(1);
         LocalDate endDate = currentMonth.atEndOfMonth();
         List<DailyAchieve> dailyAchieves = dailyAchieveRepository.findByMemberAndDateBetween(member, startDate, endDate);
@@ -189,7 +189,7 @@ public class ReportService {
     }
 
     public Map<String, Object> getMonthlyMostAchievedAccount(Member member) {
-        YearMonth currentMonth = YearMonth.now();
+        YearMonth currentMonth = YearMonth.now().minusMonths(1);
         LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
         LocalDateTime endOfMonth = currentMonth.atEndOfMonth().atTime(23, 59, 59);
 
