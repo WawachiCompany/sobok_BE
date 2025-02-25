@@ -6,11 +6,7 @@ import com.apple.sobok.account.AccountRepository;
 import com.apple.sobok.account.AccountService;
 import com.apple.sobok.member.Member;
 import com.apple.sobok.member.MemberRepository;
-import com.apple.sobok.member.MemberService;
-import com.apple.sobok.routine.todo.Todo;
-import com.apple.sobok.routine.todo.TodoLog;
-import com.apple.sobok.routine.todo.TodoLogRepository;
-import com.apple.sobok.routine.todo.TodoRepository;
+import com.apple.sobok.routine.todo.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -36,9 +32,10 @@ public class RoutineService {
     private final AccountService accountService;
     private final MemberRepository memberRepository;
     private final TodoLogRepository todoLogRepository;
+    private final CategoryRepository categoryRepository;
 
     @Transactional
-    public void createRoutine(RoutineDto routineDto, Member member) {
+    public void createRoutine(RoutineDto routineDto, Member member, String routineType) {
         Routine routine = new Routine();
         Account account = accountRepository.findById(
                 routineDto.getAccountId()).orElseThrow(
@@ -51,6 +48,12 @@ public class RoutineService {
         routine.setIsSuspended(false);
         routine.setIsAchieved(false);
         routine.setIsEnded(false);
+        if(routineType.equals("self")) {
+            routine.setIsAiRoutine(false);
+        }
+        else if(routineType.equals("ai")) {
+            routine.setIsAiRoutine(true);
+        }
         routineRepository.save(routine);
 
         // Todo 생성 로직 추가
@@ -60,6 +63,16 @@ public class RoutineService {
                 todo.setRoutine(routine);
                 todo.setTitle(todoDto.getTitle());
                 todo.setCategory(todoDto.getCategory());
+
+                // Category 테이블 추가
+                if(categoryRepository.findByMemberAndCategory(member, todoDto.getCategory()).isEmpty()) {
+                    Category category = new Category();
+                    category.setMember(member);
+                    category.setCategory(todoDto.getCategory());
+                    category.setCreatedAt(LocalDateTime.now());
+                    categoryRepository.save(category);
+                }
+
                 todo.setStartTime(todoDto.getStartTime());
                 todo.setEndTime(todoDto.getEndTime());
                 todo.setDuration(Duration.between(todoDto.getStartTime(), todoDto.getEndTime()).toMinutes());
@@ -285,7 +298,7 @@ public class RoutineService {
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
 
-        List<TodoLog> completedLogs = todoLogRepository.findTodayCompletedLogs(member, startOfDay, endOfDay);
+        List<TodoLog> completedLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetWeen(member, startOfDay, endOfDay);
         long totalTime = completedLogs.stream()
                 .mapToLong(log -> Duration.between(log.getStartTime(), log.getEndTime()).toMinutes())
                 .sum();

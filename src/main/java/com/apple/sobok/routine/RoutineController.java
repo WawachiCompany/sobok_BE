@@ -22,11 +22,11 @@ public class RoutineController {
     private final RoutineService routineService;
 
 
-    @PostMapping("/create")
-    public ResponseEntity<?> createRoutine(@RequestBody RoutineDto routineDto) {
+    @PostMapping("/create/{routineType}")
+    public ResponseEntity<?> createRoutine(@RequestBody RoutineDto routineDto, @PathVariable String routineType) {
         Member member = memberService.getMember();
 
-        routineService.createRoutine(routineDto, member);
+        routineService.createRoutine(routineDto, member, routineType);
 
         // 루틴 생성 후 주간 루틴 시간 계산
         routineService.calculateWeeklyRoutineTime(member);

@@ -53,6 +53,8 @@ public class Routine {
 
     @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     List<Todo> todos = new ArrayList<>();
+
+    private Boolean isAiRoutine; // AI 루틴 여부
 }
 
 
