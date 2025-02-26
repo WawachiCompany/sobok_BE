@@ -1,6 +1,9 @@
 package com.apple.sobok.routine;
 
+import com.apple.sobok.member.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,5 +18,7 @@ public interface RoutineLogRepository extends JpaRepository<RoutineLog, Long> {
 
     List<RoutineLog> findAllByRoutineAndIsCompletedAndEndTimeBetween(Routine routine, Boolean isCompleted, LocalDateTime endTimeAfter, LocalDateTime endTimeBefore);
 
-    List<RoutineLog> findAllByRoutineAndIsCompleted(Routine routine, Boolean isCompleted);
+
+    @Query("select rl from RoutineLog rl where rl.routine.member = :member and rl.isCompleted = true and rl.endTime between :endTimeAfter and :endTimeBefore")
+    List<RoutineLog> findAllByMemberAndIsCompletedAndEndTimeBetween(@Param("member") Member member, @Param("endTimeAfter") LocalDateTime endTimeAfter, @Param("endTimeBefore") LocalDateTime endTimeBefore);
 }

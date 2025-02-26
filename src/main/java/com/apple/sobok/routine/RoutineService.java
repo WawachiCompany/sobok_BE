@@ -36,11 +36,13 @@ public class RoutineService {
 
     @Transactional
     public void createRoutine(RoutineDto routineDto, Member member, String routineType) {
+        Member persistedMember = memberRepository.findById(member.getId()).orElseThrow(
+                () -> new IllegalArgumentException("해당 ID의 멤버가 존재하지 않습니다."));
         Routine routine = new Routine();
         Account account = accountRepository.findById(
                 routineDto.getAccountId()).orElseThrow(
                 () -> new IllegalArgumentException("해당 적금이 존재하지 않습니다."));
-        routine.setMember(member);
+        routine.setMember(persistedMember);
         routine.setAccount(account);
         routine.setTitle(routineDto.getTitle());
         routine.setDays(routineDto.getDays());

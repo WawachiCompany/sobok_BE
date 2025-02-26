@@ -153,6 +153,7 @@ public class MemberService {
         pointLogService.save(pointLog);
     }
 
+    @Transactional
     public Member getMember() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return memberRepository.findByUsername(username)

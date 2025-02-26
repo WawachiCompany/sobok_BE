@@ -7,11 +7,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface TodoLogRepository extends JpaRepository<TodoLog, Long> {
 
-    Optional<TodoLog> findByTodoAndIsCompleted(Todo todo, Boolean isCompleted);
 
     @Query("SELECT t FROM TodoLog t WHERE t.todo.routine.member = :member AND t.isCompleted = true AND t.endTime >= :startTime AND t.endTime < :endTime")
     List<TodoLog> findAllByMemberAndIsCompletedAndEndTimeBetWeen(@Param("member") Member member,
@@ -19,5 +17,8 @@ public interface TodoLogRepository extends JpaRepository<TodoLog, Long> {
                                                                  @Param("endTime") LocalDateTime endTime);
 
     List<TodoLog> findByTodoAndEndTimeBetween(Todo todo, LocalDateTime endTimeAfter, LocalDateTime endTimeBefore);
+
+    @Query("SELECT t FROM TodoLog t WHERE t.todo.routine.member = :member AND t.isCompleted = true")
+    List<TodoLog> findAllByMemberAndIsCompleted(@Param("member") Member member);
 
 }

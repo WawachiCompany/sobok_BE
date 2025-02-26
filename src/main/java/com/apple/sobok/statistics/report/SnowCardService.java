@@ -1,6 +1,9 @@
 package com.apple.sobok.statistics.report;
 
 import com.apple.sobok.member.Member;
+import com.apple.sobok.routine.Routine;
+import com.apple.sobok.routine.RoutineLog;
+import com.apple.sobok.routine.RoutineLogRepository;
 import com.apple.sobok.routine.todo.*;
 import com.apple.sobok.statistics.DailyAchieveDto;
 import com.apple.sobok.statistics.StatisticsService;
@@ -25,6 +28,43 @@ public class SnowCardService {
     private final StatisticsService statisticsService;
     private final ReportService reportService;
     private final CategoryRepository categoryRepository;
+    private final RoutineLogRepository routineLogRepository;
+
+    // 눈 카드 달성 조건 확인 후 뽑기
+    public String getSnowCard(Member member) {
+        List<String> snowCards = new ArrayList<>();
+        if (isHexagon(member)) {
+            snowCards.add("hexagon");
+        }
+        snowCards.add(getMostPerformedCategoryLastMonth(member));
+        snowCards.add(getMoon(member));
+        if (isLike(member)) {
+            snowCards.add("like");
+        }
+        if (isRolyPoly(member)) {
+            snowCards.add("rolyPoly");
+        }
+        if (isBeaker(member)) {
+            snowCards.add("beaker");
+        }
+        if (isAngel(member)) {
+            snowCards.add("angel");
+        }
+        if (ispudding(member)) {
+            snowCards.add("pudding");
+        }
+        if (isFairy(member)) {
+            snowCards.add("fairy");
+        }
+        if (isCrab(member)) {
+            snowCards.add("crab");
+        }
+        if (isSpring(member)) {
+            snowCards.add("spring");
+        }
+        Random random = new Random();
+        return snowCards.get(random.nextInt(snowCards.size()));
+    }
 
     // 육각형 모양의 눈 조각
     public boolean isHexagon(Member member) {
@@ -35,6 +75,7 @@ public class SnowCardService {
         return categories.size() > 6;
     }
 
+    // 카테고리 가장 많이 한거
     public String getMostPerformedCategoryLastMonth(Member member) {
         YearMonth lastMonth = YearMonth.now().minusMonths(1);
         LocalDateTime startOfLastMonth = lastMonth.atDay(1).atStartOfDay();
@@ -62,11 +103,8 @@ public class SnowCardService {
             return "half";
         } else if (percent >= 25) {
             return "quarter";
-        } else if (percent <= 10) {
+        } else {
             return "cloud";
-        }
-        else {
-            return "none";
         }
     }
 
@@ -125,6 +163,33 @@ public class SnowCardService {
                 .map(TodoLog::getTodo)
                 .collect(Collectors.toSet());
         return todos.size() == 1;
+    }
+
+    // 요정 모양의 눈 조각
+    public boolean isFairy(Member member) {
+        // 지난 달에 AI 루틴만 진행한 경우
+        List<RoutineLog> routineLogs = routineLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetween(member, YearMonth.now().minusMonths(1).atDay(1).atStartOfDay(), YearMonth.now().minusMonths(1).atEndOfMonth().atTime(23, 59, 59));
+        return routineLogs.stream()
+                .map(RoutineLog::getRoutine)
+                .allMatch(Routine::getIsAiRoutine);
+    }
+
+    // 소라게 모양의 눈 조각
+    public boolean isCrab(Member member) {
+        // 지난 달에 자율 루틴만 진행한 경우
+        List<RoutineLog> routineLogs = routineLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetween(member, YearMonth.now().minusMonths(1).atDay(1).atStartOfDay(), YearMonth.now().minusMonths(1).atEndOfMonth().atTime(23, 59, 59));
+        return routineLogs.stream()
+                .map(RoutineLog::getRoutine)
+                .noneMatch(Routine::getIsAiRoutine);
+    }
+
+    // 스프링 모양의 눈 조각
+    public boolean isSpring(Member member) {
+        // 하나의 카테고리를 500시간 이상 진행한 경우(누적)
+        List<TodoLog> todoLogs = todoLogRepository.findAllByMemberAndIsCompleted(member);
+        Map<String, Long> categoryDuration = todoLogs.stream()
+                .collect(Collectors.groupingBy(todoLog -> todoLog.getTodo().getCategory(), Collectors.summingLong(TodoLog::getDuration)));
+        return categoryDuration.values().stream().anyMatch(duration -> duration >= 30000);
     }
 }
 

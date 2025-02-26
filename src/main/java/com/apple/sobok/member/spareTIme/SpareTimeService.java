@@ -13,7 +13,8 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class SpareTimeService {
-    public final SpareTimeRepository spareTimeRepository;
+
+    private final SpareTimeRepository spareTimeRepository;
 
     public Map<String, Object> getSpareTimeByDate(Member member, String day) {
         List<SpareTime> spareTimeList = spareTimeRepository.findByMemberAndDaysContaining(member, List.of(day));
@@ -57,7 +58,8 @@ public class SpareTimeService {
         return result;
     }
 
-    public SpareTime save(Member member, SpareTimeDto spareTimeDto) {
+    public void save(Member member, SpareTimeDto spareTimeDto) {
+
         LocalTime startTime = LocalTime.parse(spareTimeDto.getStartTime());
         LocalTime endTime = LocalTime.parse(spareTimeDto.getEndTime());
         SpareTime spareTime = new SpareTime();
@@ -67,7 +69,7 @@ public class SpareTimeService {
         spareTime.setMember(member);
         spareTime.setDuration(Duration.between(startTime,endTime).toMinutes());
         spareTime.setDays(spareTimeDto.getDays());
-        return spareTimeRepository.save(spareTime);
+        spareTimeRepository.save(spareTime);
     }
 
     public void update(SpareTimeDto spareTimeDto) {

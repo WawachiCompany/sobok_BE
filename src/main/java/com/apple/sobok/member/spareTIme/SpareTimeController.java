@@ -28,12 +28,8 @@ public class SpareTimeController {
 
     @PostMapping("/spare-time")
     public ResponseEntity<?> saveSpareTime(@RequestBody SpareTimeDto spareTimeDto) {
-        try {
-            Member member = memberService.getMember();
-            spareTimeService.save(member, spareTimeDto);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("자투리 시간 등록 실패" + e.getMessage());
-        }
+        Member member = memberService.getMember();
+        spareTimeService.save(member, spareTimeDto);
         return ResponseEntity.ok("자투리 시간 등록 완료");
     }
 

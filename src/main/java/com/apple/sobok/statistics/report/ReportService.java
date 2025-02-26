@@ -10,6 +10,8 @@ import com.apple.sobok.routine.Routine;
 import com.apple.sobok.routine.RoutineLog;
 import com.apple.sobok.routine.RoutineLogRepository;
 import com.apple.sobok.routine.RoutineRepository;
+import com.apple.sobok.routine.todo.TodoLog;
+import com.apple.sobok.routine.todo.TodoLogRepository;
 import com.apple.sobok.statistics.DailyAchieve;
 import com.apple.sobok.statistics.DailyAchieveDto;
 import com.apple.sobok.statistics.DailyAchieveRepository;
@@ -21,7 +23,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +44,7 @@ public class ReportService {
     private final AccountLogRepository accountLogRepository;
     private final StatisticsService statisticsService;
     private final DailyAchieveRepository dailyAchieveRepository;
+    private final TodoLogRepository todoLogRepository;
 
     public ResponseEntity<?> getReport() {
         Member member = memberService.getMember();
@@ -47,20 +52,31 @@ public class ReportService {
         String endDate = YearMonth.now().minusMonths(1).atEndOfMonth().toString();
         MonthlyUserReport monthlyUserReport = monthlyUserReportRepository.findByMemberIdAndYearMonth(member.getId(), YearMonth.now().minusMonths(1).toString());
         Map<String, Object> response = new HashMap<>();
-        response.put("totalTime", monthlyUserReport.getTotalAccumulatedTime()); // 1페이지 총 누적시간
+
+        // 리포트 메세지에서의 재사용을 위해 변수로 저장
+        List<DailyAchieveDto> result = statisticsService.getDailyAchieve(member, startDate, endDate); // 3페이지를 위한 데이터
+        Long totalAccumulatedTime = monthlyUserReport.getTotalAccumulatedTime();
+        String mostPerformedStartTime = getMostPerformedStartTime(member);
+        Long totalAchievedCount = getTotalAchievedCount(result);
+
+
+
+        response.put("totalTime", totalAccumulatedTime); // 1페이지 총 누적시간
         response.put("totalTimePercent", getTotalTimePercent(member)); // 1페이지 누적시간 순위
         response.put("routineStatistics", getMonthlyRoutineStatistics(member)); // 1페이지 루틴별 누적시간
         response.put("accountStatistics", getMonthlyAccountStatistics(member)); // 1페이지 적금별 누적시간
+        response.put("reportMessage1", getReportMessage1(totalAccumulatedTime)); // 1페이지 리포트 메세지
 
         response.put("averageTime", monthlyUserReport.getAverageAccumulatedTime()); // 2페이지 하루 평균시간
         response.put("averageTimeCompare", getAverageTimeCompare(member)); // 2페이지 하루 평균시간 전체 평균 대비
+        response.put("mostPerformedStartTime", mostPerformedStartTime); // 2페이지 가장 많이 진행한 시간대(30분 단위)
+        response.put("reportMessage2", getReportMessage2(LocalTime.parse(mostPerformedStartTime), member.getDisplayName())); // 2페이지 리포트 메세지
 
 
-
-        List<DailyAchieveDto> result = statisticsService.getDailyAchieve(member, startDate, endDate); // 3페이지를 위한 데이터
-        response.put("totalAchievedCount", getTotalAchievedCount(result)); // 3페이지 총 달성 일자
+        response.put("totalAchievedCount", totalAchievedCount); // 3페이지 총 달성 일자
         response.put("totalAchievedPercent", getTotalAchievedPercent(result)); // 3페이지 달성 일자 비율(눈 예보 정확도)
         response.put("dailyAchieve", result); // 3페이지 일별 달성 상태(캘린더 표시)
+        response.put("reportMessage3", getReportMessage3(totalAchievedCount,YearMonth.now().minusMonths(1).getMonthValue())); // 3페이지 리포트 메세지
 
         response.put("consecutiveAchieveCount", calculateMonthlyConsecutiveAchieve(getDailyAchievesForCurrentMonth(member))); // 4페이지 월별 연속 달성일
         response.put("mostAchievedAccount", getMonthlyMostAchievedAccount(member)); // 5페이지 가장 많이 달성한 적금 {title, duration}
@@ -94,6 +110,34 @@ public class ReportService {
                 .average().orElse(0));
         long memberTime = monthlyUserReportRepository.findByMemberIdAndYearMonth(member.getId(), currentMonth).getAverageAccumulatedTime();
         return memberTime - averageTime;
+    }
+
+    public String getMostPerformedStartTime(Member member) {
+        YearMonth currentMonth = YearMonth.now().minusMonths(1);
+        LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfMonth = currentMonth.atEndOfMonth().atTime(23, 59, 59);
+        List<TodoLog> todoLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetWeen(member, startOfMonth, endOfMonth);
+
+        // 30분 단위로 묶어서 카운트 (시간 부분만 사용)
+        Map<LocalTime, Long> timeCount = todoLogs.stream()
+                .map(todoLog -> roundToNearestHalfHour(todoLog.getStartTime().toLocalTime()))
+                .collect(Collectors.groupingBy(time -> time, Collectors.counting()));
+
+        return timeCount.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(entry -> entry.getKey().toString())
+                .orElse("none");
+    }
+
+    public static LocalTime roundToNearestHalfHour(LocalTime time) {
+        int minute = time.getMinute();
+        if (minute < 15) {
+            return time.truncatedTo(ChronoUnit.HOURS);
+        } else if (minute < 45) {
+            return time.truncatedTo(ChronoUnit.HOURS).plusMinutes(30);
+        } else {
+            return time.truncatedTo(ChronoUnit.HOURS).plusHours(1);
+        }
     }
 
     public List<Map<String, Object>> getMonthlyRoutineStatistics(Member member) {
@@ -215,6 +259,55 @@ public class ReportService {
         result.put("duration", duration);
         return result;
     }
+
+    public String getReportMessage1(Long totalAccumulatedTime) {
+        if(totalAccumulatedTime >= 3600) {
+            return "세상에에! 폭설이에요! 세상이 온통 하얀색이네요!";
+        } else if(totalAccumulatedTime >= 2400) {
+            return "눈이 정말 많이 내렸어요! 눈사람 여러개를 만들 수 있을 정도로요!";
+        } else if(totalAccumulatedTime >= 1200) {
+            return "이번 달은 눈 녹을 걱정이 없었어요! 대단해요!";
+        } else if(totalAccumulatedTime >= 600) {
+            return "조금씩 내리는 눈이 예뻤던 한달이에요! 눈 내리는 날이 얼마나 소중했는지!";
+        } else {
+            return "이번 달은 따뜻했나봐요! 다음 달에는 더 많은 눈이 내리겠죠 ?";
+        }
+    }
+
+    public String getReportMessage2(LocalTime mostPerformedStartTime, String displayName) {
+        if(isBetween(mostPerformedStartTime, LocalTime.of(6, 0), LocalTime.of(11, 59))) {
+            return displayName + "님 덕분에 아침부터 예쁜 눈을 볼 수 있었어요!";
+        }
+        else if(isBetween(mostPerformedStartTime, LocalTime.of(12, 0), LocalTime.of(17, 59))) {
+            return "나른한 오후, " + displayName + "님 덕분에 눈이 내리네요! 소소한 기분 전환, 최고에요!";
+        }
+        else if(isBetween(mostPerformedStartTime, LocalTime.of(18, 0), LocalTime.of(23, 59))) {
+            return "저녁까지 힘차게 눈이 내리네요! 오늘도 수고하셨습니다!";
+        }
+        else {
+            return "고요한 밤에 예쁜 눈이 내리네요! " + displayName + "님의 노력이 조용히 쌓이고 있군요!";
+        }
+    }
+
+    public boolean isBetween(LocalTime time, LocalTime startTime, LocalTime endTime) {
+        return (time.equals(startTime) || time.isAfter(startTime)) && time.isBefore(endTime);
+    }
+
+    public String getReportMessage3(Long totalAchievedCount, int currentMonth) {
+        if(totalAchievedCount >= 21) {
+            return "매일 눈이 내렸던 "+ currentMonth + "월이라니! 대단해요!!";
+        }
+        else if(totalAchievedCount >= 11) {
+            return "눈이 꾸준히 내렸던 " + currentMonth + "월이네요! 수고하셨어요!";
+        }
+        else if(totalAchievedCount >= 6) {
+            return "눈 내리는 날이 소중했던 " + currentMonth + "월이네요! 소중한 날들을 모아모아!";
+        }
+        else {
+            return "맑은 날이 많았던 " + currentMonth + "월이네요! 눈 내리는 날이 많아졌으면 좋겠어요:)";
+        }
+    }
+
 
 
 }
