@@ -31,7 +31,7 @@ public class SnowCardService {
     private final RoutineLogRepository routineLogRepository;
 
     // 눈 카드 달성 조건 확인 후 뽑기
-    public String getSnowCard(Member member) {
+    public Map<String, String> getSnowCard(Member member) {
         List<String> snowCards = new ArrayList<>();
         if (isHexagon(member)) {
             snowCards.add("hexagon");
@@ -62,8 +62,10 @@ public class SnowCardService {
         if (isSpring(member)) {
             snowCards.add("spring");
         }
+        Map<String, String> result = new HashMap<>();
         Random random = new Random();
-        return snowCards.get(random.nextInt(snowCards.size()));
+        result.put("snowCard", snowCards.get(random.nextInt(snowCards.size())));
+        return result;
     }
 
     // 육각형 모양의 눈 조각

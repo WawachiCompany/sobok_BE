@@ -2,6 +2,7 @@ package com.apple.sobok.member.spareTIme;
 
 
 import com.apple.sobok.member.Member;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import java.util.List;

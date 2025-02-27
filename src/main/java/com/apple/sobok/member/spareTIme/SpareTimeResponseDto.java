@@ -13,4 +13,5 @@ public class SpareTimeResponseDto {
     private String startTime;
     private String endTime;
     private Long duration;
+    private List<String> days;
 }

@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Service
@@ -26,6 +27,7 @@ public class SpareTimeService {
                     dto.setStartTime(spareTime.getStartTime());
                     dto.setEndTime(spareTime.getEndTime());
                     dto.setDuration(spareTime.getDuration());
+                    dto.setDays(spareTime.getDays());
                     return dto;
                 })
                 .toList();
@@ -46,13 +48,13 @@ public class SpareTimeService {
         days.forEach(day -> {
             List<SpareTime> spareTimeList = spareTimeRepository.findByMemberAndDaysContaining(member, List.of(day));
             if(spareTimeList.isEmpty()) {
-                result.put(day, 0L);
+                result.put(day.toLowerCase(), 0L);
             }
             else {
                 long totalDuration = spareTimeList.stream()
                         .mapToLong(SpareTime::getDuration)
                         .sum();
-                result.put(day, totalDuration);
+                result.put(day.toLowerCase(), totalDuration);
             }
         });
         return result;
