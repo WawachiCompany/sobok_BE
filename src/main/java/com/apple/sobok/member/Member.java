@@ -48,4 +48,9 @@ public class Member {
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Account> accounts;
+
+    @ElementCollection
+    @CollectionTable(name = "link_apps", joinColumns = @JoinColumn(name = "member_id"))
+    @Column(name = "link_app")
+    private List<String> linkApps;
 }

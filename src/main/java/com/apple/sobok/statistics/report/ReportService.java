@@ -70,8 +70,9 @@ public class ReportService {
         response.put("averageTime", monthlyUserReport.getAverageAccumulatedTime()); // 2페이지 하루 평균시간
         response.put("averageTimeCompare", getAverageTimeCompare(member)); // 2페이지 하루 평균시간 전체 평균 대비
         response.put("mostPerformedStartTime", mostPerformedStartTime); // 2페이지 가장 많이 진행한 시간대(30분 단위)
-        response.put("reportMessage2", getReportMessage2(LocalTime.parse(mostPerformedStartTime), member.getDisplayName())); // 2페이지 리포트 메세지
-
+        if(!mostPerformedStartTime.equals("none")) {
+            response.put("reportMessage2", getReportMessage2(LocalTime.parse(mostPerformedStartTime), member.getDisplayName())); // 2페이지 리포트 메세지
+        }
 
         response.put("totalAchievedCount", totalAchievedCount); // 3페이지 총 달성 일자
         response.put("totalAchievedPercent", getTotalAchievedPercent(result)); // 3페이지 달성 일자 비율(눈 예보 정확도)

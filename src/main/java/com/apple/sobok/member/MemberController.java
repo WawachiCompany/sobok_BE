@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -239,7 +240,34 @@ public class MemberController {
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "구독권 가격 조회 실패: " + e.getMessage());
-            response.put("timestamp", LocalDateTime.now());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+
+    @PostMapping("/link-app")
+    public ResponseEntity<?> linkApp(@RequestBody Map<String, List<String>> linkApps) {
+        try {
+            Member member = memberService.getMember();
+            memberService.updateOrSaveLinkApps(member, linkApps.get("linkApps"));
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "연동 앱 등록 성공");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "연동 앱 등록 실패: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+
+    @GetMapping("/link-app")
+    public ResponseEntity<?> getLinkApps() {
+        try {
+            Member member = memberService.getMember();
+            Map<String, Object> response = memberService.getLinkApps(member);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "연동 앱 조회 실패: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }

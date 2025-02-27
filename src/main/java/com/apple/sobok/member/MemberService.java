@@ -168,6 +168,18 @@ public class MemberService {
         return (int) (totalTimeOfAccounts * 0.9);
     }
 
+    public void updateOrSaveLinkApps(Member member, List<String> linkApps) {
+        member.setLinkApps(linkApps);
+        memberRepository.save(member);
+    }
+
+    public Map<String, Object> getLinkApps(Member member) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("linkApps", member.getLinkApps());
+        response.put("message", "연동 앱 조회 성공");
+        return response;
+    }
+
 
 }
 
