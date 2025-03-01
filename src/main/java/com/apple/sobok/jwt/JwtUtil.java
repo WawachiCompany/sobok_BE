@@ -2,7 +2,6 @@ package com.apple.sobok.jwt;
 
 import com.apple.sobok.member.MyUserDetailsService;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -14,6 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -140,7 +141,7 @@ public class JwtUtil {
     }
 
     // Request에서 Refresh Token 추출
-    public String extractTokenFromRequest(HttpServletRequest request) {
+    public String extractRefreshTokenFromRequest(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
@@ -152,4 +153,17 @@ public class JwtUtil {
         return null;
     }
 
+    // Request에서 Refresh Token 추출
+
+    public String extractAccessTokenFromRequestHeader() {
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if(attrs != null) {
+            HttpServletRequest request = attrs.getRequest();
+            String token = request.getHeader("Authorization");
+            if (token != null && token.startsWith("Bearer ")) {
+                return token.substring(7);
+            }
+        }
+        return null;
+    }
 }

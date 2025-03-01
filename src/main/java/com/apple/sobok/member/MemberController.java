@@ -1,6 +1,7 @@
 package com.apple.sobok.member;
 
 import com.apple.sobok.jwt.JwtUtil;
+import com.apple.sobok.member.point.PremiumResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -158,7 +159,7 @@ public class MemberController {
             memberService.removeCookie(response, "refreshToken");
             memberService.removeCookie(response, "accessToken");
 
-            String refreshToken = jwtUtil.extractTokenFromRequest(request);
+            String refreshToken = jwtUtil.extractRefreshTokenFromRequest(request);
             System.out.println("refreshToken = " + refreshToken);
             jwtUtil.deleteRefreshToken(refreshToken);
 
@@ -178,7 +179,7 @@ public class MemberController {
     @PostMapping("/refresh-token")
     public ResponseEntity<Map<String, Object>> refreshToken(HttpServletRequest request) {
         try {
-            String refreshToken = jwtUtil.extractTokenFromRequest(request);
+            String refreshToken = jwtUtil.extractRefreshTokenFromRequest(request);
             if (refreshToken != null) {
                 String newAccessToken = jwtUtil.refreshAccessToken(refreshToken);
                 Map<String, Object> response = new HashMap<>();
@@ -272,5 +273,20 @@ public class MemberController {
         }
     }
 
+    @GetMapping("/premium/log")
+    public ResponseEntity<?> getPremiumLog() {
+        try {
+            Member member = memberService.getMember();
+            List<PremiumResponseDto> result = memberService.getPremiumLog(member);
+            Map<String, Object> response = new HashMap<>();
+            response.put("premiumLog", result);
+            response.put("message", "프리미엄 로그 조회 성공");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "프리미엄 로그 조회 실패: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
 
 }

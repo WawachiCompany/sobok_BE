@@ -41,4 +41,7 @@ public class TodoController {
     public ResponseEntity<?> getClosestTodo() {
         return todoService.getClosestTodo();
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllTodos() { return todoService.getAllTodos(); }
 }

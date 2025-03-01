@@ -4,6 +4,7 @@ import com.apple.sobok.account.Account;
 import com.apple.sobok.jwt.JwtUtil;
 import com.apple.sobok.member.point.*;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -63,7 +65,7 @@ public class MemberService {
         response.put("totalAccountBalance", member.getTotalAccountBalance());
         response.put("weeklyRoutineTime", member.getWeeklyRoutineTime());
         if(member.getIsPremium()) {
-            Premium premium = premiumRepository.findByMember(member)
+            Premium premium = premiumRepository.findByMemberAndEndAtAfter(member, LocalDate.now())
                     .orElseThrow(() -> new IllegalArgumentException("프리미엄 정보를 찾을 수 없습니다."));
             response.put("premiumEndAt", premium.getEndAt());
         }
@@ -142,7 +144,7 @@ public class MemberService {
         member.setPoint(point - premiumPrice);
         member.setIsPremium(true);
 
-        Premium premium = premiumRepository.findByMember(member)
+        Premium premium = premiumRepository.findByMemberAndEndAtAfter(member, LocalDate.now())
                 .orElseGet(() -> {
                     Premium newPremium = new Premium();
                     newPremium.setMember(member);
@@ -158,8 +160,8 @@ public class MemberService {
 
     @Transactional
     public Member getMember() {
-        String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
-        if(jwtUtil.validateToken(token)) {
+        String token = jwtUtil.extractAccessTokenFromRequestHeader();
+        if(!jwtUtil.validateToken(token)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "액세스 토큰이 만료되었습니다.");
         }
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -187,7 +189,16 @@ public class MemberService {
         return response;
     }
 
-
+    public List<PremiumResponseDto> getPremiumLog(Member member) {
+        List<Premium> premiumList = premiumRepository.findByMember(member);
+        return premiumList.stream()
+                .map(premium -> {
+                    PremiumResponseDto premiumResponseDto = new PremiumResponseDto();
+                    premiumResponseDto.setStartAt(premium.getStartAt());
+                    premiumResponseDto.setEndAt(premium.getEndAt());
+                    return premiumResponseDto;
+                }).collect(Collectors.toList());
+    }
 }
 
 

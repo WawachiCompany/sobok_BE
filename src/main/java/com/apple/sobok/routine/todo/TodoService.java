@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -161,5 +160,11 @@ public class TodoService {
         } else {
             return ResponseEntity.ok(Map.of("message", "오늘의 할 일이 없습니다."));
         }
+    }
+
+    public ResponseEntity<?> getAllTodos() {
+        List<Todo> todos = todoRepository.findAllByMember(memberService.getMember());
+        List<TodoDto> todoDtos = todos.stream().map(this::convertToDto).collect(Collectors.toList());
+        return ResponseEntity.ok(todoDtos);
     }
 }
