@@ -20,4 +20,10 @@ public class SnowCardController {
         Member member = memberService.getMember();
         return ResponseEntity.ok(snowCardService.getSnowCard(member, yearMonth));
     }
+
+    @GetMapping("/snowcard/all")
+    public ResponseEntity<?> getAllSnowCard() {
+        Member member = memberService.getMember();
+        return ResponseEntity.ok(snowCardService.getAllSnowCard(member));
+    }
 }

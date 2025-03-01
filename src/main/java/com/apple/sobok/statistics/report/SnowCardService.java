@@ -29,6 +29,7 @@ public class SnowCardService {
     private final ReportService reportService;
     private final CategoryRepository categoryRepository;
     private final RoutineLogRepository routineLogRepository;
+    private final SnowCardRepository snowCardRepository;
 
     // 눈 카드 달성 조건 확인 후 뽑기
     public Map<String, String> getSnowCard(Member member, String yearMonth) {
@@ -65,7 +66,16 @@ public class SnowCardService {
         }
         Map<String, String> result = new HashMap<>();
         Random random = new Random();
-        result.put("snowCard", snowCards.get(random.nextInt(snowCards.size())));
+        String card = snowCards.get(random.nextInt(snowCards.size()));
+        result.put("snowCard", card);
+
+        // 눈 카드 뽑은 후 저장
+        SnowCard snowCard = new SnowCard();
+        snowCard.setSnowCard(card);
+        snowCard.setMemberId(member.getId());
+        snowCard.setYearMonth(yearMonth);
+        snowCardRepository.save(snowCard);
+
         return result;
     }
 
@@ -192,6 +202,16 @@ public class SnowCardService {
         Map<String, Long> categoryDuration = todoLogs.stream()
                 .collect(Collectors.groupingBy(todoLog -> todoLog.getTodo().getCategory(), Collectors.summingLong(TodoLog::getDuration)));
         return categoryDuration.values().stream().anyMatch(duration -> duration >= 30000);
+    }
+
+    public List<SnowCardResponseDto> getAllSnowCard(Member member) {
+        List<SnowCard> snowCardList = snowCardRepository.findAllByMemberId(member.getId());
+        return snowCardList.stream().map(snowCard -> {
+            SnowCardResponseDto dto = new SnowCardResponseDto();
+            dto.setYearMonth(snowCard.getYearMonth());
+            dto.setSnowCard(snowCard.getSnowCard());
+            return dto;
+        }).collect(Collectors.toList());
     }
 }
 
