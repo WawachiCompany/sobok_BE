@@ -75,11 +75,19 @@ public class RoutineService {
                     categoryRepository.save(category);
                 }
 
+                // 기존의 다른 할 일과의 중복 체크
+                // #TODO
+                List<Todo> existingTodos = todoRepository.findAllByMemberAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
+                        member, todoDto.getEndTime(), todoDto.getStartTime());
+                if (!existingTodos.isEmpty()) {
+                    throw new IllegalArgumentException("기존의 다른 할 일과 시간이 겹칩니다.");
+                }
                 todo.setStartTime(todoDto.getStartTime());
                 todo.setEndTime(todoDto.getEndTime());
                 todo.setDuration(Duration.between(todoDto.getStartTime(), todoDto.getEndTime()).toMinutes());
                 todo.setLinkApp(todoDto.getLinkApp());
                 todo.setIsCompleted(false);
+                todo.setCategory(todoDto.getCategory());
                 return todo;
             }).collect(Collectors.toList());
 
@@ -254,7 +262,8 @@ public class RoutineService {
                         "endTime", todo.getEndTime(),
                         "duration", todo.getDuration(),
                         "linkApp", todo.getLinkApp(),
-                        "isCompleted", todo.getIsCompleted()
+                        "isCompleted", todo.getIsCompleted(),
+                        "category", todo.getCategory()
                 ))
                 .toList());
         return response;
@@ -290,7 +299,8 @@ public class RoutineService {
                         "startTime", todo.getStartTime(),
                         "endTime", todo.getEndTime(),
                         "duration", todo.getDuration(),
-                        "linkApp", todo.getLinkApp()
+                        "linkApp", todo.getLinkApp(),
+                        "category", todo.getCategory()
                 ))
                 .toList());
         return response;

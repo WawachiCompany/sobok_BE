@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequiredArgsConstructor
@@ -15,8 +16,8 @@ public class SnowCardController {
     private final MemberService memberService;
 
     @GetMapping("/snowcard")
-    public ResponseEntity<?> getSnowCard() {
+    public ResponseEntity<?> getSnowCard(@RequestParam String yearMonth) {
         Member member = memberService.getMember();
-        return ResponseEntity.ok(snowCardService.getSnowCard(member));
+        return ResponseEntity.ok(snowCardService.getSnowCard(member, yearMonth));
     }
 }

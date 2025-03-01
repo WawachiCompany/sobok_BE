@@ -31,32 +31,33 @@ public class SnowCardService {
     private final RoutineLogRepository routineLogRepository;
 
     // 눈 카드 달성 조건 확인 후 뽑기
-    public Map<String, String> getSnowCard(Member member) {
+    public Map<String, String> getSnowCard(Member member, String yearMonth) {
+        YearMonth yearMonthObj = YearMonth.parse(yearMonth);
         List<String> snowCards = new ArrayList<>();
         if (isHexagon(member)) {
             snowCards.add("hexagon");
         }
-        snowCards.add(getMostPerformedCategoryLastMonth(member));
-        snowCards.add(getMoon(member));
-        if (isLike(member)) {
+        snowCards.add(getMostPerformedCategoryLastMonth(member, yearMonthObj));
+        snowCards.add(getMoon(member, yearMonthObj));
+        if (isLike(member, yearMonthObj)) {
             snowCards.add("like");
         }
-        if (isRolyPoly(member)) {
+        if (isRolyPoly(member, yearMonthObj)) {
             snowCards.add("rolyPoly");
         }
-        if (isBeaker(member)) {
+        if (isBeaker(member, yearMonthObj)) {
             snowCards.add("beaker");
         }
-        if (isAngel(member)) {
+        if (isAngel(member, yearMonthObj)) {
             snowCards.add("angel");
         }
-        if (ispudding(member)) {
+        if (ispudding(member, yearMonthObj)) {
             snowCards.add("pudding");
         }
-        if (isFairy(member)) {
+        if (isFairy(member, yearMonthObj)) {
             snowCards.add("fairy");
         }
-        if (isCrab(member)) {
+        if (isCrab(member, yearMonthObj)) {
             snowCards.add("crab");
         }
         if (isSpring(member)) {
@@ -78,10 +79,9 @@ public class SnowCardService {
     }
 
     // 카테고리 가장 많이 한거
-    public String getMostPerformedCategoryLastMonth(Member member) {
-        YearMonth lastMonth = YearMonth.now().minusMonths(1);
-        LocalDateTime startOfLastMonth = lastMonth.atDay(1).atStartOfDay();
-        LocalDateTime endOfLastMonth = lastMonth.atEndOfMonth().atTime(23, 59, 59);
+    public String getMostPerformedCategoryLastMonth(Member member, YearMonth yearMonth) {
+        LocalDateTime startOfLastMonth = yearMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfLastMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59);
 
         List<TodoLog> lastMonthTodoLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetWeen(member, startOfLastMonth, endOfLastMonth);
         Map<String, Long> categoryCount = lastMonthTodoLogs.stream()
@@ -96,8 +96,8 @@ public class SnowCardService {
     }
 
     // 달 모양의 눈 조각
-    public String getMoon(Member member) {
-        List<DailyAchieveDto> result = statisticsService.getDailyAchieve(member, YearMonth.now().minusMonths(1).atDay(1).toString(), YearMonth.now().atEndOfMonth().toString());
+    public String getMoon(Member member, YearMonth yearMonth) {
+        List<DailyAchieveDto> result = statisticsService.getDailyAchieve(member, yearMonth.atDay(1).toString(), yearMonth.atEndOfMonth().toString());
         double percent = reportService.getTotalAchievedPercent(result);
         if (percent == 100) {
             return "full";
@@ -111,17 +111,17 @@ public class SnowCardService {
     }
 
     // 좋아하는 마음의 눈 조각
-    public boolean isLike(Member member) {
-        int result = reportService.calculateMonthlyConsecutiveAchieve(reportService.getDailyAchievesForCurrentMonth(member));
+    public boolean isLike(Member member, YearMonth yearMonth) {
+        int result = reportService.calculateMonthlyConsecutiveAchieve(reportService.getDailyAchievesForCurrentMonth(member, yearMonth));
         return result >= 15;
     }
 
     // 오뚝이 모양의 눈 조각
-    public boolean isRolyPoly(Member member) {
+    public boolean isRolyPoly(Member member, YearMonth yearMonth) {
         LocalDate lastAchievedDate = null;
         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
 
-        List<DailyAchieveDto> dailyAchieves = statisticsService.getDailyAchieve(member, YearMonth.now().minusMonths(1).atDay(1).toString(), YearMonth.now().minusMonths(1).atEndOfMonth().toString());
+        List<DailyAchieveDto> dailyAchieves = statisticsService.getDailyAchieve(member, yearMonth.atDay(1).toString(), yearMonth.atEndOfMonth().toString());
         for (DailyAchieveDto dto : dailyAchieves) {
             // "ALL_ACHIEVED" 또는 "SOME_ACHIEVED" 상태면 진행한 날로 간주
             if ("ALL_ACHIEVED".equals(dto.getStatus()) || "SOME_ACHIEVED".equals(dto.getStatus())) {
@@ -141,15 +141,15 @@ public class SnowCardService {
     }
 
     // 비커 모양의 눈 조각
-    public boolean isBeaker(Member member) {
+    public boolean isBeaker(Member member, YearMonth yearMonth) {
         // 저번 달에 새로운 카테고리의 할 일을 생성한 경우
-        List<Category> categoryList = categoryRepository.findByMemberAndCreatedAtBetween(member, YearMonth.now().minusMonths(1).atDay(1).atStartOfDay(), YearMonth.now().minusMonths(1).atEndOfMonth().atTime(23, 59, 59));
+        List<Category> categoryList = categoryRepository.findByMemberAndCreatedAtBetween(member, yearMonth.atDay(1).atStartOfDay(), yearMonth.atEndOfMonth().atTime(23, 59, 59));
         return !categoryList.isEmpty();
     }
 
     // 천사 날개의 눈 조각
-    public boolean isAngel(Member member) {
-        List<TodoLog> todoLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetWeen(member, YearMonth.now().minusMonths(1).atDay(1).atStartOfDay(), YearMonth.now().minusMonths(1).atEndOfMonth().atTime(23, 59, 59));
+    public boolean isAngel(Member member, YearMonth yearMonth) {
+        List<TodoLog> todoLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetWeen(member, yearMonth.atDay(1).atStartOfDay(), yearMonth.atEndOfMonth().atTime(23, 59, 59));
         Set<String> categories = todoLogs.stream()
                 .map(todoLog -> todoLog.getTodo().getCategory())
                 .filter(Objects::nonNull)
@@ -158,9 +158,9 @@ public class SnowCardService {
     }
 
     // 한 입 베어먹은 푸딩의 눈 조각
-    public boolean ispudding(Member member) {
+    public boolean ispudding(Member member, YearMonth yearMonth) {
         // 지난 달 투두 로그 불러와서 하나의 투두만 있는지 확인
-        List<TodoLog> todoLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetWeen(member, YearMonth.now().minusMonths(1).atDay(1).atStartOfDay(), YearMonth.now().minusMonths(1).atEndOfMonth().atTime(23, 59, 59));
+        List<TodoLog> todoLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetWeen(member, yearMonth.atDay(1).atStartOfDay(), yearMonth.atEndOfMonth().atTime(23, 59, 59));
         Set<Todo> todos = todoLogs.stream()
                 .map(TodoLog::getTodo)
                 .collect(Collectors.toSet());
@@ -168,18 +168,18 @@ public class SnowCardService {
     }
 
     // 요정 모양의 눈 조각
-    public boolean isFairy(Member member) {
+    public boolean isFairy(Member member, YearMonth yearMonth) {
         // 지난 달에 AI 루틴만 진행한 경우
-        List<RoutineLog> routineLogs = routineLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetween(member, YearMonth.now().minusMonths(1).atDay(1).atStartOfDay(), YearMonth.now().minusMonths(1).atEndOfMonth().atTime(23, 59, 59));
+        List<RoutineLog> routineLogs = routineLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetween(member, yearMonth.atDay(1).atStartOfDay(), yearMonth.atEndOfMonth().atTime(23, 59, 59));
         return routineLogs.stream()
                 .map(RoutineLog::getRoutine)
                 .allMatch(Routine::getIsAiRoutine);
     }
 
     // 소라게 모양의 눈 조각
-    public boolean isCrab(Member member) {
+    public boolean isCrab(Member member, YearMonth yearMonth) {
         // 지난 달에 자율 루틴만 진행한 경우
-        List<RoutineLog> routineLogs = routineLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetween(member, YearMonth.now().minusMonths(1).atDay(1).atStartOfDay(), YearMonth.now().minusMonths(1).atEndOfMonth().atTime(23, 59, 59));
+        List<RoutineLog> routineLogs = routineLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetween(member, yearMonth.atDay(1).atStartOfDay(), yearMonth.atEndOfMonth().atTime(23, 59, 59));
         return routineLogs.stream()
                 .map(RoutineLog::getRoutine)
                 .noneMatch(Routine::getIsAiRoutine);

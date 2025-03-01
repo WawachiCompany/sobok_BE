@@ -1,6 +1,7 @@
 package com.apple.sobok.member;
 
 import com.apple.sobok.account.Account;
+import com.apple.sobok.jwt.JwtUtil;
 import com.apple.sobok.member.point.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,6 +25,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PremiumRepository premiumRepository;
     private final PointLogService pointLogService;
+    private final JwtUtil jwtUtil;
 
     public boolean isEmailDuplicated(String email) {
         return memberRepository.existsByEmail(email);
@@ -155,6 +158,10 @@ public class MemberService {
 
     @Transactional
     public Member getMember() {
+        String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+        if(jwtUtil.validateToken(token)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "액세스 토큰이 만료되었습니다.");
+        }
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return memberRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
