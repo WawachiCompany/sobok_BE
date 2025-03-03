@@ -161,6 +161,7 @@ public class MemberService {
     @Transactional
     public Member getMember() {
         String token = jwtUtil.extractAccessTokenFromRequestHeader();
+        System.out.println("getMember에서의 token = " + token);
         if(!jwtUtil.validateToken(token)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "액세스 토큰이 만료되었습니다.");
         }
