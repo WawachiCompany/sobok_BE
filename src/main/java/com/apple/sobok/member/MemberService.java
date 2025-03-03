@@ -163,6 +163,7 @@ public class MemberService {
         String token = jwtUtil.extractAccessTokenFromRequestHeader();
         System.out.println("getMember에서의 token = " + token);
         if(!jwtUtil.validateToken(token)) {
+            System.out.println("토큰이 유효하지 않습니다.");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "액세스 토큰이 만료되었습니다.");
         }
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
