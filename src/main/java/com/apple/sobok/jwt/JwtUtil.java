@@ -1,5 +1,7 @@
 package com.apple.sobok.jwt;
 
+import com.apple.sobok.member.Member;
+import com.apple.sobok.member.MemberRepository;
 import com.apple.sobok.member.MyUserDetailsService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -7,17 +9,26 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.crypto.SecretKey;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Component
@@ -28,18 +39,39 @@ public class JwtUtil {
             Keys.hmacShaKeyFor(Decoders.BASE64.decode(
                     "jwtpassword123jwtpassword123jwtpassword123jwtpassword123jwtpassword"
             ));
-    private static final long ACCESS_TOKEN_EXPIRATION = 900_000; // 15분
+    private static final long ACCESS_TOKEN_EXPIRATION = 60_000; // 1분
     private static final long REFRESH_TOKEN_EXPIRATION = 30 * 24 * 60 * 60 * 1000L; // 30일
     private final RefreshTokenRepository refreshTokenRepository;
+    private final MemberRepository memberRepository;
+    private final SecurityContextService securityContextService;
 
     // 리프레시 토큰을 사용하여 새로운 액세스 토큰 발급
     @Transactional
-    public String refreshAccessToken(String refreshToken) {
+    public String refreshAccessToken(String refreshToken, HttpServletRequest request, HttpServletResponse response) {
         if (validateToken(refreshToken)) {
             Claims claims = extractToken(refreshToken);
             String username = claims.get("username", String.class);
             // 새로운 액세스 토큰 생성
-            return createToken(username);
+            String newAccessToken = createToken(username);
+
+            // CustomUser에 필요한 정보 추출
+            List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+            authorities.add(new SimpleGrantedAuthority("일반유저"));
+
+            UserDetails userDetails = new MyUserDetailsService.CustomUser(username, "", authorities);
+
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+            // 🔥 SecurityContextHolder를 즉시 업데이트
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            context.setAuthentication(authentication);
+            SecurityContextHolder.setContext(context);
+
+            // SecurityContext 저장
+            securityContextService.saveSecurityContext(request, response);
+
+            return newAccessToken;
         } else {
             throw new IllegalArgumentException("Invalid refresh token");
         }

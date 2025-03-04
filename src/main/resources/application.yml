@@ -62,3 +62,6 @@ server:
     remoteip:
       remote-ip-header: x-forwarded-for
       protocol-header: x-forwarded-proto
+firebase:
+  config:
+    path: ${FIREBASE_CONFIG_PATH}

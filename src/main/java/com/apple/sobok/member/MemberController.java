@@ -177,23 +177,23 @@ public class MemberController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<Map<String, Object>> refreshToken(HttpServletRequest request) {
+    public ResponseEntity<Map<String, Object>> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         try {
             String refreshToken = jwtUtil.extractRefreshTokenFromRequest(request);
             if (refreshToken != null) {
-                String newAccessToken = jwtUtil.refreshAccessToken(refreshToken);
-                Map<String, Object> response = new HashMap<>();
-                response.put("accessToken", newAccessToken);
-                response.put("message", "토큰 갱신 성공");
-                return ResponseEntity.ok(response);
+                String newAccessToken = jwtUtil.refreshAccessToken(refreshToken, request, response);
+                Map<String, Object> result = new HashMap<>();
+                result.put("accessToken", newAccessToken);
+                result.put("message", "토큰 갱신 성공");
+                return ResponseEntity.ok(result);
             } else {
                 throw new IllegalArgumentException("No refresh token found");
             }
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "토큰 갱신 실패: " + e.getMessage());
-            response.put("timestamp", LocalDateTime.now());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            Map<String, Object> result = new HashMap<>();
+            result.put("message", "토큰 갱신 실패: " + e.getMessage());
+            result.put("timestamp", LocalDateTime.now());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
         }
     }
 

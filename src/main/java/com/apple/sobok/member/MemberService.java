@@ -167,6 +167,7 @@ public class MemberService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "액세스 토큰이 만료되었습니다.");
         }
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println("getMember에서의 username = " + username);
         return memberRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
     }
