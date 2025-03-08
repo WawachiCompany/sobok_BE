@@ -86,7 +86,7 @@ public class AccountController {
         try {
             Member member = memberService.getMember();
 
-            List<Account> result = accountRepository.findByMemberAndIsExpired(member, true);
+            List<Account> result = accountRepository.findByMemberAndIsExpiredAndIsEnded(member, true, false);
             List<AccountDto> accountList = accountService.getAccountList(result);
 
             Map<String, Object> response = new HashMap<>();
@@ -98,6 +98,27 @@ public class AccountController {
             Map<String, Object> response = new HashMap<>();
             response.put("timestamp", LocalDateTime.now());
             response.put("message", "만기된 적금 조회 실패: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+
+    @GetMapping("/list/ended")
+    public ResponseEntity<?> getEndedAccountList() {
+        try {
+            Member member = memberService.getMember();
+
+            List<Account> result = accountRepository.findByMemberAndIsExpiredAndIsEnded(member, true, true);
+            List<AccountDto> accountList = accountService.getAccountList(result);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("account_list", accountList);
+            response.put("message", "완료된 적금 조회 성공");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "완료된 적금 조회 실패: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
@@ -257,6 +278,38 @@ public class AccountController {
             Map<String, Object> response = new HashMap<>();
             response.put("timestamp", LocalDateTime.now());
             response.put("message", "적금 내역 조회 실패: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+
+    @PostMapping("/extend")
+    public ResponseEntity<?> extendAccount(@RequestParam Long accountId, @RequestParam Integer duration) {
+        try {
+            Member member = memberService.getMember();
+            Account account = accountRepository.findByMemberAndId(member, accountId);
+            accountService.extendAccount(account, duration);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "적금 연장 완료");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "적금 연장 실패: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+
+    @PostMapping("/end")
+    public ResponseEntity<?> endAccount(@RequestParam Long accountId) {
+        try {
+            Member member = memberService.getMember();
+            Account account = accountRepository.findByMemberAndId(member, accountId);
+            accountService.endAccount(account);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "적금 종료 완료");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "적금 종료 실패: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }

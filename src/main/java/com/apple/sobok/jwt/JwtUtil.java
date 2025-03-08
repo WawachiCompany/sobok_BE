@@ -1,7 +1,6 @@
 package com.apple.sobok.jwt;
 
-import com.apple.sobok.member.Member;
-import com.apple.sobok.member.MemberRepository;
+
 import com.apple.sobok.member.MyUserDetailsService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -28,7 +27,6 @@ import javax.crypto.SecretKey;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Component
@@ -39,10 +37,9 @@ public class JwtUtil {
             Keys.hmacShaKeyFor(Decoders.BASE64.decode(
                     "jwtpassword123jwtpassword123jwtpassword123jwtpassword123jwtpassword"
             ));
-    private static final long ACCESS_TOKEN_EXPIRATION = 60_000; // 1분
+    private static final long ACCESS_TOKEN_EXPIRATION = 900_000; // 15분
     private static final long REFRESH_TOKEN_EXPIRATION = 30 * 24 * 60 * 60 * 1000L; // 30일
     private final RefreshTokenRepository refreshTokenRepository;
-    private final MemberRepository memberRepository;
     private final SecurityContextService securityContextService;
 
     // 리프레시 토큰을 사용하여 새로운 액세스 토큰 발급

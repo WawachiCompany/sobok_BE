@@ -148,11 +148,12 @@ public class ReportService {
         List<Routine> routines = routineRepository.findByMember(member);
         return routines.stream()
                 .map(routine -> {
-                    Map<String, Object> routineMap = new HashMap<>();
-                    routineMap.put("title", routine.getTitle());
                     long duration = routineLogRepository.findAllByRoutineAndIsCompletedAndEndTimeBetween(routine, true, startOfMonth, endOfMonth).stream()
                             .mapToLong(RoutineLog::getDuration)
                             .sum();
+                    if(duration == 0) return null;
+                    Map<String, Object> routineMap = new HashMap<>();
+                    routineMap.put("title", routine.getTitle());
                     routineMap.put("duration", duration);
                     return routineMap;
                 })

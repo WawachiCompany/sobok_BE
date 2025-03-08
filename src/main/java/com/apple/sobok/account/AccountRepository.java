@@ -8,6 +8,8 @@ import java.util.List;
 public interface AccountRepository extends JpaRepository<Account, Long> {
     List<Account> findByMemberAndIsExpired(Member member, Boolean isExpired);
 
+    List<Account> findByMemberAndIsExpiredAndIsEnded(Member member, Boolean isExpired, Boolean isEnded);
+
     Account findByMemberAndId(Member member, Long id);
 
     List<Account> findByMemberAndIsValidAndIsExpired(Member member, Boolean isValid, Boolean isExpired);

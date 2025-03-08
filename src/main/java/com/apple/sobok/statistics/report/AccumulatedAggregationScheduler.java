@@ -49,7 +49,7 @@ public class AccumulatedAggregationScheduler {
     }
 
     public Set<String> getMemberDays(Member member) {
-        List<Routine> routines = routineRepository.findByMember(member);
+        List<Routine> routines = routineRepository.findByMemberAndAccountIsExpired(member, false);
         return routines.stream()
                 .flatMap(routine -> routine.getDays().stream())
                 .collect(Collectors.toSet());

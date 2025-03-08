@@ -380,7 +380,7 @@ public class RoutineService {
     }
 
     public void calculateWeeklyRoutineTime(Member member) {
-        List<Routine> routines = routineRepository.findByMemberAndIsSuspendedAndIsEnded(member, false, false);
+        List<Routine> routines = routineRepository.findByMemberAndIsSuspendedAndIsEndedAndAccountIsExpired(member, false, false, false);
         long totalTime = routines.stream()
                 .mapToLong(routine -> routine.getDuration() * routine.getDays().size())
                 .sum();

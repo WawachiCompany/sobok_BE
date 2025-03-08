@@ -64,6 +64,12 @@ public class SnowCardService {
         if (isSpring(member)) {
             snowCards.add("spring");
         }
+
+        // 뱀 모양의 눈 조각(2025년 한정)
+        if (yearMonthObj.getYear() == 2025) {
+            snowCards.add("snake");
+        }
+
         Map<String, String> result = new HashMap<>();
         Random random = new Random();
         String card = snowCards.get(random.nextInt(snowCards.size()));

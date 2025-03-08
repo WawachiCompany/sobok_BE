@@ -36,10 +36,11 @@ public class Account {
     private Integer time; // 단위: 분
     private Integer duration; // 단위: 개월
 
-    private Boolean isExpired;
+    private Boolean isExpired; // 만기 여부
+    private Boolean isEnded; // 종료 여부
     private LocalDate createdAt;
 
-    private Boolean isValid; //활성화 요건 갖추었는지 확인
+    private Boolean isValid; // 활성화 요건 갖추었는지 확인
     private Float interest; // 이율
     private Integer interestBalance; // 이자 잔액
 

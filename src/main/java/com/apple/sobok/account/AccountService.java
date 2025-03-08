@@ -133,7 +133,7 @@ public class AccountService {
             pointLog.setMember(member);
             pointLog.setPoint(Math.round(account.getInterestBalance() * ratio));
             pointLog.setBalance(member.getPoint() + pointLog.getPoint());
-            pointLog.setCategory("적금 해지 이자 지급");
+            pointLog.setCategory("적금 중도 해지 이자 지급");
             pointLog.setCreatedAt(LocalDateTime.now());
             pointLogRepository.save(pointLog);
         }
@@ -260,6 +260,60 @@ public class AccountService {
         response.put("account_logs", accountLogDtos);
         response.put("message", "적금 로그 조회 성공");
         return ResponseEntity.ok(response);
+    }
+
+    public void extendAccount(Account account, Integer duration) {
+        Member member = account.getMember();
+
+        if(account.getInterestBalance() != 0) {
+            // 이자 지급
+            member.setPoint(member.getPoint() + account.getInterestBalance());
+            memberRepository.save(member);
+
+            // 포인트 로그 생성
+            PointLog pointLog = new PointLog();
+            pointLog.setMember(member);
+            pointLog.setPoint(account.getInterestBalance());
+            pointLog.setBalance(member.getPoint() + pointLog.getPoint());
+            pointLog.setCategory("적금 연장 전 이자 지급");
+            pointLog.setCreatedAt(LocalDateTime.now());
+            pointLogRepository.save(pointLog);
+        }
+
+        account.setExpiredAt(account.getExpiredAt().plusMonths(duration));
+        account.setIsExpired(false);
+        accountRepository.save(account);
+    }
+
+    public void endAccount(Account account) {
+        Member member = account.getMember();
+
+        if(account.getInterestBalance() != 0) {
+            // 이자 지급
+            member.setPoint(member.getPoint() + account.getInterestBalance());
+            memberRepository.save(member);
+
+            // 포인트 로그 생성
+            PointLog pointLog = new PointLog();
+            pointLog.setMember(member);
+            pointLog.setPoint(account.getInterestBalance());
+            pointLog.setBalance(member.getPoint() + pointLog.getPoint());
+            pointLog.setCategory("적금 완료 이자 지급");
+            pointLog.setCreatedAt(LocalDateTime.now());
+            pointLogRepository.save(pointLog);
+        }
+
+        // 적금에 연결된 루틴 모두 종료 처리 및 적금 연결 해제
+        List<Routine> routines = account.getRoutines();
+        if(!routines.isEmpty()) {
+            for (Routine routine : routines) {
+                routine.setIsEnded(true);
+                routine.setAccount(null);
+            }
+            routineRepository.saveAll(routines);
+        }
+
+        account.setIsEnded(true);
     }
 
 }

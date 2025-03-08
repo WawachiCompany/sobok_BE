@@ -22,7 +22,7 @@ public class AccountPointScheduler {
     private final PointLogService pointLogService;
 
     @Scheduled(cron = "0 0 0 1 * ?") // 매월 1일 자정에 실행
-    public void rewardPrincipalPoint() {
+    public void rewardPrincipalPoint() { // 원금 포인트 지급
         LocalDate today = LocalDate.now();
         List<Account> accounts = accountRepository.findByIsExpired(false);
         for (Account account : accounts) {
