@@ -40,7 +40,7 @@ jobs:
         run: printenv
 
       - name: Check docker-compose configuration
-        run: docker-compose config
+        run: docker compose config
 
       # 2. OIDC를 사용하여 AWS 로그인 (IAM 역할 사용)
       - name: Configure AWS credentials using OIDC
