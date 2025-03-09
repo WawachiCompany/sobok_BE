@@ -28,7 +28,7 @@ public class AccumulatedAggregationScheduler {
     private final RoutineRepository routineRepository;
     private final MonthlyUserReportRepository monthlyUserReportRepository;
 
-    @Scheduled(cron = "0 0 0 25 * *")
+    @Scheduled(cron = "0 0 0 L * *")
     public void aggregationMonthlyUserAccumulation() {
         String month = YearMonth.now().toString();
         LocalDateTime startOfMonth = YearMonth.now().atDay(1).atStartOfDay();
@@ -41,7 +41,7 @@ public class AccumulatedAggregationScheduler {
                     .sum();
             MonthlyUserReport monthlyUserReport = new MonthlyUserReport();
             monthlyUserReport.setMemberId(member.getId());
-            monthlyUserReport.setYearMonth(month);
+            monthlyUserReport.setTargetYearMonth(month);
             monthlyUserReport.setTotalAccumulatedTime(totalDepositTime);
             monthlyUserReport.setAverageAccumulatedTime(totalDepositTime / countDaysInMonth(getMemberDays(member), month));
             monthlyUserReportRepository.save(monthlyUserReport);

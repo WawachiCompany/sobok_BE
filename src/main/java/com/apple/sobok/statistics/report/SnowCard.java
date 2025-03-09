@@ -15,7 +15,7 @@ public class SnowCard {
 
     private Long memberId;
 
-    private String yearMonth;
+    private String targetYearMonth;
 
     private String snowCard;
 }

@@ -1,5 +1,6 @@
 package com.apple.sobok.statistics.report;
 
+import com.apple.sobok.account.Account;
 import com.apple.sobok.member.Member;
 import com.apple.sobok.routine.Routine;
 import com.apple.sobok.routine.RoutineLog;
@@ -34,6 +35,13 @@ public class SnowCardService {
     // 눈 카드 달성 조건 확인 후 뽑기
     public Map<String, String> getSnowCard(Member member, String yearMonth) {
         YearMonth yearMonthObj = YearMonth.parse(yearMonth);
+        Optional<SnowCard> snowCardOptional = snowCardRepository.findByMemberIdAndTargetYearMonth(member.getId(), yearMonth);
+        if (snowCardOptional.isPresent()) {
+            Map<String, String> result = new HashMap<>();
+            result.put("snowCard", snowCardOptional.get().getSnowCard());
+            return result;
+        }
+
         List<String> snowCards = new ArrayList<>();
         if (isHexagon(member)) {
             snowCards.add("hexagon");
@@ -64,6 +72,9 @@ public class SnowCardService {
         if (isSpring(member)) {
             snowCards.add("spring");
         }
+        if (isDonut(member)) {
+            snowCards.add("donut");
+        }
 
         // 뱀 모양의 눈 조각(2025년 한정)
         if (yearMonthObj.getYear() == 2025) {
@@ -79,7 +90,7 @@ public class SnowCardService {
         SnowCard snowCard = new SnowCard();
         snowCard.setSnowCard(card);
         snowCard.setMemberId(member.getId());
-        snowCard.setYearMonth(yearMonth);
+        snowCard.setTargetYearMonth(yearMonth);
         snowCardRepository.save(snowCard);
 
         return result;
@@ -210,11 +221,22 @@ public class SnowCardService {
         return categoryDuration.values().stream().anyMatch(duration -> duration >= 30000);
     }
 
+    // 도넛 모양의 눈 조각
+    public boolean isDonut(Member member) {
+        YearMonth lastMonth = YearMonth.now().minusMonths(1);
+        LocalDate startOfLastMonth = lastMonth.atDay(1);
+        LocalDate endOfLastMonth = lastMonth.atEndOfMonth();
+
+        return member.getAccounts().stream()
+                .anyMatch(account -> account.getExpiredAt().isAfter(startOfLastMonth.minusDays(1)) &&
+                        account.getExpiredAt().isBefore(endOfLastMonth.plusDays(1)));
+    }
+
     public List<SnowCardResponseDto> getAllSnowCard(Member member) {
         List<SnowCard> snowCardList = snowCardRepository.findAllByMemberId(member.getId());
         return snowCardList.stream().map(snowCard -> {
             SnowCardResponseDto dto = new SnowCardResponseDto();
-            dto.setYearMonth(snowCard.getYearMonth());
+            dto.setYearMonth(snowCard.getTargetYearMonth());
             dto.setSnowCard(snowCard.getSnowCard());
             return dto;
         }).collect(Collectors.toList());

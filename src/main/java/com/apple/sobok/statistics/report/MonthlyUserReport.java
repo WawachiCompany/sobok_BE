@@ -17,7 +17,7 @@ public class MonthlyUserReport {
 
     private Long memberId;
 
-    private String yearMonth;
+    private String targetYearMonth;
 
     private Long totalAccumulatedTime;
     private Long AverageAccumulatedTime;

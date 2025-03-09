@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MonthlyUserReportRepository extends JpaRepository<MonthlyUserReport, Long> {
 
-    MonthlyUserReport findByMemberIdAndYearMonth(Long memberId, String yearMonth);
+    MonthlyUserReport findByMemberIdAndTargetYearMonth(Long memberId, String yearMonth);
 }

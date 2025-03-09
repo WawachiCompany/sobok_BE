@@ -51,7 +51,7 @@ public class ReportService {
         Member member = memberService.getMember();
         String startDate = yearMonthObj.atDay(1).toString();
         String endDate = yearMonthObj.atEndOfMonth().toString();
-        MonthlyUserReport monthlyUserReport = monthlyUserReportRepository.findByMemberIdAndYearMonth(member.getId(), yearMonthObj.toString());
+        MonthlyUserReport monthlyUserReport = monthlyUserReportRepository.findByMemberIdAndTargetYearMonth(member.getId(), yearMonthObj.toString());
         Map<String, Object> response = new HashMap<>();
 
         // 리포트 메세지에서의 재사용을 위해 변수로 저장
@@ -89,11 +89,11 @@ public class ReportService {
     public double getTotalTimePercent(Member member, YearMonth yearMonth){
         String currentMonth = yearMonth.toString();
         List<MonthlyUserReport> reports = monthlyUserReportRepository.findAll().stream()
-                .filter(report -> report.getYearMonth().equals(currentMonth))
+                .filter(report -> report.getTargetYearMonth().equals(currentMonth))
                 .sorted((r1, r2) -> Long.compare(r2.getTotalAccumulatedTime(), r1.getTotalAccumulatedTime()))
                 .toList();
 
-        long memberTime = monthlyUserReportRepository.findByMemberIdAndYearMonth(member.getId(), currentMonth).getTotalAccumulatedTime();
+        long memberTime = monthlyUserReportRepository.findByMemberIdAndTargetYearMonth(member.getId(), currentMonth).getTotalAccumulatedTime();
         int rank = 0;
         for (int i = 0; i < reports.size(); i++) {
             if (reports.get(i).getTotalAccumulatedTime() == memberTime) {
@@ -110,7 +110,7 @@ public class ReportService {
         long averageTime = Math.round(monthlyUserReportRepository.findAll().stream()
                 .mapToLong(MonthlyUserReport::getAverageAccumulatedTime)
                 .average().orElse(0));
-        long memberTime = monthlyUserReportRepository.findByMemberIdAndYearMonth(member.getId(), currentMonth).getAverageAccumulatedTime();
+        long memberTime = monthlyUserReportRepository.findByMemberIdAndTargetYearMonth(member.getId(), currentMonth).getAverageAccumulatedTime();
         return memberTime - averageTime;
     }
 
