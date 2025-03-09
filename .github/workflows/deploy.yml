@@ -35,6 +35,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 1.5. 환경변수 주입 확인
+      - name: Print environment variables
+        run: printenv
+
+
       # 2. OIDC를 사용하여 AWS 로그인 (IAM 역할 사용)
       - name: Configure AWS credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v3
