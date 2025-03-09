@@ -43,8 +43,6 @@ services:
       - "8080"
     networks:
       - app-network
-    env_file:
-      - .env
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
@@ -59,6 +57,8 @@ services:
       COOLSMS_API_KEY: ${COOLSMS_API_KEY}
       COOLSMS_API_SECRET: ${COOLSMS_API_SECRET}
       COOLSMS_API_FROM: ${COOLSMS_API_FROM}
+      OPENAI_API_URL: ${OPENAI_API_URL}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
       DOCKER_ENV: "true"
 networks:
     app-network:

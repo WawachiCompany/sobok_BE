@@ -4,7 +4,9 @@ package com.apple.sobok.survey;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.cdimascio.dotenv.Dotenv;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -16,8 +18,11 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class AIRecommendationService {
-    private static final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
-    private static final String OPENAI_API_KEY = "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";
+    @Value("${openai.api.url}")
+    private String OPENAI_API_URL;
+
+    @Value("${openai.api.key}")
+    private String OPENAI_API_KEY;
 
     // AI 추천 루틴 생성 (MAIN)
     public Map<String, Object> generateAiRoutine(Survey survey) {

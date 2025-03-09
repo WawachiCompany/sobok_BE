@@ -157,6 +157,7 @@ public class ReportService {
                     routineMap.put("duration", duration);
                     return routineMap;
                 })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
@@ -167,14 +168,16 @@ public class ReportService {
         List<Account> accounts = accountRepository.findByMember(member);
         return accounts.stream()
                 .map(account -> {
-                    Map<String, Object> accountMap = new HashMap<>();
-                    accountMap.put("title", account.getTitle());
                     long duration = accountLogRepository.findByAccountAndCreatedAtBetween(account, startOfMonth, endOfMonth).stream()
                             .mapToLong(AccountLog::getDepositTime)
                             .sum();
+                    if(duration == 0) return null;
+                    Map<String, Object> accountMap = new HashMap<>();
+                    accountMap.put("title", account.getTitle());
                     accountMap.put("duration", duration);
                     return accountMap;
                 })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
