@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Profile;
 import javax.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 @Configuration
@@ -21,10 +22,13 @@ public class FirebaseProdConfig {
 
     @PostConstruct
     public void initialize() {
-        try (ByteArrayInputStream serviceAccount =
-                     new ByteArrayInputStream(firebaseAdminSdk.getBytes(StandardCharsets.UTF_8))) {
+        // 환경 변수에서 읽어온 JSON 문자열에서 "\n"을 실제 개행 문자로 변환
+        String formattedJson = firebaseAdminSdk.replace("\\n", "\n");
+        InputStream serviceAccountStream = new ByteArrayInputStream(formattedJson.getBytes(StandardCharsets.UTF_8));
+
+        try {
             FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccountStream))
                     .build();
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
