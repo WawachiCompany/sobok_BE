@@ -66,11 +66,6 @@ openai:
   api:
     key: ${OPENAI_API_KEY}
     url: ${OPENAI_API_URL}
-firebase:
-  admin:
-    sdk: ${FIREBASE_ADMIN_SDK}
-  config:
-    path: src/main/resources/firebase-adminsdk.json
 social-login:
   provider:
     apple:
@@ -82,3 +77,20 @@ social-login:
       authorization-uri: "https://appleid.apple.com/auth/authorize"
       token-uri: "https://appleid.apple.com/auth/token"
       scope: "name email"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+firebase:
+  config:
+    path: src/main/resources/firebase-adminsdk.json
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+firebase:
+  config:
+    path: /opt/secrets/firebase-adminsdk.json

@@ -12,8 +12,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 @Configuration
-@Profile("dev")
-public class FirebaseDevConfig {
+public class FirebaseConfig {
 
     @Value("${firebase.config.path}")
     private String firebaseConfigPath;
