@@ -66,3 +66,17 @@ openai:
   api:
     key: ${OPENAI_API_KEY}
     url: ${OPENAI_API_URL}
+firebase:
+  config:
+    path: ${FIREBASE_CONFIG_PATH}
+social-login:
+  provider:
+    apple:
+      client-id: "com.chihuahua.sobok"
+      team-id: "5D5DATKCFY"
+      key-id: "8FX67F4W39"
+      private-key: ${APPLE_PRIVATE_KEY}
+      redirect-uri: "{baseUrl}/login/oauth2/code/apple"
+      authorization-uri: "https://appleid.apple.com/auth/authorize"
+      token-uri: "https://appleid.apple.com/auth/token"
+      scope: "name email"

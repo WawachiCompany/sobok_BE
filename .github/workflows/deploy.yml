@@ -28,6 +28,8 @@ jobs:
       COOLSMS_API_FROM: ${{secrets.COOLSMS_API_FROM}}
       OPENAI_API_URL: ${{secrets.OPENAI_API_URL}}
       OPENAI_API_KEY: ${{secrets.OPENAI_API_KEY}}
+      APPLE_PRIVATE_KEY: ${{secrets.APPLE_PRIVATE_KEY}}
+      FIREBASE_CONFIG_PATH: ${{secrets.FIREBASE_CONFIG_PATH}}
 
 
     steps:
