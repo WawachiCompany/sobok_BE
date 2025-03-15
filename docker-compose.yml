@@ -62,6 +62,8 @@ services:
       APPLE_PRIVATE_KEY: ${APPLE_PRIVATE_KEY}
       FIREBASE_ADMIN_SDK: ${FIREBASE_ADMIN_SDK}
       DOCKER_ENV: "true"
+    volumes:
+      - /opt/secrets:/opt/secrets:ro
 networks:
     app-network:
         driver: bridge
