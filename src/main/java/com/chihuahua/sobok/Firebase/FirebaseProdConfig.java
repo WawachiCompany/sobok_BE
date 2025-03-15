@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 @Profile("prod")
 public class FirebaseProdConfig {
 
-    @Value("${firebase.admin.sdk}")
+    @Value("${FIREBASE_ADMIN_SDK}")
     private String firebaseAdminSdk;
 
     @PostConstruct
