@@ -38,5 +38,5 @@ out/
 .env
 
 /src/main/resources/AuthKey_8FX67F4W39.p8
-/src/main/resources/sobok-447006-firebase-adminsdk-fbsvc-022a754acf.json
+/src/main/resources/firebase-adminsdk.json
 GoogleService-Info.plist

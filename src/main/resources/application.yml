@@ -67,8 +67,10 @@ openai:
     key: ${OPENAI_API_KEY}
     url: ${OPENAI_API_URL}
 firebase:
+  admin:
+    sdk: ${FIREBASE_ADMIN_SDK}
   config:
-    path: ${FIREBASE_CONFIG_PATH}
+    path: src/main/resources/firebase-adminsdk.json
 social-login:
   provider:
     apple:
