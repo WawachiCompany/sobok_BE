@@ -55,11 +55,6 @@ jobs:
           echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
           docker push hjkim4842/sobok:latest
           docker logout # 로그아웃
-          
-      # 5. .env 파일 S3에 업로드
-      - name: Upload .env file to S3
-        run: |
-          aws s3 cp .env s3://sobok-secrets/.env
 
       # 5-1. 고유한 버전 라벨 생성 (중복 방지)
       - name: Generate unique version label
