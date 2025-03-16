@@ -37,6 +37,6 @@ out/
 .vscode/
 .env
 
-/src/main/resources/AuthKey_8FX67F4W39.p8
+/src/main/resources/apple-authkey.p8
 /src/main/resources/firebase-adminsdk.json
 GoogleService-Info.plist

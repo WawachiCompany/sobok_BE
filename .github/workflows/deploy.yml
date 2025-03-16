@@ -12,24 +12,24 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      SPRING_PROFILES_ACTIVE: ${{secrets.SPRING_PROFILES_ACTIVE}}
-      SPRING_DATASOURCE_URL: ${{secrets.SPRING_DATASOURCE_URL}}
-      SPRING_DATASOURCE_USERNAME: ${{secrets.SPRING_DATASOURCE_USERNAME}}
-      SPRING_DATASOURCE_PASSWORD: ${{secrets.SPRING_DATASOURCE_PASSWORD}}
-      SPRING_REDIS_HOST: ${{secrets.SPRING_REDIS_HOST}}
-      SPRING_REDIS_PORT: ${{secrets.SPRING_REDIS_PORT}}
-      SPRING_REDIS_PASSWORD: ${{secrets.SPRING_REDIS_PASSWORD}}
-      GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
-      GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
-      KAKAO_CLIENT_ID: ${{secrets.KAKAO_CLIENT_ID}}
-      COOLSMS_API_KEY: ${{secrets.COOLSMS_API_KEY}}
-      COOLSMS_API_SECRET: ${{secrets.COOLSMS_API_SECRET}}
-      COOLSMS_API_FROM: ${{secrets.COOLSMS_API_FROM}}
-      OPENAI_API_URL: ${{secrets.OPENAI_API_URL}}
-      OPENAI_API_KEY: ${{secrets.OPENAI_API_KEY}}
-      APPLE_PRIVATE_KEY: ${{secrets.APPLE_PRIVATE_KEY}}
-      FIREBASE_ADMIN_SDK: ${{secrets.FIREBASE_ADMIN_SDK}}
+#    env:
+#      SPRING_PROFILES_ACTIVE: ${{secrets.SPRING_PROFILES_ACTIVE}}
+#      SPRING_DATASOURCE_URL: ${{secrets.SPRING_DATASOURCE_URL}}
+#      SPRING_DATASOURCE_USERNAME: ${{secrets.SPRING_DATASOURCE_USERNAME}}
+#      SPRING_DATASOURCE_PASSWORD: ${{secrets.SPRING_DATASOURCE_PASSWORD}}
+#      SPRING_REDIS_HOST: ${{secrets.SPRING_REDIS_HOST}}
+#      SPRING_REDIS_PORT: ${{secrets.SPRING_REDIS_PORT}}
+#      SPRING_REDIS_PASSWORD: ${{secrets.SPRING_REDIS_PASSWORD}}
+#      GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
+#      GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
+#      KAKAO_CLIENT_ID: ${{secrets.KAKAO_CLIENT_ID}}
+#      COOLSMS_API_KEY: ${{secrets.COOLSMS_API_KEY}}
+#      COOLSMS_API_SECRET: ${{secrets.COOLSMS_API_SECRET}}
+#      COOLSMS_API_FROM: ${{secrets.COOLSMS_API_FROM}}
+#      OPENAI_API_URL: ${{secrets.OPENAI_API_URL}}
+#      OPENAI_API_KEY: ${{secrets.OPENAI_API_KEY}}
+#      APPLE_PRIVATE_KEY: ${{secrets.APPLE_PRIVATE_KEY}}
+#      FIREBASE_ADMIN_SDK: ${{secrets.FIREBASE_ADMIN_SDK}}
 
 
     steps:
@@ -55,6 +55,11 @@ jobs:
           echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
           docker push hjkim4842/sobok:latest
           docker logout # 로그아웃
+          
+      # 5. .env 파일 S3에 업로드
+      - name: Upload .env file to S3
+        run: |
+          aws s3 cp .env s3://sobok-secrets/.env
 
       # 5-1. 고유한 버전 라벨 생성 (중복 방지)
       - name: Generate unique version label

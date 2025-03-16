@@ -70,10 +70,9 @@ social-login:
   provider:
     apple:
       client-id: "com.chihuahua.sobok"
-      team-id: "5D5DATKCFY"
-      key-id: "8FX67F4W39"
-      private-key: ${APPLE_PRIVATE_KEY}
-      redirect-uri: "{baseUrl}/login/oauth2/code/apple"
+      team-id: ${APPLE_TEAM_ID}
+      key-id: ${APPLE_KEY_ID}
+      redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
       authorization-uri: "https://appleid.apple.com/auth/authorize"
       token-uri: "https://appleid.apple.com/auth/token"
       scope: "name email"
@@ -86,6 +85,10 @@ spring:
 firebase:
   config:
     path: src/main/resources/firebase-adminsdk.json
+social-login:
+  provider:
+    apple:
+      private-key: apple-authkey.p8
 ---
 spring:
   config:
@@ -94,3 +97,7 @@ spring:
 firebase:
   config:
     path: /opt/secrets/firebase-adminsdk.json
+social-login:
+  provider:
+    apple:
+      private-key: /opt/secrets/apple-authkey.p8
