@@ -4,6 +4,7 @@ import com.chihuahua.sobok.account.Account;
 import com.chihuahua.sobok.jwt.JwtUtil;
 import com.chihuahua.sobok.member.point.*;
 import com.chihuahua.sobok.routine.todo.Todo;
+import com.chihuahua.sobok.routine.todo.TodoDto;
 import com.chihuahua.sobok.routine.todo.TodoRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -205,8 +206,21 @@ public class MemberService {
                 }).collect(Collectors.toList());
     }
 
-    public List<Todo> getTodosByLinkApp(Member member, String linkApp) {
-        return todoRepository.findAllByMemberAndLinkApp(member, linkApp);
+    public List<TodoDto> getTodosByLinkApp(Member member, String linkApp) {
+        List<Todo> todos = todoRepository.findAllByMemberAndLinkApp(member, linkApp);
+        return todos.stream().map(this::convertToDto).collect(Collectors.toList());
+    }
+
+    private TodoDto convertToDto(Todo todo) {
+        TodoDto todoDto = new TodoDto();
+        todoDto.setId(todo.getId());
+        todoDto.setTitle(todo.getTitle());
+        todoDto.setCategory(todo.getCategory());
+        todoDto.setStartTime(todo.getStartTime());
+        todoDto.setEndTime(todo.getEndTime());
+        todoDto.setLinkApp(todo.getLinkApp());
+        todoDto.setRoutineId(todo.getRoutine().getId());
+        return todoDto;
     }
 }
 

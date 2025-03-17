@@ -2,7 +2,7 @@ package com.chihuahua.sobok.member;
 
 import com.chihuahua.sobok.jwt.JwtUtil;
 import com.chihuahua.sobok.member.point.PremiumResponseDto;
-import com.chihuahua.sobok.routine.todo.Todo;
+import com.chihuahua.sobok.routine.todo.TodoDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -278,7 +278,7 @@ public class MemberController {
     public ResponseEntity<?> getLinkAppTodos(@RequestParam String linkApp) {
         try {
             Member member = memberService.getMember();
-            List<Todo> todos = memberService.getTodosByLinkApp(member, linkApp);
+            List<TodoDto> todos = memberService.getTodosByLinkApp(member, linkApp);
             Map<String, Object> response = new HashMap<>();
             response.put("todos", todos);
             return ResponseEntity.ok(response);
