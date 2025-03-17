@@ -2,6 +2,7 @@ package com.chihuahua.sobok.member;
 
 import com.chihuahua.sobok.jwt.JwtUtil;
 import com.chihuahua.sobok.member.point.PremiumResponseDto;
+import com.chihuahua.sobok.routine.todo.Todo;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -269,6 +270,21 @@ public class MemberController {
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "연동 앱 조회 실패: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+
+    @GetMapping("/link-app/todos")
+    public ResponseEntity<?> getLinkAppTodos(@RequestParam String linkApp) {
+        try {
+            Member member = memberService.getMember();
+            List<Todo> todos = memberService.getTodosByLinkApp(member, linkApp);
+            Map<String, Object> response = new HashMap<>();
+            response.put("todos", todos);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "연동 앱 할 일 조회 실패: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }

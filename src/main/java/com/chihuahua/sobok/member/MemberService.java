@@ -3,6 +3,8 @@ package com.chihuahua.sobok.member;
 import com.chihuahua.sobok.account.Account;
 import com.chihuahua.sobok.jwt.JwtUtil;
 import com.chihuahua.sobok.member.point.*;
+import com.chihuahua.sobok.routine.todo.Todo;
+import com.chihuahua.sobok.routine.todo.TodoRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class MemberService {
     private final PremiumRepository premiumRepository;
     private final PointLogService pointLogService;
     private final JwtUtil jwtUtil;
+    private final TodoRepository todoRepository;
 
     public boolean isEmailDuplicated(String email) {
         return memberRepository.existsByEmail(email);
@@ -200,6 +203,10 @@ public class MemberService {
                     premiumResponseDto.setEndAt(premium.getEndAt());
                     return premiumResponseDto;
                 }).collect(Collectors.toList());
+    }
+
+    public List<Todo> getTodosByLinkApp(Member member, String linkApp) {
+        return todoRepository.findAllByMemberAndLinkApp(member, linkApp);
     }
 }
 

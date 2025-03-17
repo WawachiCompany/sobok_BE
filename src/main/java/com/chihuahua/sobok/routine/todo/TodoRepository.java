@@ -20,4 +20,6 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
     @Query("SELECT t FROM Todo t WHERE t.routine.member = :member AND t.startTime <= :startTime AND t.endTime >= :endTime")
     List<Todo> findAllByMemberAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(@Param("member") Member member, @Param("startTime") LocalTime startTime, @Param("endTime") LocalTime endTime);
 
+    @Query("SELECT t FROM Todo t WHERE t.routine.member = :member AND t.routine.account.isExpired = false AND t.linkApp = :linkApp")
+    List<Todo> findAllByMemberAndLinkApp(Member member, String linkApp);
 }
