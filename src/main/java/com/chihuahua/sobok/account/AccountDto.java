@@ -4,6 +4,7 @@ package com.chihuahua.sobok.account;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -18,5 +19,6 @@ public class AccountDto {
     private Boolean isValid; //활성화 요건 갖추었는지 확인
     private Float interest; // 이율
     private List<Integer> routineIds; //
+    private LocalDate expiredAt; // 만기된 날짜
 
 }

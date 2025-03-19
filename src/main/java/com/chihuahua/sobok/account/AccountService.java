@@ -80,6 +80,7 @@ public class AccountService {
             dto.setDuration(account.getDuration());
             dto.setIsValid(account.getIsValid());
             dto.setInterest(account.getInterest());
+            dto.setExpiredAt(account.getExpiredAt());
             return dto;
         }).collect(Collectors.toList());
 
