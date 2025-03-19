@@ -52,6 +52,11 @@ public class AccountController {
             response.put("message", "적금 생성 완료");
             return ResponseEntity.ok(response);
 
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("timestamp", LocalDateTime.now());
@@ -74,6 +79,11 @@ public class AccountController {
             response.put("message", "진행 중인 적금 조회 성공");
             return ResponseEntity.ok(response);
 
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("timestamp", LocalDateTime.now());
