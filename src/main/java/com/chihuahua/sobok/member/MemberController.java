@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -146,6 +147,11 @@ public class MemberController {
 
             return ResponseEntity.ok(response);
 
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("timestamp", LocalDateTime.now());
@@ -207,6 +213,11 @@ public class MemberController {
             response.put("message", "구독권 등록 성공");
             response.put("timestamp", LocalDateTime.now());
             return ResponseEntity.ok(response);
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "구독권 등록 실패: " + e.getMessage());
@@ -223,6 +234,11 @@ public class MemberController {
             response.put("achieveCount", member.getConsecutiveAchieveCount());
             response.put("message", "연속 달성일 조회 성공");
             return ResponseEntity.ok(response);
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "연속 달성일 조회 실패: " + e.getMessage());
@@ -239,6 +255,11 @@ public class MemberController {
             response.put("price", member.getPremiumPrice());
             response.put("message", "구독권 가격 조회 성공");
             return ResponseEntity.ok(response);
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "구독권 가격 조회 실패: " + e.getMessage());
@@ -254,7 +275,14 @@ public class MemberController {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "연동 앱 등록 성공");
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "연동 앱 등록 실패: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -267,7 +295,14 @@ public class MemberController {
             Member member = memberService.getMember();
             Map<String, Object> response = memberService.getLinkApps(member);
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "연동 앱 조회 실패: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -282,7 +317,14 @@ public class MemberController {
             Map<String, Object> response = new HashMap<>();
             response.put("todos", todos);
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "연동 앱 할 일 조회 실패: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -298,7 +340,14 @@ public class MemberController {
             response.put("premiumLog", result);
             response.put("message", "프리미엄 로그 조회 성공");
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "프리미엄 로그 조회 실패: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);

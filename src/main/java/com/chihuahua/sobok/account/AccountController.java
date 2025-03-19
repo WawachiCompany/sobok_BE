@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -94,7 +95,13 @@ public class AccountController {
             response.put("message", "만기된 적금 조회 성공");
             return ResponseEntity.ok(response);
 
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+        catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("timestamp", LocalDateTime.now());
             response.put("message", "만기된 적금 조회 실패: " + e.getMessage());
@@ -115,7 +122,13 @@ public class AccountController {
             response.put("message", "완료된 적금 조회 성공");
             return ResponseEntity.ok(response);
 
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+        catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("timestamp", LocalDateTime.now());
             response.put("message", "완료된 적금 조회 실패: " + e.getMessage());
@@ -141,7 +154,13 @@ public class AccountController {
             response.put("message", "활성화된 적금 조회 성공");
             return ResponseEntity.ok(response);
 
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+        catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("timestamp", LocalDateTime.now());
             response.put("message", "활성화된 적금 조회 실패: " + e.getMessage());
@@ -166,7 +185,14 @@ public class AccountController {
             response.put("message", "비활성화된 적금 조회 성공");
             return ResponseEntity.ok(response);
 
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("timestamp", LocalDateTime.now());
             response.put("message", "비활성화된 적금 조회 실패: " + e.getMessage());
@@ -182,7 +208,14 @@ public class AccountController {
             Map<String, Object> response = accountService.getAccountDetails(member, accountId);
             return ResponseEntity.ok(response);
 
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("timestamp", LocalDateTime.now());
             response.put("message", "적금 조회 실패: " + e.getMessage());
@@ -206,7 +239,14 @@ public class AccountController {
             response.put("message", "적금 삭제 성공");
             return ResponseEntity.ok(response);
 
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("timestamp", LocalDateTime.now());
             response.put("message", "적금 삭제 실패: " + e.getMessage());
@@ -231,7 +271,14 @@ public class AccountController {
             response.put("message", "적금 수정 완료");
             return ResponseEntity.ok(response);
 
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("timestamp", LocalDateTime.now());
             response.put("message", "적금 수정 실패: " + e.getMessage());
@@ -244,7 +291,14 @@ public class AccountController {
         try {
             Member member = memberService.getMember();
             return accountService.depositAccount(member, accountId, amount);
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("timestamp", LocalDateTime.now());
             response.put("message", "적금 입금 실패: " + e.getMessage());
@@ -274,7 +328,14 @@ public class AccountController {
             }
             Account account = accountRepository.findByMemberAndId(member, accountId);
             return accountService.getAccountLog(account, start, end);
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("timestamp", LocalDateTime.now());
             response.put("message", "적금 내역 조회 실패: " + e.getMessage());
@@ -291,7 +352,14 @@ public class AccountController {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "적금 연장 완료");
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "적금 연장 실패: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -307,7 +375,14 @@ public class AccountController {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "적금 종료 완료");
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now());
+            response.put("message", "액세스 토큰 만료: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "적금 종료 실패: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
