@@ -34,6 +34,11 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: sub
             jwk-set-uri: https://kauth.kakao.com/.well-known/jwks.json
+          apple:
+            authorization-uri: "https://appleid.apple.com/auth/authorize"
+            token-uri: "https://appleid.apple.com/auth/token"
+            user-info-uri: ""  # Apple은 기본적으로 사용자 정보 엔드포인트를 제공하지 않습니다.
+            user-name-attribute: sub
   data:
     redis:
       host: ${SPRING_REDIS_HOST}
@@ -66,38 +71,50 @@ openai:
   api:
     key: ${OPENAI_API_KEY}
     url: ${OPENAI_API_URL}
-social-login:
-  provider:
-    apple:
-      client-id: "com.chihuahua.sobok"
-      team-id: ${APPLE_TEAM_ID}
-      key-id: ${APPLE_KEY_ID}
-      redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-      authorization-uri: "https://appleid.apple.com/auth/authorize"
-      token-uri: "https://appleid.apple.com/auth/token"
-      scope: "name email"
+#social-login:
+#  provider:
+#    apple:
+#      client-id: "com.chihuahua.sobok"
+#      team-id: ${APPLE_TEAM_ID}
+#      key-id: ${APPLE_KEY_ID}
+#      redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+#      authorization-uri: "https://appleid.apple.com/auth/authorize"
+#      token-uri: "https://appleid.apple.com/auth/token"
+#      scope: "name email"
 
 ---
 spring:
   config:
     activate:
       on-profile: dev
+  security:
+    oauth2:
+      client:
+        registration:
+          apple:
+            client-id: "com.chihuahua.sobok"
+            client-secret: apple-authkey.p8
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/apple"
+            scope: openid, email, name
 firebase:
   config:
     path: src/main/resources/firebase-adminsdk.json
-social-login:
-  provider:
-    apple:
-      private-key: apple-authkey.p8
 ---
 spring:
   config:
     activate:
       on-profile: prod
+  security:
+    oauth2:
+      client:
+        registration:
+          apple:
+            client-id: "com.chihuahua.sobok"
+            client-secret: opt/secrets/apple-authkey.p8
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/apple"
+            scope: openid, email, name
 firebase:
   config:
     path: /opt/secrets/firebase-adminsdk.json
-social-login:
-  provider:
-    apple:
-      private-key: /opt/secrets/apple-authkey.p8

@@ -1,6 +1,7 @@
 package com.chihuahua.sobok;
 
 import com.chihuahua.sobok.jwt.JwtFilter;
+import com.chihuahua.sobok.oauth.AppleAuthorizationRequestResolver;
 import com.chihuahua.sobok.oauth.CustomOAuth2UserService;
 import com.chihuahua.sobok.oauth.OAuth2LoginSuccessHandler;
 import lombok.Getter;
@@ -14,6 +15,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -28,9 +31,14 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final ClientRegistrationRepository clientRegistrationRepository;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // 기본 등록 URI는 보통 "/oauth2/authorization"입니다.
+        OAuth2AuthorizationRequestResolver customAuthorizationRequestResolver =
+                new AppleAuthorizationRequestResolver("/oauth2/authorization", clientRegistrationRepository);
+
         http.csrf(AbstractHttpConfigurer::disable); // CSRF 보안 기능 비활성화
 
         http.sessionManagement((session) -> session
@@ -51,6 +59,10 @@ public class SecurityConfig {
                         )
                         .successHandler(oAuth2LoginSuccessHandler) // 로그인 성공 시 핸들러
                         .failureUrl("/login?error=true") // 로그인 실패 시 URL
+                        .authorizationEndpoint(authorizationEndpoint ->
+                                // 커스텀 리졸버를 지정하여 Apple 로그인 요청에 대해 response_mode 파라미터를 추가합니다.
+                                authorizationEndpoint.authorizationRequestResolver(customAuthorizationRequestResolver)
+                        )
                 );
 
         return http.build();

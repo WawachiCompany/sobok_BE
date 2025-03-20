@@ -23,7 +23,7 @@ public class ApplePublicKeyService {
 
     private static final String APPLE_KEYS_URL = "https://appleid.apple.com/auth/keys";
 
-    @Value("${social-login.provider.apple.client-id}")
+    @Value("${spring.security.oauth2.client.registration.apple.client-id}")
     private String appleClientId;
 
     /**

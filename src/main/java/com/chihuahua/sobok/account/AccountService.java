@@ -282,7 +282,6 @@ public class AccountService {
             pointLog.setCreatedAt(LocalDateTime.now());
             pointLogRepository.save(pointLog);
         }
-
         account.setExpiredAt(account.getExpiredAt().plusMonths(duration));
         account.setIsExpired(false);
         accountRepository.save(account);
