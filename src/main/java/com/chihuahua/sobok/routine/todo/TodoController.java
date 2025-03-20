@@ -3,10 +3,7 @@ package com.chihuahua.sobok.routine.todo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -44,4 +41,14 @@ public class TodoController {
 
     @GetMapping("/all")
     public ResponseEntity<?> getAllTodos() { return todoService.getAllTodos(); }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> updateTodo(@RequestBody TodoDto todoDto) {
+        return todoService.updateTodo(todoDto);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteTodo(@RequestParam Long todoId) {
+        return todoService.deleteTodo(todoId);
+    }
 }
