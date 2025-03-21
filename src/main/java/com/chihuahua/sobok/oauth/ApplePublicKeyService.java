@@ -1,13 +1,11 @@
 package com.chihuahua.sobok.oauth;
 
 import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jwt.SignedJWT;
-import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +15,7 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ApplePublicKeyService {
@@ -33,7 +32,7 @@ public class ApplePublicKeyService {
      * @return 검증된 토큰의 클레임(JSON 객체)
      * @throws ParseException, IOException, JOSEException 검증 실패 시 예외 발생
      */
-    public JSONObject verifyToken(String idToken) throws ParseException, IOException, JOSEException {
+    public Map<String, Object> verifyToken(String idToken) throws ParseException, IOException, JOSEException {
         SignedJWT signedJWT = SignedJWT.parse(idToken);
 
         // Apple의 공개 키들을 가져옵니다.
@@ -43,50 +42,49 @@ public class ApplePublicKeyService {
         } catch (URISyntaxException e) {
             throw new IOException("Invalid URL syntax: " + APPLE_KEYS_URL, e);
         }
-        List<JWK> keys = jwkSet.getKeys();
 
-        boolean verified = false;
-        for (JWK key : keys) {
-            if (key.getAlgorithm() != null && key.getAlgorithm().equals(JWSAlgorithm.RS256)) {
-                JWSVerifier verifier = new RSASSAVerifier(key.toRSAKey());
-                if (signedJWT.verify(verifier)) {
-                    verified = true;
-                    break;
-                }
-            }
-        }
-        if (!verified) {
+        List<JWK> keys = jwkSet.getKeys();
+        String kid = signedJWT.getHeader().getKeyID();
+        JWK matchingKey = keys.stream()
+                .filter(key -> key.getKeyID().equals(kid))
+                .findFirst()
+                .orElseThrow(() -> new JOSEException("No matching key found for kid: " + kid));
+
+        // 3. 서명 검증
+        JWSVerifier verifier = new RSASSAVerifier(matchingKey.toRSAKey());
+        if (!signedJWT.verify(verifier)) {
             throw new JOSEException("Apple ID token signature verification failed");
         }
 
-        // 클레임 추출
-        JSONObject claims = new JSONObject(signedJWT.getJWTClaimsSet().toJSONObject());
+        // 4. 클레임 검증
+        Map<String, Object> claims = signedJWT.getJWTClaimsSet().toJSONObject();
 
-        // iss 검증: issuer가 반드시 "https://appleid.apple.com"이어야 함
+        // iss 검증
         String issuer = (String) claims.get("iss");
         if (!"https://appleid.apple.com".equals(issuer)) {
             throw new JOSEException("Invalid issuer: " + issuer);
         }
 
-        // aud 검증: 토큰의 audience가 설정한 client-id와 일치해야 함
-        Object audObj = claims.get("aud");
-        if (audObj instanceof String) {
-            if (!appleClientId.equals(audObj)) {
+        // aud 검증: 클라이언트 ID와 일치하는지 확인 (aud는 String 또는 List일 수 있음)
+        Object aud = claims.get("aud");
+        if (aud instanceof String) {
+            if (!appleClientId.equals(aud)) {
                 throw new JOSEException("Audience mismatch");
             }
-        } else if (audObj instanceof List) {
+        } else if (aud instanceof List) {
             @SuppressWarnings("unchecked")
-            List<String> audList = (List<String>) audObj;
+            List<String> audList = (List<String>) aud;
             if (!audList.contains(appleClientId)) {
                 throw new JOSEException("Audience mismatch");
             }
         }
 
-        // exp 검증: 토큰 만료 시간 확인
+        // exp 검증
         Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
         if (expirationTime == null || new Date().after(expirationTime)) {
             throw new JOSEException("Token expired");
         }
+
 
         return claims;
     }
