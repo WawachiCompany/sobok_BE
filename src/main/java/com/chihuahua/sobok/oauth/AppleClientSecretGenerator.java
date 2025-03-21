@@ -18,7 +18,7 @@ public class AppleClientSecretGenerator {
                 .replaceAll("\\s+", "");
         byte[] keyBytes = Base64.getDecoder().decode(privateKeyPem);
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        KeyFactory keyFactory = KeyFactory.getInstance("EC");
         PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
 
         Instant now = Instant.now();

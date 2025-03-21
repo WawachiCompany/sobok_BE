@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Configuration
@@ -20,14 +21,21 @@ public class AppleOAuth2Config {
     @Value("${social-login.provider.apple.key-id}")
     private String keyId;
 
-    String keyPath = System.getenv("APPLE_PRIVATE_KEY_PATH");
     private final String privateKey;
 
     public AppleOAuth2Config() {
+//        String keyPath = "./apple-authkey.p8";
+//        if (keyPath == null || keyPath.isEmpty()) {
+//            throw new IllegalArgumentException("Environment variable APPLE_PRIVATE_KEY_PATH_DEV is not set or empty");
+//        }
+        Path keyPath = Paths.get("opt/secrets/apple-authkey.p8");
+        if (!Files.exists(keyPath)) {
+            throw new RuntimeException("Apple private key file does not exist at path: " + keyPath.toAbsolutePath());
+        }
         try {
-            this.privateKey = Files.readString(Paths.get(keyPath));
+            this.privateKey = Files.readString(keyPath);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to read Apple private key file", e);
+            throw new RuntimeException("Failed to read Apple private key file at path: " + keyPath.toAbsolutePath(), e);
         }
     }
 
