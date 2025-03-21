@@ -28,7 +28,7 @@ public class AppleOAuth2Config {
 //        if (keyPath == null || keyPath.isEmpty()) {
 //            throw new IllegalArgumentException("Environment variable APPLE_PRIVATE_KEY_PATH_DEV is not set or empty");
 //        }
-        Path keyPath = Paths.get("opt/secrets/apple-authkey.p8");
+        Path keyPath = Paths.get("/opt/secrets/apple-authkey.p8");
         if (!Files.exists(keyPath)) {
             throw new RuntimeException("Apple private key file does not exist at path: " + keyPath.toAbsolutePath());
         }
