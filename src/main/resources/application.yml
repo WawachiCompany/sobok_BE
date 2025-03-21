@@ -71,16 +71,13 @@ openai:
   api:
     key: ${OPENAI_API_KEY}
     url: ${OPENAI_API_URL}
-#social-login:
-#  provider:
-#    apple:
-#      client-id: "com.chihuahua.sobok"
-#      team-id: ${APPLE_TEAM_ID}
-#      key-id: ${APPLE_KEY_ID}
-#      redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-#      authorization-uri: "https://appleid.apple.com/auth/authorize"
-#      token-uri: "https://appleid.apple.com/auth/token"
-#      scope: "name email"
+social-login:
+  provider:
+    apple:
+      client-id: "com.chihuahua.sobok"
+      team-id: ${APPLE_TEAM_ID}
+      key-id: ${APPLE_KEY_ID}
+
 
 ---
 spring:
