@@ -41,7 +41,7 @@ public class Member {
     private Integer totalAccountBalance; // 총 적금 잔액(분)
     private Integer weeklyRoutineTime; // 일주일 루틴 시간(분)
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Routine> routines;
 

@@ -21,4 +21,6 @@ public interface RoutineLogRepository extends JpaRepository<RoutineLog, Long> {
 
     @Query("select rl from RoutineLog rl where rl.routine.member = :member and rl.isCompleted = true and rl.endTime between :endTimeAfter and :endTimeBefore")
     List<RoutineLog> findAllByMemberAndIsCompletedAndEndTimeBetween(@Param("member") Member member, @Param("endTimeAfter") LocalDateTime endTimeAfter, @Param("endTimeBefore") LocalDateTime endTimeBefore);
+
+    void deleteAllByRoutine(Routine routine);
 }

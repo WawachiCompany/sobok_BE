@@ -21,4 +21,6 @@ public interface TodoLogRepository extends JpaRepository<TodoLog, Long> {
     @Query("SELECT t FROM TodoLog t WHERE t.todo.routine.member = :member AND t.isCompleted = true")
     List<TodoLog> findAllByMemberAndIsCompleted(@Param("member") Member member);
 
+    void deleteTodoLogByTodo(Todo todo);
+
 }

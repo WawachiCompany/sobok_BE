@@ -1,5 +1,7 @@
 package com.chihuahua.sobok.routine.todo;
 
+import com.chihuahua.sobok.member.Member;
+import com.chihuahua.sobok.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,6 +15,7 @@ import static org.springframework.http.ResponseEntity.ok;
 public class TodoController {
 
     private final TodoService todoService;
+    private final MemberService memberService;
 
     @PostMapping("/start")
     public ResponseEntity<?> startTodo(@RequestParam Long todoId) {
@@ -50,5 +53,12 @@ public class TodoController {
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteTodo(@RequestParam Long todoId) {
         return todoService.deleteTodo(todoId);
+    }
+
+    @GetMapping("/overlap")
+    public ResponseEntity<?> checkOverlap(@RequestBody TimeDto timeDto) {
+        Member member = memberService.getMember();
+        boolean isOverlaped = todoService.checkOverlap(member, timeDto);
+        return ResponseEntity.ok(isOverlaped);
     }
 }

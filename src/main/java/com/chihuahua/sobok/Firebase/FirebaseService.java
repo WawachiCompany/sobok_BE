@@ -1,7 +1,6 @@
 package com.chihuahua.sobok.Firebase;
 
 import com.chihuahua.sobok.member.Member;
-import com.chihuahua.sobok.member.MemberService;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
@@ -17,10 +16,9 @@ import java.util.Optional;
 public class FirebaseService {
 
     private final FcmTokenRepository fcmTokenRepository;
-    private final MemberService memberService;
 
-    public void sendPushNotification(String title, String body) {
-        Member member = memberService.getMember();
+    public void sendPushNotification(String title, String body, Member member) {
+
         Optional<FcmToken> fcmToken = fcmTokenRepository.findByMemberId(member.getId());
         fcmToken.ifPresent(token -> sendMessage(token.getFcmToken(), title, body));
     }
@@ -44,8 +42,8 @@ public class FirebaseService {
         }
     }
 
-    public void registerFcmToken(String token) {
-        Member member = memberService.getMember();
+    public void registerFcmToken(String token, Member member) {
+
         Optional<FcmToken> existingFcmToken = fcmTokenRepository.findByMemberIdAndFcmToken(member.getId(), token);
         FcmToken fcmToken;
         if(existingFcmToken.isPresent()) {
