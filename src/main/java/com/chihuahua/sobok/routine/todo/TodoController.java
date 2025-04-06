@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 import static org.springframework.http.ResponseEntity.ok;
 
 @Controller
@@ -59,6 +61,6 @@ public class TodoController {
     public ResponseEntity<?> checkOverlap(@RequestBody TimeDto timeDto) {
         Member member = memberService.getMember();
         boolean isOverlaped = todoService.checkOverlap(member, timeDto);
-        return ResponseEntity.ok(isOverlaped);
+        return ResponseEntity.ok(Map.of("isOverlaped" , isOverlaped));
     }
 }
