@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 
@@ -106,7 +107,7 @@ public class RoutineController {
     }
 
     @PutMapping("/account")
-    private ResponseEntity<?> connectAccount(@RequestParam Long routineId, @RequestParam Long accountId) {
+    private ResponseEntity<?> connectAccount(@RequestBody List<Long> routineId, @RequestParam Long accountId) {
         Member member = memberService.getMember();
         return routineService.connectAccount(member, routineId, accountId);
     }
