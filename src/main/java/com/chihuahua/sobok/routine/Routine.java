@@ -54,6 +54,17 @@ public class Routine {
     @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     List<Todo> todos = new ArrayList<>();
 
+    // 헬퍼 메서드: Routine에 Todo를 추가할 때 양쪽 모두 설정
+    public void addTodo(Todo todo) {
+        todos.add(todo);
+        todo.setRoutine(this);
+    }
+    // 헬퍼 메서드: Routine에서 Todo를 제거할 때 양쪽 모두 설정
+    public void removeTodo(Todo todo) {
+        todos.remove(todo);
+        todo.setRoutine(null);
+    }
+
     private Boolean isAiRoutine; // AI 루틴 여부
 }
 

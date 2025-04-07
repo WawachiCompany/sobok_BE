@@ -51,5 +51,17 @@ public class Account {
     @JsonManagedReference
     private List<Routine> routines = new ArrayList<>();
 
+    // 헬퍼 메서드: Account에 Routine을 추가할 때 양쪽 모두 설정
+    public void addRoutine(Routine routine) {
+        routines.add(routine);
+        routine.setAccount(this);
+    }
+
+    // 헬퍼 메서드: Account에서 Routine을 제거할 때 양쪽 모두 설정
+    public void removeRoutine(Routine routine) {
+        routines.remove(routine);
+        routine.setAccount(null);
+    }
+
 
 }

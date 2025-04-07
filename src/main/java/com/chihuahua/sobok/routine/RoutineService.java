@@ -46,7 +46,7 @@ public class RoutineService {
                 routineDto.getAccountId()).orElseThrow(
                 () -> new IllegalArgumentException("해당 적금이 존재하지 않습니다."));
         routine.setMember(persistedMember);
-        routine.setAccount(account);
+        account.addRoutine(routine);
         routine.setTitle(routineDto.getTitle());
         routine.setDays(routineDto.getDays());
         routine.setCreatedAt(LocalDateTime.now());
@@ -59,6 +59,7 @@ public class RoutineService {
         else if(routineType.equals("ai")) {
             routine.setIsAiRoutine(true);
         }
+        accountRepository.save(account);
         routineRepository.save(routine);
 
         // Todo 생성 로직 추가
@@ -103,6 +104,7 @@ public class RoutineService {
         accountService.validateAccount(account);
     }
 
+    //사용 안함(사용한다면 할일 - 루틴 - 적금 연결관계 매핑 변경 필요)
     public void updateRoutine(RoutineDto routineDto, Member member, Long routineId) {
         var result = routineRepository.findByMemberAndId(member, routineId);
         if(result.isEmpty()) {
@@ -355,10 +357,11 @@ public class RoutineService {
         var result = routineRepository.findByMemberAndId(member, routineId);
         if (result.isPresent()) {
             Routine routine = result.get();
+            Account account = routine.getAccount();
             if(!routine.getIsSuspended()) {
                 routine.setIsSuspended(true);
                 //루틴 보류 시 적금 연결도 해제
-                routine.setAccount(null);
+                account.removeRoutine(routine);
                 routineRepository.save(routine);
                 return ResponseEntity.ok(Map.of("message", "루틴이 중단되었습니다."));
             }
@@ -372,19 +375,27 @@ public class RoutineService {
         return ResponseEntity.ok(Map.of("message", "해당 ID의 루틴이 없습니다."));
     }
 
-    public ResponseEntity<?> connectAccount(Member member, Long routineId, Long accountId) {
-        var result = routineRepository.findByMemberAndId(member, routineId);
-        if (result.isPresent()) {
-            Routine routine = result.get();
-            Account account = accountRepository.findById(accountId).orElseThrow(
-                    () -> new IllegalArgumentException("해당 ID의 적금이 존재하지 않습니다."));
-            routine.setAccount(account);
-            routineRepository.save(routine);
-            return ResponseEntity.ok(Map.of("message", "루틴이 적금과 연결되었습니다."));
+    public ResponseEntity<?> connectAccount(Member member, List<Long> routineId, Long accountId) {
+        if (routineId.isEmpty()) {
+            return ResponseEntity.ok(Map.of("message", "루틴 ID가 없습니다."));
         }
-        else{
-            throw new IllegalArgumentException("해당 ID의 루틴이 없습니다.");
+        if (accountId == null) {
+            return ResponseEntity.ok(Map.of("message", "적금 ID가 없습니다."));
         }
+        Account account = accountRepository.findById(accountId).orElseThrow(
+                () -> new IllegalArgumentException("해당 ID의 적금이 존재하지 않습니다."));
+        for (Long id : routineId) {
+            var result = routineRepository.findByMemberAndId(member, id);
+            if (result.isPresent()) {
+                Routine routine = result.get();
+                account.addRoutine(routine);
+                accountRepository.save(account);
+                routineRepository.save(routine);
+            } else {
+                throw new IllegalArgumentException("해당 ID의 루틴이 없습니다.");
+            }
+        }
+        return ResponseEntity.ok(Map.of("message", "루틴과 적금이 연결되었습니다."));
     }
 
     public void calculateWeeklyRoutineTime(Member member) {
