@@ -51,16 +51,31 @@ public class Account {
     @JsonManagedReference
     private List<Routine> routines = new ArrayList<>();
 
-    // 헬퍼 메서드: Account에 Routine을 추가할 때 양쪽 모두 설정
-    public void addRoutine(Routine routine) {
-        routines.add(routine);
-        routine.setAccount(this);
+    // Account에 Member 설정
+    public void setMember(Member member) {
+        if (this.member != null) {
+            this.member.getAccounts().remove(this); // 기존 Member에서 제거
+        }
+        this.member = member;
+        if (member != null && !member.getAccounts().contains(this)) {
+            member.getAccounts().add(this); // 새로운 Member에 추가
+        }
     }
 
-    // 헬퍼 메서드: Account에서 Routine을 제거할 때 양쪽 모두 설정
+    // Account에 Routine 추가
+    public void addRoutine(Routine routine) {
+        if (!routines.contains(routine)) {
+            routines.add(routine);
+            routine.setAccount(this); // Routine의 Account 설정
+        }
+    }
+
+    // Account에서 Routine 제거
     public void removeRoutine(Routine routine) {
-        routines.remove(routine);
-        routine.setAccount(null);
+        if (routines.contains(routine)) {
+            routines.remove(routine);
+            routine.setAccount(null); // Routine의 Account 해제
+        }
     }
 
 

@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -52,4 +53,38 @@ public class Member {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "link_apps", joinColumns = @JoinColumn(name = "member_id"))
     private List<String> linkApps;
+
+    // Member에 Account 추가
+    public void addAccount(Account account) {
+        if (accounts == null) {
+            accounts = new ArrayList<>();
+        }
+        if (!accounts.contains(account)) {
+            accounts.add(account);
+            account.setMember(this); // Account의 Member 설정
+        }
+    }
+
+    // Member에서 Account 제거
+    public void removeAccount(Account account) {
+        if (accounts != null && accounts.contains(account)) {
+            accounts.remove(account);
+            account.setMember(null); // Account의 Member 해제
+        }
+    }
+
+    // Member에 Routine 추가
+    public void addRoutine(Routine routine) {
+        if (routines == null) {
+            routines = new ArrayList<>();
+        }
+        routines.add(routine);
+        routine.setMember(this);
+    }
+
+    // Member에서 Routine 제거
+    public void removeRoutine(Routine routine) {
+        routines.remove(routine);
+        routine.setMember(null);
+    }
 }

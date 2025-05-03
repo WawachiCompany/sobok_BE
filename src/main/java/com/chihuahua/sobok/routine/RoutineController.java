@@ -39,6 +39,7 @@ public class RoutineController {
         return ResponseEntity.ok(response);
     }
 
+    @Deprecated
     @PutMapping("/update")
     public ResponseEntity<?> updateRoutine(@RequestBody RoutineDto routineDto, @RequestParam Long routineId) {
         Member member = memberService.getMember();

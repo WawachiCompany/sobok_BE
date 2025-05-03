@@ -10,6 +10,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -160,20 +161,39 @@ public class MemberService {
         memberRepository.save(member);
         pointLogService.save(pointLog);
     }
-
     @Transactional
     public Member getMember() {
         String token = jwtUtil.extractAccessTokenFromRequestHeader();
-        System.out.println("getMember에서의 token = " + token);
         if(!jwtUtil.validateToken(token)) {
-            System.out.println("토큰이 유효하지 않습니다.");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "액세스 토큰이 만료되었습니다.");
         }
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.println("getMember에서의 username = " + username);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getPrincipal() instanceof String) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증 정보가 올바르지 않습니다.");
+        }
+
+        MyUserDetailsService.CustomUser customUser = (MyUserDetailsService.CustomUser) authentication.getPrincipal();
+        String username = customUser.getUsername();
+
         return memberRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
     }
+
+
+//    @Transactional
+//    public Member getMember() {
+//        String token = jwtUtil.extractAccessTokenFromRequestHeader();
+//        System.out.println("getMember에서의 token = " + token);
+//        if(!jwtUtil.validateToken(token)) {
+//            System.out.println("토큰이 유효하지 않습니다.");
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "액세스 토큰이 만료되었습니다.");
+//        }
+//        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+//        System.out.println("getMember에서의 username = " + username);
+//        return memberRepository.findByUsername(username)
+//                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+//    }
 
     public Integer calculatePremiumPrice(Member member) {
         List<Account> accounts = member.getAccounts();

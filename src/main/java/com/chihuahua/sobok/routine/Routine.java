@@ -54,18 +54,47 @@ public class Routine {
     @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     List<Todo> todos = new ArrayList<>();
 
-    // 헬퍼 메서드: Routine에 Todo를 추가할 때 양쪽 모두 설정
+    private Boolean isAiRoutine; // AI 루틴 여부
+
+    // Routine에 Todo 추가
     public void addTodo(Todo todo) {
-        todos.add(todo);
-        todo.setRoutine(this);
-    }
-    // 헬퍼 메서드: Routine에서 Todo를 제거할 때 양쪽 모두 설정
-    public void removeTodo(Todo todo) {
-        todos.remove(todo);
-        todo.setRoutine(null);
+        if (!todos.contains(todo)) {
+            todos.add(todo);
+            todo.setRoutine(this); // Todo의 Routine 설정
+        }
     }
 
-    private Boolean isAiRoutine; // AI 루틴 여부
+    // Routine에서 Todo 제거
+    public void removeTodo(Todo todo) {
+        if (todos.contains(todo)) {
+            todos.remove(todo);
+            todo.setRoutine(null); // Todo의 Routine 해제
+        }
+    }
+
+    // Routine에 Member 설정
+    public void setMember(Member member) {
+        if (this.member != null) {
+            this.member.getRoutines().remove(this); // 기존 Member에서 이 Routine 제거
+        }
+        this.member = member; // member를 null로 설정 또는 새로운 멤버로 설정
+        if (member != null && !member.getRoutines().contains(this)) {
+            member.getRoutines().add(this); // 새로운 Member에 이 Routine 추가
+        }
+    }
+
+    // Routine에 Account 설정
+    public void setAccount(Account account) {
+        if (this.account != null) {
+            this.account.getRoutines().remove(this); // 기존 Account에서 제거
+        }
+        this.account = account;
+        if (account != null && !account.getRoutines().contains(this)) {
+            account.getRoutines().add(this); // 새로운 Account에 추가
+        }
+    }
+
+
 }
 
 

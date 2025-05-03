@@ -41,7 +41,6 @@ public class AccountService {
     public void createAccount(AccountDto accountDto, Member member) {
         member = entityManager.merge(member);
         Account account = new Account();
-        account.setMember(member);
         account.setTitle(accountDto.getTitle());
         account.setTime(accountDto.getTime());
         account.setDuration(accountDto.getDuration());
@@ -53,6 +52,13 @@ public class AccountService {
         account.setInterestBalance(0);
         account.setExpiredAt(LocalDate.now().plusMonths(accountDto.getDuration()));
         account.setUpdatedAt(LocalDateTime.now());
+
+        // 멤버와 적금 연결(헬퍼 메서드)
+        member.addAccount(account);
+
+        accountRepository.save(account);
+
+
 
         if (accountDto.getRoutineIds() != null) {
             // 루틴 연결
@@ -68,7 +74,7 @@ public class AccountService {
         }
 
 
-        accountRepository.save(account);
+
     }
 
     public List<AccountDto> getAccountList(List<Account> result) {
@@ -88,6 +94,9 @@ public class AccountService {
 
     public Map<String, Object> getAccountDetails(Member member, Long accountId) {
         Account account = accountRepository.findByMemberAndId(member, accountId);
+        if (account == null) {
+            throw new IllegalArgumentException("해당 적금을 찾을 수 없습니다.");
+        }
         Map<String, Object> response = new HashMap<>();
         response.put("title", account.getTitle());    // 적금 제목
         response.put("balance", account.getBalance());    // 현재 잔액
@@ -155,14 +164,8 @@ public class AccountService {
         // 적금 로그 삭제
         accountLogRepository.deleteAllByAccount(account);
 
-        // 멤버의 accounts 리스트에서도 적금 제거
-        member.getAccounts().remove(account);
-        memberRepository.save(member);
-
-
-        // 멤버와 적금 연결 해제
-        account.setMember(null);
-        accountRepository.save(account);
+        // 멤버 적금 연결관계 해제(헬퍼 메서드)
+        member.removeAccount(account);
 
 
         // 적금 삭제

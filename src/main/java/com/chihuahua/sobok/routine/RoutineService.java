@@ -8,6 +8,7 @@ import com.chihuahua.sobok.member.Member;
 import com.chihuahua.sobok.member.MemberRepository;
 import com.chihuahua.sobok.routine.todo.*;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RoutineService {
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     private final AccountRepository accountRepository;
     private final RoutineRepository routineRepository;
     private final TodoRepository todoRepository;
@@ -45,8 +49,7 @@ public class RoutineService {
         Account account = accountRepository.findById(
                 routineDto.getAccountId()).orElseThrow(
                 () -> new IllegalArgumentException("해당 적금이 존재하지 않습니다."));
-        routine.setMember(persistedMember);
-        account.addRoutine(routine);
+
         routine.setTitle(routineDto.getTitle());
         routine.setDays(routineDto.getDays());
         routine.setCreatedAt(LocalDateTime.now());
@@ -59,14 +62,22 @@ public class RoutineService {
         else if(routineType.equals("ai")) {
             routine.setIsAiRoutine(true);
         }
-        accountRepository.save(account);
+
+        // 루틴과 멤버 연결(Member 테이블의 헬퍼 메서드)
+        persistedMember.addRoutine(routine);
+
+        // 루틴과 적금 연결(Account 테이블의 헬퍼 메서드)
+        account.addRoutine(routine);
+
         routineRepository.save(routine);
+        accountRepository.save(account);
+
 
         // Todo 생성 로직 추가
         if (routineDto.getTodos() != null && !routineDto.getTodos().isEmpty()) {
             List<Todo> todos = routineDto.getTodos().stream().map(todoDto -> {
                 Todo todo = new Todo();
-                todo.setRoutine(routine);
+
                 todo.setTitle(todoDto.getTitle());
                 todo.setCategory(todoDto.getCategory());
 
@@ -83,9 +94,9 @@ public class RoutineService {
                 todo.setDuration(Duration.between(todoDto.getStartTime(), todoDto.getEndTime()).toMinutes());
                 todo.setLinkApp(todoDto.getLinkApp());
                 todo.setIsCompleted(false);
-                todo.setCategory(todoDto.getCategory());
+                routine.addTodo(todo);
                 return todo;
-            }).collect(Collectors.toList());
+            }).toList();
 
             // 루틴의 시작 시간과 종료 시간을 첫 번째 할일의 시작 시간과 마지막 할일의 종료 시간으로 설정
             routine.setStartTime(todos.getFirst().getStartTime());
@@ -96,7 +107,6 @@ public class RoutineService {
             routine.setDuration(totalDuration);
 
             routineRepository.save(routine);
-            todoRepository.saveAll(todos);
 
         }
 
@@ -105,6 +115,7 @@ public class RoutineService {
     }
 
     //사용 안함(사용한다면 할일 - 루틴 - 적금 연결관계 매핑 변경 필요)
+    @Transactional
     public void updateRoutine(RoutineDto routineDto, Member member, Long routineId) {
         var result = routineRepository.findByMemberAndId(member, routineId);
         if(result.isEmpty()) {
@@ -116,6 +127,7 @@ public class RoutineService {
                 () -> new IllegalArgumentException("해당 적금이 존재하지 않습니다."));
         routine.setAccount(account);
         routine.setTitle(routineDto.getTitle());
+        routine.getDays().clear();
         routine.setDays(routineDto.getDays());
         routineRepository.save(routine);
 
@@ -153,6 +165,7 @@ public class RoutineService {
 
     @Transactional
     public void deleteRoutine(Member member, Long routineId) {
+
         var result = routineRepository.findByMemberAndId(member, routineId);
         if(result.isEmpty()) {
             throw new IllegalArgumentException("해당 루틴이 존재하지 않습니다.");
@@ -177,31 +190,40 @@ public class RoutineService {
         // todoRepository에서 todo 삭제
         todoRepository.deleteAll(todos);
 
-        // Member 테이블에서 루틴 제거
-        member.getRoutines().remove(routine);
-        memberRepository.save(member);
-
-        // Account 테이블에서 루틴 제거
+        // Account 테이블에서 루틴 제거(적금 <-> 루틴 쌍방향 제거)
         if(account != null){
-            account.getRoutines().remove(routine);
+            account.removeRoutine(routine);
             accountRepository.save(account);
             //적금 활성화 여부 체크
             accountService.validateAccount(account);
         }
 
-        //루틴에 연결된 적금 및 멤버 제거
-        routine.setAccount(null);
-        routine.setMember(null);
-        routineRepository.save(routine);
+        // Member 테이블에서 루틴 제거(멤버 <-> 루틴 쌍방향 제거)
+        member.removeRoutine(routine);
+        memberRepository.save(member);
 
         routineRepository.delete(routine);
+
+        routineRepository.flush(); // 삭제를 즉시 반영
+        memberRepository.flush();
+        entityManager.clear(); // 영속성 컨텍스트 초기화
+
+
+        // 디버깅용 멤버에 연결된 루틴 아이디 출력
+        System.out.println("Member ID: " + member.getId());
+        System.out.println("Routines: " + member.getRoutines().stream().map(Routine::getId).toList());
     }
 
     public ResponseEntity<?> getTodayRoutine(Member member, String dateString) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse(dateString, formatter);
         String dayOfWeek = date.getDayOfWeek().toString();
-        List<Routine> result = routineRepository.findByUserIdAndDay(member.getId(), dayOfWeek);
+        // 해당 멤버의 모든 루틴을 가져온 후 해당 요일이 포함된 루틴만 필터링
+        List<Routine> result = routineRepository.findByMember(member).stream()
+                .filter(routine -> routine.getDays().contains(dayOfWeek))
+                .filter(routine -> !routine.getIsSuspended() && !routine.getIsEnded())
+                .toList();
+
         if (result.isEmpty()) {
             return ResponseEntity.ok(Map.of("message", "오늘의 루틴이 없습니다."));
         }
@@ -266,15 +288,19 @@ public class RoutineService {
         response.put("isAchieved", routine.getIsAchieved());
         response.put("isEnded", routine.getIsEnded());
         response.put("todos", routine.getTodos().stream()
-                .map(todo -> Map.of(
-                        "title", todo.getTitle(),
-                        "startTime", todo.getStartTime(),
-                        "endTime", todo.getEndTime(),
-                        "duration", todo.getDuration(),
-                        "linkApp", todo.getLinkApp(),
-                        "isCompleted", todo.getIsCompleted(),
-                        "category", todo.getCategory()
-                ))
+                .map(todo -> {
+                            Map<String, Object> todoMap = new HashMap<>();
+                            todoMap.put("id", todo.getId());
+                            todoMap.put("title", todo.getTitle() != null ? todo.getTitle() : "");
+                            todoMap.put("startTime", todo.getStartTime());
+                            todoMap.put("endTime", todo.getEndTime());
+                            todoMap.put("duration", todo.getDuration());
+                            todoMap.put("linkApp", todo.getLinkApp() != null ? todo.getLinkApp() : "");
+                            todoMap.put("isCompleted", todo.getIsCompleted());
+                            todoMap.put("category", todo.getCategory() != null ? todo.getCategory() : "");
+                            return todoMap;
+                        }
+                )
                 .toList());
         return response;
     }
@@ -283,14 +309,20 @@ public class RoutineService {
         LocalDate date = LocalDate.now();
         String dayOfWeek = date.getDayOfWeek().toString();
         List<Routine> routines = routineRepository.findByUserIdAndDay(member.getId(), dayOfWeek);
+        if (routines == null) {
+            return ResponseEntity.ok(Map.of("message", "오늘 완료하지 않은 루틴이 없습니다."));
+        }
+
         List<Map<String, Object>> result = routines.stream()
-                .filter(routine -> !routine.getIsAchieved())
+                .filter(routine -> routine != null && !routine.getIsAchieved())
                 .map(this::convertToMapTimer)
                 .toList();
+
         if (result.isEmpty()) {
             return ResponseEntity.ok(Map.of("message", "오늘 완료하지 않은 루틴이 없습니다."));
         }
         return ResponseEntity.ok(result);
+
     }
 
     private Map<String, Object> convertToMapTimer(Routine routine) {
@@ -301,20 +333,22 @@ public class RoutineService {
         response.put("startTime", routine.getStartTime());
         response.put("endTime", routine.getEndTime());
         response.put("duration", routine.getDuration());
-        response.put("todos", routine.getTodos().stream()
-                .filter(todo -> !todo.getIsCompleted())
-                .map(todo -> Map.of(
-                        "id", todo.getId(),
-                        "title", todo.getTitle(),
-                        "startTime", todo.getStartTime(),
-                        "endTime", todo.getEndTime(),
-                        "duration", todo.getDuration(),
-                        "linkApp", todo.getLinkApp(),
-                        "category", todo.getCategory()
-                ))
-                .toList());
-        return response;
-    }
+        response.put("todos", routine.getTodos() != null ? 
+        routine.getTodos().stream()
+            .filter(todo -> todo != null && !todo.getIsCompleted())
+            .map(todo -> Map.of(
+                "id", todo.getId(),
+                "title", todo.getTitle() != null ? todo.getTitle() : "",
+                "startTime", todo.getStartTime(),
+                "endTime", todo.getEndTime(),
+                "duration", todo.getDuration(),
+                "linkApp", todo.getLinkApp() != null ? todo.getLinkApp() : "",
+                "category", todo.getCategory() != null ? todo.getCategory() : ""
+            ))
+            .toList() 
+        : List.of());
+    return response;
+}
 
     public ResponseEntity<?> getTodayCompletedTime(Member member) {
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
@@ -399,6 +433,7 @@ public class RoutineService {
     }
 
     public void calculateWeeklyRoutineTime(Member member) {
+
         List<Routine> routines = routineRepository.findByMemberAndIsSuspendedAndIsEndedAndAccountIsExpired(member, false, false, false);
         long totalTime = routines.stream()
                 .mapToLong(routine -> routine.getDuration() * routine.getDays().size())

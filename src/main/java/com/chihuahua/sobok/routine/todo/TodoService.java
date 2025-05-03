@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Time;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -238,8 +237,8 @@ public class TodoService {
         Routine routine = deletedTodo.getRoutine();
         Account account = routine.getAccount();
 
-        deletedTodo.setRoutine(null);
-        routine.getTodos().remove(deletedTodo);
+        // 루틴 할 일 삭제(헬퍼 메서드)
+        routine.removeTodo(deletedTodo);
         routineRepository.save(routine);
         todoRepository.delete(deletedTodo);
 
@@ -269,10 +268,23 @@ public class TodoService {
         return ResponseEntity.ok(Map.of("message", "할 일이 삭제되었습니다."));
     }
 
-    public boolean checkOverlap(Member member, TimeDto timeDto) {
-        // 기존의 다른 할 일과의 중복 체크
-        List<Todo> existingTodos = todoRepository.findAllByMemberAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
-                member, timeDto.getEndTime(), timeDto.getStartTime());
-        return !existingTodos.isEmpty();
+    @Transactional(readOnly = true)
+    public boolean checkOverlap(Member member, OverlapTimeCheckDto overlapTimeCheckDto) {
+        List<Todo> overlappingTodos = todoRepository.findOverlappingTodos(
+                member,
+                overlapTimeCheckDto.getDays(),
+                overlapTimeCheckDto.getStartTime(),
+                overlapTimeCheckDto.getEndTime()
+        );
+        return !overlappingTodos.isEmpty();
     }
+
+
+
+//    public boolean checkOverlap(Member member, TimeDto timeDto) {
+//        // 기존의 다른 할 일과의 중복 체크 (요일 반영)
+//        List<Todo> existingTodos = todoRepository.findAllByMemberAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
+//                member, timeDto.getEndTime(), timeDto.getStartTime());
+//        return !existingTodos.isEmpty();
+//    }
 }

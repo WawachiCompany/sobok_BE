@@ -37,7 +37,7 @@ public class JwtUtil {
             Keys.hmacShaKeyFor(Decoders.BASE64.decode(
                     "jwtpassword123jwtpassword123jwtpassword123jwtpassword123jwtpassword"
             ));
-    private static final long ACCESS_TOKEN_EXPIRATION = 900_000; // 15분
+    private static final long ACCESS_TOKEN_EXPIRATION = 60 * 60 * 24 * 1000L; // 1일(배포 시 수정!)
     private static final long REFRESH_TOKEN_EXPIRATION = 30 * 24 * 60 * 60 * 1000L; // 30일
     private final RefreshTokenRepository refreshTokenRepository;
     private final SecurityContextService securityContextService;

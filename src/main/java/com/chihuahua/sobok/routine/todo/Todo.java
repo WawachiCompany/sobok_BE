@@ -27,4 +27,16 @@ public class Todo {
     private Long duration;
     private String linkApp;
     private Boolean isCompleted;
+
+    // Todo에 Routine 설정
+    public void setRoutine(Routine routine) {
+        if (this.routine != null) {
+            this.routine.getTodos().remove(this); // 기존 Routine에서 제거
+        }
+        this.routine = routine;
+        if (routine != null && !routine.getTodos().contains(this)) {
+            routine.getTodos().add(this); // 새로운 Routine에 추가
+        }
+    }
+
 }

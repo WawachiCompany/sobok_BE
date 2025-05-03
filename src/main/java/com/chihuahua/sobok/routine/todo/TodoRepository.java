@@ -22,4 +22,18 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
 
     @Query("SELECT t FROM Todo t WHERE t.routine.member = :member AND t.routine.account.isExpired = false AND t.linkApp = :linkApp")
     List<Todo> findAllByMemberAndLinkApp(Member member, String linkApp);
+
+    @Query("SELECT t FROM Todo t JOIN t.routine r " +
+            "WHERE r.member = :member " +
+            "AND EXISTS (SELECT 1 FROM r.days d WHERE d IN :days) " +
+            "AND NOT (t.endTime <= :startTime OR t.startTime >= :endTime) " +
+            "AND r.isSuspended = false " +
+            "AND r.isEnded = false " +
+            "AND r.account.isExpired = false")
+    List<Todo> findOverlappingTodos(
+            @Param("member") Member member,
+            @Param("days") List<String> days,
+            @Param("startTime") LocalTime startTime,
+            @Param("endTime") LocalTime endTime);
+
 }

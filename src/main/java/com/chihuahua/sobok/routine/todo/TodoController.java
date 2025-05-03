@@ -3,10 +3,13 @@ package com.chihuahua.sobok.routine.todo;
 import com.chihuahua.sobok.member.Member;
 import com.chihuahua.sobok.member.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalTime;
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -58,9 +61,18 @@ public class TodoController {
     }
 
     @GetMapping("/overlap")
-    public ResponseEntity<?> checkOverlap(@RequestBody TimeDto timeDto) {
+    public ResponseEntity<?> checkOverlap(
+            @RequestParam @DateTimeFormat(pattern = "HH:mm") LocalTime startTime,
+            @RequestParam @DateTimeFormat(pattern = "HH:mm") LocalTime endTime,
+            @RequestParam List<String> days  // String 형식으로 변경 (예: "MON", "TUE", "WED")
+    ) {
         Member member = memberService.getMember();
-        boolean isOverlaped = todoService.checkOverlap(member, timeDto);
+        OverlapTimeCheckDto overlapTimeCheckDto = new OverlapTimeCheckDto();
+        overlapTimeCheckDto.setStartTime(startTime);
+        overlapTimeCheckDto.setEndTime(endTime);
+        overlapTimeCheckDto.setDays(days);
+        boolean isOverlaped = todoService.checkOverlap(member, overlapTimeCheckDto);
+
         return ResponseEntity.ok(Map.of("isOverlaped" , isOverlaped));
     }
 }
