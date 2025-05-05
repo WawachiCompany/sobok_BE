@@ -3,6 +3,7 @@ package com.chihuahua.sobok.routine;
 
 import com.chihuahua.sobok.member.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -27,4 +28,9 @@ public interface RoutineRepository extends JpaRepository<Routine, Long> {
     List<Routine> findByMemberAndIsEnded(Member member, Boolean isEnded);
 
     List<Routine> findByMemberAndIsSuspendedAndIsEndedAndAccountIsExpired(Member member, Boolean isSuspended, Boolean isEnded, Boolean isAccountExpired);
+
+    @Modifying
+    @Query("UPDATE Routine r SET r.isAchieved = false WHERE r.member.id = :memberId")
+    void resetAchievedStatusByMemberId(@Param("memberId") Long memberId);
+
 }

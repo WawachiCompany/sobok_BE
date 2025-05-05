@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -23,10 +24,12 @@ public class RoutineCheckScheduler {
 
     private final MemberRepository memberRepository;
     private final DailyAchieveRepository dailyAchieveRepository;
+    private final RoutineRepository routineRepository;
 
 
     // 연속 달성일 계산
     @Scheduled(cron = "0 5 0 * * ?") // 매일 00:05에 실행
+    @Transactional
     public void checkAndExpireRoutines() {
         List<Member> members = memberRepository.findAll();
         LocalDate yesterday = LocalDate.now().minusDays(1);
@@ -67,7 +70,10 @@ public class RoutineCheckScheduler {
                 member.setConsecutiveAchieveCount(0);
                 dailyAchieve.setStatus("NONE_ACHIEVED");
             }
-            member.getRoutines().forEach(routine -> routine.setIsAchieved(false));
+
+            // 루틴 isAchieved 상태 업데이트
+            routineRepository.resetAchievedStatusByMemberId(member.getId());
+
             memberRepository.save(member);
             dailyAchieveRepository.save(dailyAchieve);
         }

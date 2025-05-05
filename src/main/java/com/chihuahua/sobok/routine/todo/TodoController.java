@@ -44,7 +44,8 @@ public class TodoController {
 
     @GetMapping("/closest")
     public ResponseEntity<?> getClosestTodo() {
-        return todoService.getClosestTodo();
+        Member member = memberService.getMember();
+        return todoService.getClosestTodo(member);
     }
 
     @GetMapping("/all")

@@ -18,10 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -141,29 +138,31 @@ public class TodoService {
         return todoDto;
     }
 
-    public ResponseEntity<?> getClosestTodo() {
-        List<Todo> todos = todoRepository.findByMemberAndDay(memberService.getMember(), LocalDateTime.now().getDayOfWeek().name());
-        LocalTime now = LocalTime.now();
+    public ResponseEntity<?> getClosestTodo(Member member) {
+        LocalDateTime now = LocalDateTime.now();
+        String today = now.getDayOfWeek().toString();
 
-        Todo closestTodo = null;
-        Duration minDiff = null;
+        // 오늘의 모든 할 일을 가져온 후 현재 시간 이후의 것들만 필터링
+        List<Todo> todayTodos = todoRepository.findByMemberAndDay(member, today)
+                .stream()
+                .filter(todo -> !todo.getIsCompleted())
+                .filter(todo -> {
+                    LocalDateTime todoStartTime = LocalDateTime.of(now.toLocalDate(), todo.getStartTime());
+                    return todoStartTime.isAfter(now);
+                })
+                .sorted(Comparator.comparing(todo ->
+                        LocalDateTime.of(now.toLocalDate(), todo.getStartTime())
+                ))
+                .toList();
 
-        for (Todo todo : todos) {
-            // todo의 시작 시간을 가져와서 절대 차이를 계산
-            LocalTime startTime = todo.getStartTime();
-            Duration diff = Duration.between(now, startTime).abs();
-
-            if (minDiff == null || diff.compareTo(minDiff) < 0) {
-                minDiff = diff;
-                closestTodo = todo;
-            }
+        if (todayTodos.isEmpty()) {
+            return ResponseEntity.ok(Map.of("message", "오늘 남은 할 일이 없습니다."));
         }
 
-        if (closestTodo != null) {
-            return ResponseEntity.ok(convertToDto(closestTodo));
-        } else {
-            return ResponseEntity.ok(Map.of("message", "오늘의 할 일이 없습니다."));
-        }
+        // 가장 가까운 할 일 반환
+        Todo closestTodo = todayTodos.getFirst();
+        return ResponseEntity.ok(convertToDto(closestTodo));
+
     }
 
     public ResponseEntity<?> getAllTodos() {
