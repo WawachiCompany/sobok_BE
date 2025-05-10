@@ -33,4 +33,8 @@ public interface RoutineRepository extends JpaRepository<Routine, Long> {
     @Query("UPDATE Routine r SET r.isAchieved = false WHERE r.member.id = :memberId")
     void resetAchievedStatusByMemberId(@Param("memberId") Long memberId);
 
+    @Query("SELECT COUNT(r) > 0 FROM Routine r WHERE r.member.id = :memberId AND r.id = :routineId")
+    boolean existsByIdAndMemberId(@Param("memberId") Long memberId, @Param("routineId") Long routineId);
+
+
 }

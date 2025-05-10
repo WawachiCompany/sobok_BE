@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,10 +32,10 @@ public class TodoService {
     private final MemberService memberService;
     private final CategoryRepository categoryRepository;
 
-
-    public ResponseEntity<?> startTodo(Long todoId) {
+    @Transactional
+    public ResponseEntity<?> startTodo(Member member, Long todoId) {
         try {
-            Todo todo = todoRepository.findById(todoId).orElseThrow(
+            Todo todo = todoRepository.findByMemberAndId(member, todoId).orElseThrow(
                     () -> new IllegalArgumentException("해당 ID의 할 일이 존재하지 않습니다."));
 
             TodoLog todoLog = new TodoLog();
@@ -45,8 +44,18 @@ public class TodoService {
             todoLog.setIsCompleted(false);
             todoLogRepository.save(todoLog);
 
-            List<Todo> relatedTodos = todo.getRoutine().getTodos();
+            // 시간순으로 정렬된 할 일 목록 가져오기
+            List<Todo> relatedTodos = todo.getRoutine().getTodos().stream()
+            .sorted(Comparator.comparing(Todo::getStartTime))
+            .toList();
+
+            // 가장 빠른 시작 시간을 가진 할 일 확인
             boolean isFirstTodo = relatedTodos.getFirst().getId().equals(todoId);
+
+            // 응답용 맵 초기화
+            Map<String, Object> responseMap = new HashMap<>();
+            responseMap.put("message", "할 일이 시작되었습니다.");
+            responseMap.put("todoLogId", todoLog.getId());
 
             // 첫 할 일인 경우 루틴 로그 생성
             if(isFirstTodo) {
@@ -55,59 +64,82 @@ public class TodoService {
                 routineLog.setStartTime(LocalDateTime.now());
                 routineLog.setIsCompleted(false);
                 routineLogRepository.save(routineLog);
-            }
-            return ResponseEntity.ok(Map.of(
-                    "message", "할 일이 시작되었습니다.",
-                    "todoLogId", todoLog.getId()));
-
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("message", "할 일 시작에 실패했습니다: " + e.getMessage()));
+            
+            // 루틴 로그 ID도 응답에 추가
+            responseMap.put("routineLogId", routineLog.getId());
+            responseMap.put("isFirstTodo", true);
+        } else {
+            responseMap.put("isFirstTodo", false);
         }
 
-    }
+        return ResponseEntity.ok(responseMap);
 
+    } catch (IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(Map.of("message", "할 일 시작에 실패했습니다: " + e.getMessage()));
+    }
+}
+
+    @Transactional
     public ResponseEntity<?> endTodo(Long todoLogId, Long duration) {
-        try {
-            TodoLog todoLog = todoLogRepository.findById(todoLogId).orElseThrow(
-                    () -> new IllegalArgumentException("해당 ID의 할 일 로그가 존재하지 않습니다."));
+    try {
+        TodoLog todoLog = todoLogRepository.findById(todoLogId).orElseThrow(
+                () -> new IllegalArgumentException("해당 ID의 할 일 로그가 존재하지 않습니다."));
 
-            todoLog.setEndTime(LocalDateTime.now());
-            todoLog.setDuration(duration);
-            todoLog.setIsCompleted(true);
+        todoLog.setEndTime(LocalDateTime.now());
+        todoLog.setDuration(duration);
+        todoLog.setIsCompleted(true);
 
-            Todo todo = todoLog.getTodo();
-            Routine routine = todo.getRoutine();
+        Todo todo = todoLog.getTodo();
+        Routine routine = todo.getRoutine();
 
-            // 할 일 완료 시 적금에 시간 적립 및 로그 생성
-            Member member = memberService.getMember();
-            Long accountId = routine.getAccount().getId();
+        // 할 일 완료 시 적금에 시간 적립 및 로그 생성
+        Member member = memberService.getMember();
+        Long accountId = routine.getAccount().getId();
 
-            accountService.depositAccount(member, accountId, Math.toIntExact(duration));
+        accountService.depositAccount(member, accountId, Math.toIntExact(duration));
 
+        todoLogRepository.save(todoLog);
 
-            todoLogRepository.save(todoLog); // 로그인 안 한 상태에서 할 일 완료 시 로그 저장 방지 위해 memberService 다음으로 위치
-
-            if(!routine.getIsAchieved()) {
-                routine.setIsAchieved(true);
-                routineRepository.save(routine);
-            }
-            List<Todo> relatedTodos = todo.getRoutine().getTodos();
-            boolean isLastTodo = relatedTodos.getLast().getId().equals(todo.getId());
-
-            // 마지막 할 일인 경우 루틴 로그 종료 처리
-            if(isLastTodo) {
-                RoutineLog routineLog = routineLogRepository.findByRoutineAndIsCompleted(todo.getRoutine(), false).orElseThrow(
-                        () -> new IllegalArgumentException("해당 루틴의 진행 중인 로그가 존재하지 않습니다."));
-                routineLog.setEndTime(LocalDateTime.now());
-                routineLog.setDuration(Duration.between(routineLog.getStartTime(), routineLog.getEndTime()).toMinutes());
-                routineLog.setIsCompleted(true);
-                routineLogRepository.save(routineLog);
-            }
-            return ResponseEntity.ok(Map.of("message", "할 일이 완료되었습니다."));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("message", "할 일 완료에 실패했습니다: " + e.getMessage()));
+        if(!routine.getIsAchieved()) {
+            routine.setIsAchieved(true);
+            routineRepository.save(routine);
         }
+        
+        // 시간순으로 정렬된 할 일 목록 가져오기
+        List<Todo> relatedTodos = todo.getRoutine().getTodos().stream()
+            .sorted(Comparator.comparing(Todo::getStartTime))
+            .toList();
+
+        // 가장 늦은 시작 시간을 가진 할 일 확인
+        boolean isLastTodo = relatedTodos.getLast().getId().equals(todo.getId());
+
+        // 응답용 맵 초기화
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("message", "할 일이 완료되었습니다.");
+        responseMap.put("isLastTodo", isLastTodo);
+
+        // 마지막 할 일인 경우 루틴 로그 종료 처리
+        if(isLastTodo) {
+            RoutineLog routineLog = routineLogRepository.findByRoutineAndIsCompleted(todo.getRoutine(), false).orElseThrow(
+                    () -> new IllegalArgumentException("해당 루틴의 진행 중인 로그가 존재하지 않습니다."));
+            
+            routineLog.setEndTime(LocalDateTime.now());
+            routineLog.setDuration(Duration.between(routineLog.getStartTime(), routineLog.getEndTime()).toMinutes());
+            routineLog.setIsCompleted(true);
+            routineLogRepository.save(routineLog);
+            
+            // 루틴 로그 정보 응답에 추가
+            responseMap.put("routineLogId", routineLog.getId());
+            responseMap.put("routineDuration", routineLog.getDuration());
+            responseMap.put("routineCompleted", true);
+        }
+
+        return ResponseEntity.ok(responseMap);
+        
+    } catch (IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(Map.of("message", "할 일 완료에 실패했습니다: " + e.getMessage()));
     }
+}
 
     public ResponseEntity<?> getTodoCategory() {
         Map<String, String> response = new HashMap<>();
@@ -171,60 +203,92 @@ public class TodoService {
         return ResponseEntity.ok(todoDtos);
     }
 
+    @Transactional
     public ResponseEntity<?> updateTodo(TodoDto todoDto) {
         Member member = memberService.getMember();
         Optional<Todo> todo = todoRepository.findById(todoDto.getId());
         if (todo.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "해당 ID의 할 일이 존재하지 않습니다."));
-        }
-        Todo updatedTodo = todo.get();
-        Routine routine = updatedTodo.getRoutine();
-        List<Todo> todos = routine.getTodos();
-        Account account = routine.getAccount();
-        updatedTodo.setTitle(todoDto.getTitle());
-        updatedTodo.setCategory(todoDto.getCategory());
-
-        // Category 테이블 추가
-        if(categoryRepository.findByMemberAndCategory(member, todoDto.getCategory()).isEmpty()) {
-            Category category = new Category();
-            category.setMember(member);
-            category.setCategory(todoDto.getCategory());
-            category.setCreatedAt(LocalDateTime.now());
-            categoryRepository.save(category);
-        }
-
-        // 기존의 다른 할 일과의 중복 체크
-        // #TODO
-        List<Todo> existingTodos = todoRepository.findAllByMemberAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
-                member, todoDto.getEndTime(), todoDto.getStartTime());
-        if (!existingTodos.isEmpty()) {
-            throw new IllegalArgumentException("기존의 다른 할 일과 시간이 겹칩니다.");
-        }
-
-        updatedTodo.setStartTime(todoDto.getStartTime());
-        updatedTodo.setEndTime(todoDto.getEndTime());
-        updatedTodo.setDuration(Duration.between(todoDto.getStartTime(), todoDto.getEndTime()).toMinutes());
-        updatedTodo.setLinkApp(todoDto.getLinkApp());
-        updatedTodo.setIsCompleted(false);
-
-        // 루틴의 시작 시간과 종료 시간을 첫 번째 할일의 시작 시간과 마지막 할일의 종료 시간으로 설정
-        routine.setStartTime(todos.getFirst().getStartTime());
-        routine.setEndTime(todos.getLast().getEndTime());
-
-        // 루틴의 duration을 할일들의 duration 합으로 설정
-        long totalDuration = todos.stream().mapToLong(Todo::getDuration).sum();
-        routine.setDuration(totalDuration);
-
-        routineRepository.save(routine);
-        todoRepository.save(updatedTodo);
-
-        //적금 활성화 여부 체크
-        if(account != null) {
-            accountService.validateAccount(account);
-        }
-
-        return ResponseEntity.ok(Map.of("message", "할 일이 업데이트되었습니다."));
+            return ResponseEntity.status(404).body(Map.of(
+                    "message", "해당 ID의 할 일이 존재하지 않습니다."
+        ));
     }
+    Todo updatedTodo = todo.get();
+    Routine routine = updatedTodo.getRoutine();
+    List<Todo> todos = routine.getTodos();
+    Account account = routine.getAccount();
+    updatedTodo.setTitle(todoDto.getTitle());
+    updatedTodo.setCategory(todoDto.getCategory());
+
+    // Category 테이블 추가
+    if(categoryRepository.findByMemberAndCategory(member, todoDto.getCategory()).isEmpty()) {
+        Category category = new Category();
+        category.setMember(member);
+        category.setCategory(todoDto.getCategory());
+        category.setCreatedAt(LocalDateTime.now());
+        categoryRepository.save(category);
+    }
+
+    // 기존의 다른 할 일과의 중복 체크
+    List<Todo> existingTodos = todoRepository.findAllByMemberAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
+            member, todoDto.getEndTime(), todoDto.getStartTime());
+    
+    // 자신을 제외하고 중복되는 할일이 있는지 확인
+    existingTodos = existingTodos.stream()
+            .filter(t -> !t.getId().equals(todoDto.getId()))
+            .toList();
+            
+    if (!existingTodos.isEmpty()) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "기존의 다른 할 일과 시간이 겹칩니다.");
+        
+        // 중복되는 할 일 정보를 응답에 포함
+        List<Map<String, Object>> conflictingTodos = existingTodos.stream()
+                .map(t -> {
+                    Map<String, Object> todoInfo = new HashMap<>();
+                    todoInfo.put("id", t.getId());
+                    todoInfo.put("title", t.getTitle());
+                    todoInfo.put("startTime", t.getStartTime().toString());
+                    todoInfo.put("endTime", t.getEndTime().toString());
+                    todoInfo.put("category", t.getCategory());
+                    if (t.getRoutine() != null) {
+                        todoInfo.put("routineId", t.getRoutine().getId());
+                        todoInfo.put("routineTitle", t.getRoutine().getTitle());
+                    }
+                    return todoInfo;
+                })
+                .collect(Collectors.toList());
+        
+        response.put("conflictingTodos", conflictingTodos);
+        
+        // 409 Conflict: 요청이 현재 서버의 상태와 충돌할 때 사용
+        // TransactionSystemException 방지를 위해 트랜잭션을 롤백하지 않고 바로 종료
+        return ResponseEntity.status(409).body(response);
+    }
+
+    updatedTodo.setStartTime(todoDto.getStartTime());
+    updatedTodo.setEndTime(todoDto.getEndTime());
+    updatedTodo.setDuration(Duration.between(todoDto.getStartTime(), todoDto.getEndTime()).toMinutes());
+    updatedTodo.setLinkApp(todoDto.getLinkApp());
+    updatedTodo.setIsCompleted(false);
+
+    // 루틴의 시작 시간과 종료 시간을 첫 번째 할일의 시작 시간과 마지막 할일의 종료 시간으로 설정
+    routine.setStartTime(todos.getFirst().getStartTime());
+    routine.setEndTime(todos.getLast().getEndTime());
+
+    // 루틴의 duration을 할일들의 duration 합으로 설정
+    long totalDuration = todos.stream().mapToLong(Todo::getDuration).sum();
+    routine.setDuration(totalDuration);
+
+    routineRepository.save(routine);
+    todoRepository.save(updatedTodo);
+
+    //적금 활성화 여부 체크
+    if(account != null) {
+        accountService.validateAccount(account);
+    }
+
+    return ResponseEntity.ok(Map.of("message", "할 일이 업데이트되었습니다."));
+}
 
     @Transactional
     public ResponseEntity<?> deleteTodo(Long todoId) {

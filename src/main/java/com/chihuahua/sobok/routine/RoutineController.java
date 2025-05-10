@@ -39,11 +39,10 @@ public class RoutineController {
         return ResponseEntity.ok(response);
     }
 
-    @Deprecated
     @PutMapping("/update")
-    public ResponseEntity<?> updateRoutine(@RequestBody RoutineDto routineDto, @RequestParam Long routineId) {
+    public ResponseEntity<?> updateRoutine(@RequestBody RoutineDto routineDto) {
         Member member = memberService.getMember();
-        routineService.updateRoutine(routineDto, member, routineId);
+        routineService.updateRoutine(routineDto, member);
 
         // 루틴 수정 후 주간 루틴 시간 계산
         routineService.calculateWeeklyRoutineTime(member);
@@ -117,6 +116,12 @@ public class RoutineController {
     private ResponseEntity<?> getTodayDoneRoutineTime() {
         Member member = memberService.getMember();
         return routineService.getTodayCompletedTime(member);
+    }
+
+    @PostMapping("/complete")
+    private ResponseEntity<?> completeRoutine(@RequestParam Long routineId) {
+        Member member = memberService.getMember();
+        return routineService.completeRoutine(member, routineId);
     }
 
 

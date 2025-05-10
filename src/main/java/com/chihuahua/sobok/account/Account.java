@@ -22,7 +22,7 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonBackReference
     private Member member;
@@ -54,7 +54,10 @@ public class Account {
     // Account에 Member 설정
     public void setMember(Member member) {
         if (this.member != null) {
-            this.member.getAccounts().remove(this); // 기존 Member에서 제거
+            if (this.member.getAccounts() != null) {  // null 체크 추가
+                this.member.getAccounts().remove(this);
+            }
+            // 기존 Member에서 제거
         }
         this.member = member;
         if (member != null && !member.getAccounts().contains(this)) {

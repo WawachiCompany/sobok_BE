@@ -2,6 +2,7 @@ package com.chihuahua.sobok.routine.todo;
 
 import com.chihuahua.sobok.member.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -22,5 +23,11 @@ public interface TodoLogRepository extends JpaRepository<TodoLog, Long> {
     List<TodoLog> findAllByMemberAndIsCompleted(@Param("member") Member member);
 
     void deleteTodoLogByTodo(Todo todo);
+
+    // 루틴 삭제용
+    @Modifying
+    @Query("DELETE FROM TodoLog tl WHERE tl.todo.routine.id = :routineId")
+    void deleteByRoutineId(@Param("routineId") Long routineId);
+
 
 }

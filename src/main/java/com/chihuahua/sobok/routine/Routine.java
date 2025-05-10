@@ -85,13 +85,24 @@ public class Routine {
 
     // Routine에 Account 설정
     public void setAccount(Account account) {
-        if (this.account != null) {
-            this.account.getRoutines().remove(this); // 기존 Account에서 제거
+        // 같은 계정이면 아무것도 하지 않음
+        if (this.account == account) {
+            return;
         }
+
+        // 기존 계정에서 연결 해제
+        Account oldAccount = this.account;
+        this.account = null;
+        if (oldAccount != null && oldAccount.getRoutines() != null) {
+            oldAccount.getRoutines().remove(this);
+        }
+
+        // 새 계정에 연결
         this.account = account;
-        if (account != null && !account.getRoutines().contains(this)) {
-            account.getRoutines().add(this); // 새로운 Account에 추가
+        if (account != null && account.getRoutines() != null && !account.getRoutines().contains(this)) {
+            account.getRoutines().add(this);
         }
+
     }
 
 

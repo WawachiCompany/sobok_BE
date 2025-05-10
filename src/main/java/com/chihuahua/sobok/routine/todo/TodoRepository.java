@@ -3,11 +3,13 @@ package com.chihuahua.sobok.routine.todo;
 import com.chihuahua.sobok.member.Member;
 import com.chihuahua.sobok.routine.Routine;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface TodoRepository extends JpaRepository<Todo, Long> {
     List<Todo> findByRoutine(Routine routine);
@@ -35,5 +37,14 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
             @Param("days") List<String> days,
             @Param("startTime") LocalTime startTime,
             @Param("endTime") LocalTime endTime);
+
+    @Query("SELECT t FROM Todo t WHERE t.routine.member = :member AND t.id = :id")
+    Optional<Todo> findByMemberAndId(Member member, Long id);
+
+    // 루틴 삭제용
+    @Modifying
+    @Query("DELETE FROM Todo t WHERE t.routine.id = :routineId")
+    void deleteByRoutineId(@Param("routineId") Long routineId);
+
 
 }

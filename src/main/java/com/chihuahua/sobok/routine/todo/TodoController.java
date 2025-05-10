@@ -24,7 +24,8 @@ public class TodoController {
 
     @PostMapping("/start")
     public ResponseEntity<?> startTodo(@RequestParam Long todoId) {
-        return todoService.startTodo(todoId);
+        Member member = memberService.getMember();
+        return todoService.startTodo(member, todoId);
     }
 
     @PostMapping("/end")
