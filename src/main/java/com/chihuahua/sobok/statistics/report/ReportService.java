@@ -26,10 +26,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,7 +48,11 @@ public class ReportService {
         Member member = memberService.getMember();
         String startDate = yearMonthObj.atDay(1).toString();
         String endDate = yearMonthObj.atEndOfMonth().toString();
-        MonthlyUserReport monthlyUserReport = monthlyUserReportRepository.findByMemberIdAndTargetYearMonth(member.getId(), yearMonthObj.toString());
+        Optional<MonthlyUserReport> monthlyUserReportOptional = monthlyUserReportRepository.findByMemberIdAndTargetYearMonth(member.getId(), yearMonthObj.toString());
+        if(monthlyUserReportOptional.isEmpty()) {
+            return ResponseEntity.ok(Map.of("message", "해당 월의 통계가 존재하지 않습니다."));
+        }
+        MonthlyUserReport monthlyUserReport = monthlyUserReportOptional.get();
         Map<String, Object> response = new HashMap<>();
 
         // 리포트 메세지에서의 재사용을 위해 변수로 저장
@@ -93,7 +94,12 @@ public class ReportService {
                 .sorted((r1, r2) -> Long.compare(r2.getTotalAccumulatedTime(), r1.getTotalAccumulatedTime()))
                 .toList();
 
-        long memberTime = monthlyUserReportRepository.findByMemberIdAndTargetYearMonth(member.getId(), currentMonth).getTotalAccumulatedTime();
+        Optional<MonthlyUserReport> optionalReport = monthlyUserReportRepository.findByMemberIdAndTargetYearMonth(member.getId(), currentMonth);
+        if (optionalReport.isEmpty()) {
+            return 0.0; // 해당 월의 통계가 존재하지 않으면 0%로 처리
+        }
+        MonthlyUserReport memberReport = optionalReport.get();
+        long memberTime = memberReport.getTotalAccumulatedTime();
         int rank = 0;
         for (int i = 0; i < reports.size(); i++) {
             if (reports.get(i).getTotalAccumulatedTime() == memberTime) {
@@ -105,14 +111,18 @@ public class ReportService {
         return Math.round(percent * 10) / 10.0;
     }
 
-    public long getAverageTimeCompare(Member member, YearMonth yearMonth){
+    public long getAverageTimeCompare(Member member, YearMonth yearMonth) {
         String currentMonth = yearMonth.toString();
         long averageTime = Math.round(monthlyUserReportRepository.findAll().stream()
                 .mapToLong(MonthlyUserReport::getAverageAccumulatedTime)
                 .average().orElse(0));
-        long memberTime = monthlyUserReportRepository.findByMemberIdAndTargetYearMonth(member.getId(), currentMonth).getAverageAccumulatedTime();
-        return memberTime - averageTime;
+
+        MonthlyUserReport report = monthlyUserReportRepository.findByMemberIdAndTargetYearMonth(member.getId(), currentMonth)
+                .orElseThrow(() -> new IllegalStateException("해당 월의 통계가 존재하지 않습니다."));
+
+        return report.getAverageAccumulatedTime() - averageTime;
     }
+
 
     public String getMostPerformedStartTime(Member member, YearMonth yearMonth) {
         LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();

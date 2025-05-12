@@ -73,7 +73,7 @@ server:
 logging:
   level:
     org:
-      springframework: DEBUG
+#      springframework: DEBUG
 openai:
   api:
     key: ${OPENAI_API_KEY}
