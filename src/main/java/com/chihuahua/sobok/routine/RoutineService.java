@@ -30,19 +30,16 @@ import org.slf4j.LoggerFactory;
 public class RoutineService {
 
     private static final Logger logger = LoggerFactory.getLogger(RoutineService.class);
-    private final RoutineDeletionService routineDeletionService;
     
     @PersistenceContext
     private EntityManager entityManager;
 
     private final AccountRepository accountRepository;
     private final RoutineRepository routineRepository;
-    private final TodoRepository todoRepository;
     private final AccountService accountService;
     private final MemberRepository memberRepository;
     private final TodoLogRepository todoLogRepository;
     private final CategoryRepository categoryRepository;
-    private final RoutineLogRepository routineLogRepository;
 
     @Transactional
     public void createRoutine(RoutineDto routineDto, Member member, String routineType) {
@@ -124,16 +121,23 @@ public class RoutineService {
             throw new IllegalArgumentException("해당 루틴이 존재하지 않습니다.");
         }
         Routine routine = result.get();
-        Account account = accountRepository.findById(
-                routineDto.getAccountId()).orElseThrow(
-                () -> new IllegalArgumentException("해당 적금이 존재하지 않습니다."));
-        // 기존 적금과 변경할 적금이 같다면 패스
-        if (routine.getAccount() != null && !routine.getAccount().getId().equals(routineDto.getAccountId())) {
-            // 기존 적금에서 루틴 제거
-            routine.getAccount().removeRoutine(routine);
-            // 새로운 적금에 루틴 추가
-            account.addRoutine(routine);
+
+        // accountId null이면 기존 적금 유지
+        if (routineDto.getAccountId() != null && routineDto.getAccountId() > 0) {
+            Account account = accountRepository.findById(routineDto.getAccountId())
+                    .orElseThrow(() -> new IllegalArgumentException("해당 적금이 존재하지 않습니다."));
+            // 기존 적금과 변경할 적금이 같다면 패스
+            if (routine.getAccount() != null && !routine.getAccount().getId().equals(routineDto.getAccountId())) {
+                // 기존 적금에서 루틴 제거
+                routine.getAccount().removeRoutine(routine);
+                // 새로운 적금에 루틴 추가
+                account.addRoutine(routine);
+                //적금 활성화 여부 체크
+                accountService.validateAccount(account);
+            }
         }
+
+
         routine.setTitle(routineDto.getTitle());
         routine.getDays().clear();
         routine.setDays(routineDto.getDays());
@@ -141,8 +145,7 @@ public class RoutineService {
 
         // 할 일은 할 일 수정 API에서 처리
 
-        //적금 활성화 여부 체크
-        accountService.validateAccount(account);
+
     }
 
     @Transactional
@@ -276,7 +279,8 @@ public class RoutineService {
                 "title", routine.getTitle(),
                 "accountTitle", routine.getAccount() != null ? routine.getAccount().getTitle() : "",
                 "duration", routine.getDuration(),
-                "isSuspended", routine.getIsSuspended()
+                "isSuspended", routine.getIsSuspended(),
+                "isCompleted", routine.getIsEnded()
         );
     }
 

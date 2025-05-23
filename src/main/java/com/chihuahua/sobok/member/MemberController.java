@@ -136,7 +136,43 @@ public class MemberController {
         }
     }
 
+    @PutMapping("/update/general")
+    public ResponseEntity<Map<String, Object>> updateMember(@RequestBody MemberDto memberDto) {
+        try {
+            Member member = memberService.getMember();
+            memberService.updateMember(member, memberDto);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "회원 정보 수정 성공");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "회원 정보 수정 실패: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
 
+    @PutMapping("/update/password")
+    public ResponseEntity<Map<String, Object>> updatePassword(@RequestBody PasswordDto passwordDto) {
+        try {
+            Member member = memberService.getMember();
+            boolean isChanged = memberService.updatePassword(
+                    member,
+                    passwordDto.getOldPassword(),
+                    passwordDto.getNewPassword());
+            if (!isChanged) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "비밀번호 수정 실패: 비밀번호가 일치하지 않습니다.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "비밀번호 수정 성공");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "비밀번호 수정 실패: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
 
 
     @GetMapping("/info")

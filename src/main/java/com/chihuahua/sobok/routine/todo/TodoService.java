@@ -194,7 +194,6 @@ public class TodoService {
         // 가장 가까운 할 일 반환
         Todo closestTodo = todayTodos.getFirst();
         return ResponseEntity.ok(convertToDto(closestTodo));
-
     }
 
     public ResponseEntity<?> getAllTodos() {

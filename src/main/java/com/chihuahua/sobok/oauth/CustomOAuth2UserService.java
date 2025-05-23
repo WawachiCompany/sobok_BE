@@ -5,6 +5,7 @@ import com.chihuahua.sobok.member.MemberService;
 import com.nimbusds.jose.JOSEException;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
@@ -26,6 +27,7 @@ import java.util.Map;
 public class CustomOAuth2UserService extends OidcUserService {
 
     private final PeopleApiService peopleApiService;
+    @Lazy
     private final MemberService memberService;
     private final OauthAccountRepository oauthAccountRepository;
     private final KakaoIdTokenValidator kakaoIdTokenValidator;

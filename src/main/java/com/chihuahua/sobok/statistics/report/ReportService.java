@@ -46,13 +46,22 @@ public class ReportService {
     public ResponseEntity<?> getReport(String yearMonth) {
         YearMonth yearMonthObj = YearMonth.parse(yearMonth);
         Member member = memberService.getMember();
+        // 이번 달
         String startDate = yearMonthObj.atDay(1).toString();
         String endDate = yearMonthObj.atEndOfMonth().toString();
+        // 지난 달
+        String previousStartDate = yearMonthObj.minusMonths(1).atDay(1).toString();
+        String previousEndDate = yearMonthObj.minusMonths(1).atEndOfMonth().toString();
         Optional<MonthlyUserReport> monthlyUserReportOptional = monthlyUserReportRepository.findByMemberIdAndTargetYearMonth(member.getId(), yearMonthObj.toString());
+        Optional<MonthlyUserReport> monthlyUserReportPreviousOptional = monthlyUserReportRepository.findByMemberIdAndTargetYearMonth(member.getId(), yearMonthObj.minusMonths(1).toString());
         if(monthlyUserReportOptional.isEmpty()) {
-            return ResponseEntity.ok(Map.of("message", "해당 월의 통계가 존재하지 않습니다."));
+            return ResponseEntity.ok(Map.of("message", "이번 달의 통계가 존재하지 않습니다."));
+        }
+        if(monthlyUserReportPreviousOptional.isEmpty()) {
+            return ResponseEntity.ok(Map.of("message", "지난 달의 통계가 존재하지 않습니다."));
         }
         MonthlyUserReport monthlyUserReport = monthlyUserReportOptional.get();
+        MonthlyUserReport monthlyUserReportPrevious = monthlyUserReportPreviousOptional.get();
         Map<String, Object> response = new HashMap<>();
 
         // 리포트 메세지에서의 재사용을 위해 변수로 저장
@@ -60,6 +69,9 @@ public class ReportService {
         Long totalAccumulatedTime = monthlyUserReport.getTotalAccumulatedTime();
         String mostPerformedStartTime = getMostPerformedStartTime(member, yearMonthObj);
         Long totalAchievedCount = getTotalAchievedCount(result);
+
+        List<DailyAchieveDto> resultPrevious = statisticsService.getDailyAchieve(member, previousStartDate, previousEndDate); // 6페이지를 위한 데이터
+        Long previousTotalAchievedCount = getTotalAchievedCount(resultPrevious);
 
 
 
@@ -82,7 +94,14 @@ public class ReportService {
         response.put("reportMessage3", getReportMessage3(totalAchievedCount,yearMonthObj.getMonthValue())); // 3페이지 리포트 메세지
 
         response.put("consecutiveAchieveCount", calculateMonthlyConsecutiveAchieve(getDailyAchievesForCurrentMonth(member, yearMonthObj))); // 4페이지 월별 연속 달성일
-        response.put("mostAchievedAccount", getMonthlyMostAchievedAccount(member, yearMonthObj)); // 5페이지 가장 많이 달성한 적금 {title, duration}
+        response.put("mostAchievedAccount", getMonthlyMostAchievedAccount(member, yearMonthObj)); // 5페이지 이번 달 가장 많이 달성한 적금 {title, duration}
+        response.put("previousMostAchievedAccount", getMonthlyMostAchievedAccount(member, yearMonthObj.minusMonths(1))); // 5페이지 지난 달 가장 많이 달성한 적금 {title, duration}
+
+        response.put("previousTotalTime", monthlyUserReportPrevious.getTotalAccumulatedTime()); // 6페이지 지난 달 총 누적시간
+        response.put("previousAverageTime", monthlyUserReportPrevious.getAverageAccumulatedTime()); // 6페이지 지난 달 하루 평균시간
+
+        response.put("previousTotalAchievedCount", previousTotalAchievedCount); // 7페이지 지난 달 총 달성 일
+        response.put("previousDailyAchieve", resultPrevious); // 7페이지 지난 달 일별 달성 상태(캘린더 표시)
 
         return ResponseEntity.ok(response);
     }

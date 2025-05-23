@@ -9,9 +9,11 @@ import com.chihuahua.sobok.routine.todo.TodoRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -32,6 +34,8 @@ public class MemberService {
     private final PointLogService pointLogService;
     private final JwtUtil jwtUtil;
     private final TodoRepository todoRepository;
+    @Lazy
+    private final PasswordEncoder passwordEncoder;
 
     public boolean isEmailDuplicated(String email) {
         return memberRepository.existsByEmail(email);
@@ -180,21 +184,6 @@ public class MemberService {
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
     }
 
-
-//    @Transactional
-//    public Member getMember() {
-//        String token = jwtUtil.extractAccessTokenFromRequestHeader();
-//        System.out.println("getMember에서의 token = " + token);
-//        if(!jwtUtil.validateToken(token)) {
-//            System.out.println("토큰이 유효하지 않습니다.");
-//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "액세스 토큰이 만료되었습니다.");
-//        }
-//        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-//        System.out.println("getMember에서의 username = " + username);
-//        return memberRepository.findByUsername(username)
-//                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
-//    }
-
     public Integer calculatePremiumPrice(Member member) {
         List<Account> accounts = member.getAccounts();
         long totalTimeOfAccounts = accounts.stream()
@@ -242,6 +231,33 @@ public class MemberService {
         todoDto.setRoutineId(todo.getRoutine().getId());
         return todoDto;
     }
+
+    // 회원 정보 수정(전화번호, 이메일, 생년월일)
+    public void updateMember(Member member, MemberDto memberDto) {
+        member.setPhoneNumber(memberDto.getPhoneNumber());
+        member.setEmail(memberDto.getEmail());
+        member.setBirth(memberDto.getBirth());
+        memberRepository.save(member);
+    }
+
+    public boolean updatePassword(Member member, String currentPassword, String newPassword) {
+        // 현재 비밀번호 확인
+        if (!passwordEncoder.matches(currentPassword, member.getPassword())) {
+            return false; // 현재 비밀번호가 일치하지 않음
+        }
+
+        // 비밀번호 기준 충족하는지 확인(8~16자, 대문자, 소문자, 숫자, 특수문자 포함)
+        if (!newPassword.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,16}$")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호는 8~16자, 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다.");
+        }
+
+        // 새 비밀번호 암호화 및 저장
+        member.setPassword(passwordEncoder.encode(newPassword));
+        memberRepository.save(member);
+        return true;
+    }
+
+
 }
 
 
