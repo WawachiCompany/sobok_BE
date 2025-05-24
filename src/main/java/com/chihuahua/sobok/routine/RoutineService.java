@@ -372,10 +372,17 @@ public class RoutineService {
         LocalDateTime endOfDay = startOfDay.plusDays(1);
 
         List<TodoLog> completedLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetWeen(member, startOfDay, endOfDay);
+        // 할 일 아이디 별 duration 합계
+        Map<Long, Long> todoDurationMap = completedLogs.stream()
+                .collect(Collectors.groupingBy(todoLog -> todoLog.getTodo().getId(),
+                        Collectors.summingLong(TodoLog::getDuration)));
         long totalTime = completedLogs.stream()
                 .mapToLong(TodoLog::getDuration)
                 .sum();
-        return ResponseEntity.ok(Map.of("totalTime", totalTime));
+        Map<String, Object> response = new HashMap<>();
+        response.put("totalTime", totalTime);
+        response.put("todoDurationMap", todoDurationMap);
+        return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<?> getTodayDoneRoutine(Member member) {
