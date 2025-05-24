@@ -373,9 +373,8 @@ public class RoutineService {
 
         List<TodoLog> completedLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetWeen(member, startOfDay, endOfDay);
         long totalTime = completedLogs.stream()
-                .mapToLong(log -> Duration.between(log.getStartTime(), log.getEndTime()).toMinutes())
+                .mapToLong(TodoLog::getDuration)
                 .sum();
-
         return ResponseEntity.ok(Map.of("totalTime", totalTime));
     }
 
