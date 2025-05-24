@@ -1,6 +1,7 @@
 package com.chihuahua.sobok.member;
 
 import com.chihuahua.sobok.account.Account;
+import com.chihuahua.sobok.exception.BadRequestException;
 import com.chihuahua.sobok.jwt.JwtUtil;
 import com.chihuahua.sobok.member.point.*;
 import com.chihuahua.sobok.routine.todo.Todo;
@@ -236,13 +237,13 @@ public class MemberService {
     public void updateMember(Member member, MemberDto memberDto) {
         if(memberDto.getPhoneNumber() != null) {
             if (isPhoneNumberDuplicated(memberDto.getPhoneNumber())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 사용 중인 전화번호입니다.");
+                throw new BadRequestException("이미 사용 중인 전화번호입니다.");
             }
             member.setPhoneNumber(memberDto.getPhoneNumber());
         }
         if(memberDto.getEmail() != null) {
             if (isEmailDuplicated(memberDto.getEmail())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 사용 중인 이메일입니다.");
+                throw new BadRequestException("이미 사용 중인 이메일입니다.");
             }
             member.setEmail(memberDto.getEmail());
         }
@@ -260,7 +261,7 @@ public class MemberService {
 
         // 비밀번호 기준 충족하는지 확인(8~16자, 대문자, 소문자, 숫자, 특수문자 포함)
         if (!newPassword.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,16}$")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호는 8~16자, 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다.");
+            throw new BadRequestException("비밀번호는 8~16자, 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다.");
         }
 
         // 새 비밀번호 암호화 및 저장
