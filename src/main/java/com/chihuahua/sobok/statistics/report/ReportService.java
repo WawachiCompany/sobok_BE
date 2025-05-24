@@ -146,7 +146,7 @@ public class ReportService {
     public String getMostPerformedStartTime(Member member, YearMonth yearMonth) {
         LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
         LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59);
-        List<TodoLog> todoLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetWeen(member, startOfMonth, endOfMonth);
+        List<TodoLog> todoLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetween(member, startOfMonth, endOfMonth);
 
         // 30분 단위로 묶어서 카운트 (시간 부분만 사용)
         Map<LocalTime, Long> timeCount = todoLogs.stream()

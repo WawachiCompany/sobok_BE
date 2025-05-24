@@ -152,7 +152,7 @@ public class SnowCardService {
             LocalDateTime startOfLastMonth = yearMonth.atDay(1).atStartOfDay();
             LocalDateTime endOfLastMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59);
 
-            List<TodoLog> lastMonthTodoLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetWeen(member, startOfLastMonth, endOfLastMonth);
+            List<TodoLog> lastMonthTodoLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetween(member, startOfLastMonth, endOfLastMonth);
             Map<String, Long> categoryCount = lastMonthTodoLogs.stream()
                     .map(todoLog -> todoRepository.findById(todoLog.getTodo().getId()).orElse(null))
                     .filter(Objects::nonNull)
@@ -245,7 +245,7 @@ public class SnowCardService {
     // 천사 날개의 눈 조각
     public boolean isAngel(Member member, YearMonth yearMonth) {
         try {
-            List<TodoLog> todoLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetWeen(member, yearMonth.atDay(1).atStartOfDay(), yearMonth.atEndOfMonth().atTime(23, 59, 59));
+            List<TodoLog> todoLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetween(member, yearMonth.atDay(1).atStartOfDay(), yearMonth.atEndOfMonth().atTime(23, 59, 59));
             if (todoLogs.isEmpty()) {
                 return false; // 로그가 없으면 조건을 만족할 수 없음
             }
@@ -265,7 +265,7 @@ public class SnowCardService {
     public boolean isPudding(Member member, YearMonth yearMonth) {
         try {
             // 지난 달 투두 로그 불러와서 하나의 투두만 있는지 확인
-            List<TodoLog> todoLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetWeen(member, yearMonth.atDay(1).atStartOfDay(), yearMonth.atEndOfMonth().atTime(23, 59, 59));
+            List<TodoLog> todoLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetween(member, yearMonth.atDay(1).atStartOfDay(), yearMonth.atEndOfMonth().atTime(23, 59, 59));
             if (todoLogs.isEmpty()) {
                 return false; // 로그가 없으면 조건을 만족할 수 없음
             }

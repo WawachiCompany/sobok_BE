@@ -13,7 +13,7 @@ public interface TodoLogRepository extends JpaRepository<TodoLog, Long> {
 
 
     @Query("SELECT t FROM TodoLog t WHERE t.todo.routine.member = :member AND t.isCompleted = true AND t.endTime >= :startTime AND t.endTime < :endTime")
-    List<TodoLog> findAllByMemberAndIsCompletedAndEndTimeBetWeen(@Param("member") Member member,
+    List<TodoLog> findAllByMemberAndIsCompletedAndEndTimeBetween(@Param("member") Member member,
                                                                  @Param("startTime") LocalDateTime startTime,
                                                                  @Param("endTime") LocalDateTime endTime);
 

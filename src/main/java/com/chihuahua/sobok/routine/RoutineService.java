@@ -371,7 +371,7 @@ public class RoutineService {
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
 
-        List<TodoLog> completedLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetWeen(member, startOfDay, endOfDay);
+        List<TodoLog> completedLogs = todoLogRepository.findAllByMemberAndIsCompletedAndEndTimeBetween(member, startOfDay, endOfDay);
         // 할 일 아이디 별 duration 합계
         Map<Long, Long> todoDurationMap = completedLogs.stream()
                 .collect(Collectors.groupingBy(todoLog -> todoLog.getTodo().getId(),

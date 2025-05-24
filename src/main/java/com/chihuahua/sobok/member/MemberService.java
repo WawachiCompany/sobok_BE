@@ -234,9 +234,21 @@ public class MemberService {
 
     // 회원 정보 수정(전화번호, 이메일, 생년월일)
     public void updateMember(Member member, MemberDto memberDto) {
-        member.setPhoneNumber(memberDto.getPhoneNumber());
-        member.setEmail(memberDto.getEmail());
-        member.setBirth(memberDto.getBirth());
+        if(memberDto.getPhoneNumber() != null) {
+            if (isPhoneNumberDuplicated(memberDto.getPhoneNumber())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 사용 중인 전화번호입니다.");
+            }
+            member.setPhoneNumber(memberDto.getPhoneNumber());
+        }
+        if(memberDto.getEmail() != null) {
+            if (isEmailDuplicated(memberDto.getEmail())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 사용 중인 이메일입니다.");
+            }
+            member.setEmail(memberDto.getEmail());
+        }
+        if(memberDto.getBirth() != null) {
+            member.setBirth(memberDto.getBirth());
+        }
         memberRepository.save(member);
     }
 
