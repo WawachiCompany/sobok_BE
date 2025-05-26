@@ -70,7 +70,7 @@ jobs:
       - name: Clean up old application versions in S3
         run: |
           aws s3 ls s3://elasticbeanstalk-ap-northeast-2-140023384172/ | grep sobok-app-v | sort -k4 -r | awk 'NR>10 {print $4}' | while read key; do
-            aws s3 rm s3://sobok-bucket/$key
+            aws s3 rm s3://elasticbeanstalk-ap-northeast-2-140023384172/$key
           done
 
       # 5-3. Elastic Beanstalk 애플리케이션 버전 생성
