@@ -99,11 +99,6 @@ public class TodoService {
         accountService.depositAccount(member, accountId, Math.toIntExact(duration));
 
         todoLogRepository.save(todoLog);
-
-        if(!routine.getIsAchieved()) {
-            routine.setIsAchieved(true);
-            routineRepository.save(routine);
-        }
         
         // 시간순으로 정렬된 할 일 목록 가져오기
         List<Todo> relatedTodos = todo.getRoutine().getTodos().stream()
@@ -127,6 +122,12 @@ public class TodoService {
             routineLog.setDuration(Duration.between(routineLog.getStartTime(), routineLog.getEndTime()).toMinutes());
             routineLog.setIsCompleted(true);
             routineLogRepository.save(routineLog);
+
+            if(!routine.getIsAchieved()) {
+
+                routine.setIsAchieved(true);
+                routineRepository.save(routine);
+            }
             
             // 루틴 로그 정보 응답에 추가
             responseMap.put("routineLogId", routineLog.getId());

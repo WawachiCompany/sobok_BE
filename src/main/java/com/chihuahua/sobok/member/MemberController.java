@@ -162,6 +162,15 @@ public class MemberController {
             return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/update/display-name")
+    public ResponseEntity<?> updateDisplayName(@RequestParam String displayName) {
+        Member member = memberService.getMember();
+        memberService.updateDisplayName(member, displayName);
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "닉네임 수정 성공");
+        return ResponseEntity.ok(response);
+    }
+
 
     @GetMapping("/info")
     public ResponseEntity<Map<String, Object>> info() {

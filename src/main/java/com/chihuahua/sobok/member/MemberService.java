@@ -270,6 +270,12 @@ public class MemberService {
         return true;
     }
 
+    // 닉네임 수정
+    public void updateDisplayName(Member member, String displayName) {
+        member.setDisplayName(displayName);
+        memberRepository.save(member);
+    }
+
 
 }
 
