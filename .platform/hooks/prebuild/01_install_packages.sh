@@ -6,7 +6,8 @@ if [ ! -f "/opt/.sobok_packages_installed" ]; then
   echo "[INFO] 필수 패키지 설치 중..."
 
   # fail2ban 설치 (필요한 경우)
-  yum install -y epel-release fail2ban
+  dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+  dnf install -y fail2ban
   systemctl enable fail2ban
 
   # 마커 파일 생성 및 버전 정보 기록
