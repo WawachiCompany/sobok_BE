@@ -5,9 +5,6 @@ set -e
 if [ ! -f "/opt/.sobok_packages_installed" ]; then
   echo "[INFO] 필수 패키지 설치 중..."
 
-  # Docker 관련 패키지만 설치 (필요시)
-  yum install -y docker docker-compose jq
-
   # fail2ban 설치 (필요한 경우)
   yum install -y epel-release fail2ban
   systemctl enable fail2ban
