@@ -96,6 +96,7 @@ public class ReportService {
         response.put("consecutiveAchieveCount", calculateMonthlyConsecutiveAchieve(getDailyAchievesForCurrentMonth(member, yearMonthObj))); // 4페이지 월별 연속 달성일
         response.put("mostAchievedAccount", getMonthlyMostAchievedAccount(member, yearMonthObj)); // 5페이지 이번 달 가장 많이 달성한 적금 {title, duration}
         response.put("previousMostAchievedAccount", getMonthlyMostAchievedAccount(member, yearMonthObj.minusMonths(1))); // 5페이지 지난 달 가장 많이 달성한 적금 {title, duration}
+        response.put("previousConsecutiveAchieveCount", calculateMonthlyConsecutiveAchieve(getDailyAchievesForCurrentMonth(member, yearMonthObj.minusMonths(1)))); // 지난 달 연속 달성일
 
         response.put("previousTotalTime", monthlyUserReportPrevious.getTotalAccumulatedTime()); // 6페이지 지난 달 총 누적시간
         response.put("previousAverageTime", monthlyUserReportPrevious.getAverageAccumulatedTime()); // 6페이지 지난 달 하루 평균시간

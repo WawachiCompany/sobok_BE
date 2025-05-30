@@ -84,7 +84,30 @@ social-login:
       client-id: "com.chihuahua.sobok"
       team-id: ${APPLE_TEAM_ID}
       key-id: ${APPLE_KEY_ID}
-
+#management:
+#  tracing:
+#    sampling:
+#      probability: 1.0
+#  endpoints:
+#    web:
+#      exposure:
+#        include: health,info,prometheus
+#  prometheus:
+#    metrics:
+#      export:
+#        enabled: true
+#otel:
+#  exporter:
+#    otlp:
+#      endpoint: # Oracle 연결하면 그때 추가
+#      compression: gzip
+#      protocol: grpc
+#  metrics:
+#    exporter: otlp
+#  logs:
+#    exporter: otlp
+#  sdk:
+#    disabled: false
 
 ---
 spring:

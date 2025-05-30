@@ -4,6 +4,14 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
+dependencyManagement {
+    imports {
+        mavenBom "io.opentelemetry:opentelemetry-bom:1.50.0"
+        mavenBom "io.opentelemetry:opentelemetry-bom-alpha:1.50.0-alpha" // alpha BOM 추가
+
+    }
+}
+
 group = 'com.apple'
 version = '0.0.1-SNAPSHOT'
 
@@ -55,6 +63,12 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-admin:9.4.3'
     implementation 'com.nimbusds:nimbus-jose-jwt:10.0.1'
+
+    implementation("io.opentelemetry:opentelemetry-api")
+    implementation("io.opentelemetry:opentelemetry-sdk")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp")
+    implementation("io.opentelemetry:opentelemetry-api-incubator")
+    implementation("io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:2.16.0")
 }
 
 test {
@@ -75,16 +89,11 @@ test {
             displayGranularity 2
         }
     }
-
+    jvmArgs = ['-XX:+EnableDynamicAgentLoading']
     // 테스트가 실패해도 모든 테스트 실행
     ignoreFailures = true
 }
 
 
 tasks.getByName("jar").enabled = false
-
-test {
-    jvmArgs = ['-XX:+EnableDynamicAgentLoading']
-}
-
 
