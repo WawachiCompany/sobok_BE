@@ -39,6 +39,7 @@ spring:
             token-uri: "https://appleid.apple.com/auth/token"
             user-info-uri: ""  # Apple은 기본적으로 사용자 정보 엔드포인트를 제공하지 않습니다.
             user-name-attribute: sub
+            jwk-set-uri: "https://appleid.apple.com/auth/keys"
   data:
     redis:
       host: ${SPRING_REDIS_HOST}
@@ -81,7 +82,7 @@ openai:
 social-login:
   provider:
     apple:
-      client-id: "com.chihuahua.sobok"
+      client-id: "com.chihuahua.sobok.signin"  # 일관된 클라이언트 ID 사용
       team-id: ${APPLE_TEAM_ID}
       key-id: ${APPLE_KEY_ID}
 #management:
