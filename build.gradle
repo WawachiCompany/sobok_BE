@@ -64,11 +64,11 @@ dependencies {
     implementation 'com.google.firebase:firebase-admin:9.4.3'
     implementation 'com.nimbusds:nimbus-jose-jwt:10.0.1'
 
-//    implementation("io.opentelemetry:opentelemetry-api")
-//    implementation("io.opentelemetry:opentelemetry-sdk")
-//    implementation("io.opentelemetry:opentelemetry-exporter-otlp")
-//    implementation("io.opentelemetry:opentelemetry-api-incubator")
-//    implementation("io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:2.16.0")
+    implementation("io.opentelemetry:opentelemetry-api")
+    implementation("io.opentelemetry:opentelemetry-sdk")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp")
+    implementation("io.opentelemetry:opentelemetry-api-incubator")
+    implementation("io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:2.16.0")
 }
 
 test {

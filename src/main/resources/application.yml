@@ -85,30 +85,29 @@ social-login:
       client-id: "com.chihuahua.sobok.signin"  # 일관된 클라이언트 ID 사용
       team-id: ${APPLE_TEAM_ID}
       key-id: ${APPLE_KEY_ID}
-#management:
-#  tracing:
-#    sampling:
-#      probability: 1.0
-#  endpoints:
-#    web:
-#      exposure:
-#        include: health,info,prometheus
-#  prometheus:
-#    metrics:
-#      export:
-#        enabled: true
-#otel:
-#  exporter:
-#    otlp:
-#      endpoint: # Oracle 연결하면 그때 추가
-#      compression: gzip
-#      protocol: grpc
-#  metrics:
-#    exporter: otlp
-#  logs:
-#    exporter: otlp
-#  sdk:
-#    disabled: false
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+otel:
+  exporter:
+    otlp:
+      endpoint: http://152.67.199.186:4317
+      protocol: grpc
+  metrics:
+    exporter: otlp
+  logs:
+    exporter: otlp
+  sdk:
+    disabled: false
 
 ---
 spring:

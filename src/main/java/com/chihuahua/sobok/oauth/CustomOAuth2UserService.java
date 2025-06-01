@@ -174,25 +174,25 @@ public class CustomOAuth2UserService extends OidcUserService {
 
         OidcUser oidcUser = super.loadUser(userRequest);
 
-// 사용자 고유 식별자
-        String userId = oidcUser.getName();
-        System.out.println("userId: " + userId);
-
-// 사용자 속성 (예: 이메일, 이름 등)
-        Map<String, Object> attributes = oidcUser.getAttributes();
-        System.out.println("attributes: " + attributes);
-
-// 사용자 권한
-        Collection<? extends GrantedAuthority> authorities = oidcUser.getAuthorities();
-        System.out.println("authorities: " + authorities);
-
-// ID 토큰
-        OidcIdToken idToken = oidcUser.getIdToken();
-        System.out.println("idToken: " + idToken);
-
-// 사용자 정보
-        OidcUserInfo userInfo = oidcUser.getUserInfo();
-        System.out.println("userInfo: " + userInfo);
+//// 사용자 고유 식별자
+//        String userId = oidcUser.getName();
+//        System.out.println("userId: " + userId);
+//
+//// 사용자 속성 (예: 이메일, 이름 등)
+//        Map<String, Object> attributes = oidcUser.getAttributes();
+//        System.out.println("attributes: " + attributes);
+//
+//// 사용자 권한
+//        Collection<? extends GrantedAuthority> authorities = oidcUser.getAuthorities();
+//        System.out.println("authorities: " + authorities);
+//
+//// ID 토큰
+//        OidcIdToken idToken = oidcUser.getIdToken();
+//        System.out.println("idToken: " + idToken);
+//
+//// 사용자 정보
+//        OidcUserInfo userInfo = oidcUser.getUserInfo();
+//        System.out.println("userInfo: " + userInfo);
 
         return oidcUser;
     }
