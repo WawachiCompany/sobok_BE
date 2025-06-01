@@ -121,7 +121,6 @@ spring:
         registration:
           apple:
             client-id: "com.chihuahua.sobok.signin"
-            client-secret: apple-authkey.p8
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/apple"
             scope: openid, email, name
@@ -139,7 +138,6 @@ spring:
         registration:
           apple:
             client-id: "com.chihuahua.sobok.signin"
-            client-secret: opt/secrets/apple-authkey.p8
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/apple"
             scope: openid, email, name
