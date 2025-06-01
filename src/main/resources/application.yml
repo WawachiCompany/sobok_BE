@@ -100,7 +100,7 @@ management:
 otel:
   exporter:
     otlp:
-      endpoint: http://152.67.199.186:4317
+      endpoint: http://158.179.169.43:4317
       protocol: grpc
   metrics:
     exporter: otlp
