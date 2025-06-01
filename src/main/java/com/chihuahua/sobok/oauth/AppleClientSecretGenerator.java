@@ -1,7 +1,6 @@
 package com.chihuahua.sobok.oauth;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -35,3 +34,5 @@ public class AppleClientSecretGenerator {
                 .compact();
     }
 }
+
+

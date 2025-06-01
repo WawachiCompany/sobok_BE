@@ -133,12 +133,12 @@ public class CustomOAuth2UserService extends OidcUserService {
             try {
                 // Apple 로그인 시 id_token 검증
                 String idToken = userRequest.getIdToken().getTokenValue();
-                Claims claims = (Claims) applePublicKeyService.verifyToken(idToken);
+                Map<String, Object> claims = applePublicKeyService.verifyToken(idToken);
 
                 //1. Apple 로그인 정보 가져오기
-                String appleId = claims.get("sub", String.class);
-                String appleEmail = claims.get("email", String.class);
-                String appleName = claims.get("name", String.class);
+                String appleId = (String) claims.get("sub");
+                String appleEmail = (String) claims.get("email");
+                String appleName = (String) claims.get("name");
 
                 // 2. member 테이블에 저장 (회원가입 이력이 없는 경우)
                 Member member = memberService.findByEmail(appleEmail)
