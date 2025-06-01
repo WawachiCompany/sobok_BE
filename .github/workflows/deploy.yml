@@ -85,5 +85,5 @@ jobs:
       - name: Deploy to Elastic Beanstalk (Single Container)
         run: |
           aws elasticbeanstalk update-environment --application-name sobok-app \
-          --environment-name sobok-app-env-1 \
+          --environment-name sobok-app-env \
           --version-label v${{ env.VERSION_LABEL }} \
