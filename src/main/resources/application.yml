@@ -106,6 +106,8 @@ otel:
     exporter: otlp
   logs:
     exporter: otlp
+  traces:
+    exporter: otlp
   sdk:
     disabled: false
 
