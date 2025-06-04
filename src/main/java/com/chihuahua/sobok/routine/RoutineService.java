@@ -324,7 +324,7 @@ public class RoutineService {
         }
 
         List<Map<String, Object>> result = routines.stream()
-                .filter(routine -> routine != null && !routine.getIsAchieved())
+                .filter(routine -> routine != null && !routine.getIsCompleted())
                 .map(this::convertToMapTimer)
                 .toList();
 
@@ -383,7 +383,7 @@ public class RoutineService {
         String dayOfWeek = date.getDayOfWeek().toString();
         List<Routine> routines = routineRepository.findByUserIdAndDay(member.getId(), dayOfWeek);
         List<Map<String, Object>> result = routines.stream()
-                .filter(Routine::getIsAchieved)
+                .filter(Routine::getIsCompleted)
                 .map(this::convertToMapList)
                 .toList();
         if (result.isEmpty()) {
