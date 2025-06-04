@@ -49,6 +49,8 @@ public class Routine {
 
     private Boolean isAchieved; // 달성 여부(하나라도 완료했는지)
 
+    private Boolean isCompleted; // 완료 여부(모든 할 일의 시간이 90퍼를 넘겼는지)
+
     private Boolean isEnded; // 종료 여부(적금 만기 또는 삭제)
 
     @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL, fetch = FetchType.EAGER)

@@ -30,4 +30,5 @@ public interface RoutineLogRepository extends JpaRepository<RoutineLog, Long> {
     @Query("DELETE FROM RoutineLog rl WHERE rl.routine.id = :routineId")
     void deleteByRoutineId(@Param("routineId") Long routineId);
 
+    Optional<RoutineLog> findByRoutineIdAndIsCompleted(Long routineId, Boolean isCompleted);
 }

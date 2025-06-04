@@ -30,7 +30,7 @@ public interface RoutineRepository extends JpaRepository<Routine, Long> {
     List<Routine> findByMemberAndIsSuspendedAndIsEndedAndAccountIsExpired(Member member, Boolean isSuspended, Boolean isEnded, Boolean isAccountExpired);
 
     @Modifying
-    @Query("UPDATE Routine r SET r.isAchieved = false WHERE r.member.id = :memberId")
+    @Query("UPDATE Routine r SET r.isAchieved = false, r.isCompleted = false WHERE r.member.id = :memberId")
     void resetAchievedStatusByMemberId(@Param("memberId") Long memberId);
 
     @Query("SELECT COUNT(r) > 0 FROM Routine r WHERE r.member.id = :memberId AND r.id = :routineId")

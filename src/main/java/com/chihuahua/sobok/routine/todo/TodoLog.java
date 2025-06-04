@@ -24,4 +24,5 @@ public class TodoLog {
     private Long duration;
 
     private Boolean isCompleted;
+    private Long routineLogId;
 }

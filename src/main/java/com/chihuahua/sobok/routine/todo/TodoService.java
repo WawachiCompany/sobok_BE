@@ -42,7 +42,7 @@ public class TodoService {
             todoLog.setTodo(todo);
             todoLog.setStartTime(LocalDateTime.now());
             todoLog.setIsCompleted(false);
-            todoLogRepository.save(todoLog);
+
 
             // 시간순으로 정렬된 할 일 목록 가져오기
             List<Todo> relatedTodos = todo.getRoutine().getTodos().stream()
@@ -63,14 +63,21 @@ public class TodoService {
                 routineLog.setRoutine(todo.getRoutine());
                 routineLog.setStartTime(LocalDateTime.now());
                 routineLog.setIsCompleted(false);
-                routineLogRepository.save(routineLog);
+                RoutineLog currentRoutineLog = routineLogRepository.save(routineLog);
+                // todoLog에 루틴 로그 ID 설정
+                todoLog.setRoutineLogId(currentRoutineLog.getId());
             
             // 루틴 로그 ID도 응답에 추가
             responseMap.put("routineLogId", routineLog.getId());
             responseMap.put("isFirstTodo", true);
-        } else {
-            responseMap.put("isFirstTodo", false);
-        }
+            } else {
+                // 진행 중인 루틴 로그 가져오기
+                RoutineLog currentRoutineLog = routineLogRepository.findByRoutineIdAndIsCompleted(
+                        todo.getRoutine().getId(), false).orElseThrow(
+                        () -> new IllegalArgumentException("해당 루틴의 진행 중인 로그가 존재하지 않습니다."));
+                todoLog.setRoutineLogId(currentRoutineLog.getId());
+                responseMap.put("isFirstTodo", false);
+            }
 
         return ResponseEntity.ok(responseMap);
 
@@ -99,6 +106,9 @@ public class TodoService {
         accountService.depositAccount(member, accountId, Math.toIntExact(duration));
 
         todoLogRepository.save(todoLog);
+
+        // 입력받은 Duration이 할 일 duration의 90퍼센트를 넘는지 확인
+        todo.setIsCompleted(duration >= todo.getDuration() * 0.9);
         
         // 시간순으로 정렬된 할 일 목록 가져오기
         List<Todo> relatedTodos = todo.getRoutine().getTodos().stream()
@@ -119,16 +129,21 @@ public class TodoService {
                     () -> new IllegalArgumentException("해당 루틴의 진행 중인 로그가 존재하지 않습니다."));
             
             routineLog.setEndTime(LocalDateTime.now());
-            routineLog.setDuration(Duration.between(routineLog.getStartTime(), routineLog.getEndTime()).toMinutes());
+            routineLog.setDuration(todoLogRepository.findByRoutineLogId(routineLog.getId())
+                    .stream()
+                    .mapToLong(TodoLog::getDuration).sum());
             routineLog.setIsCompleted(true);
             routineLogRepository.save(routineLog);
 
+            // 뭐라도 하긴 했으면 isAchieved를 true로 설정
             if(!routine.getIsAchieved()) {
-
                 routine.setIsAchieved(true);
-                routineRepository.save(routine);
             }
-            
+
+            // 루틴의 모든 할 일이 completed 상태인지 확인(90% 이상 완료된 경우)
+            routine.setIsCompleted(routine.getTodos().stream().allMatch(Todo::getIsCompleted));
+            routineRepository.save(routine);
+
             // 루틴 로그 정보 응답에 추가
             responseMap.put("routineLogId", routineLog.getId());
             responseMap.put("routineDuration", routineLog.getDuration());

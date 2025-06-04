@@ -29,5 +29,7 @@ public interface TodoLogRepository extends JpaRepository<TodoLog, Long> {
     @Query("DELETE FROM TodoLog tl WHERE tl.todo.routine.id = :routineId")
     void deleteByRoutineId(@Param("routineId") Long routineId);
 
+    List<TodoLog> findByRoutineLogId(Long routineLogId);
+
 
 }

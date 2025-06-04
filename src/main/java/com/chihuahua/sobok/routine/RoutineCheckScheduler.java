@@ -52,15 +52,15 @@ public class RoutineCheckScheduler {
                 continue;
             }
 
-            boolean isCompleted = todayRoutines
+            boolean isAnyAchieved = todayRoutines
                     .stream()
                     .anyMatch(Routine::getIsAchieved); // 완료한 루틴 하나라도 있으면 연속달성일 인정
-            boolean isAllAchieved = todayRoutines
+            boolean isAllCompleted = todayRoutines
                     .stream()
-                    .allMatch(Routine::getIsAchieved); // 모든 루틴을 완료했는지 확인
-            if (isCompleted) {
+                    .allMatch(Routine::getIsCompleted); // 모든 루틴을 완료했는지 확인
+            if (isAnyAchieved) {
                 member.setConsecutiveAchieveCount(member.getConsecutiveAchieveCount() + 1);
-                if(isAllAchieved){
+                if(isAllCompleted){
                     dailyAchieve.setStatus("ALL_ACHIEVED");
                 } else {
                     dailyAchieve.setStatus("SOME_ACHIEVED");
@@ -71,7 +71,7 @@ public class RoutineCheckScheduler {
                 dailyAchieve.setStatus("NONE_ACHIEVED");
             }
 
-            // 루틴 isAchieved 상태 업데이트
+            // 루틴 isAchieved, isCompleted 상태 업데이트
             routineRepository.resetAchievedStatusByMemberId(member.getId());
 
             memberRepository.save(member);

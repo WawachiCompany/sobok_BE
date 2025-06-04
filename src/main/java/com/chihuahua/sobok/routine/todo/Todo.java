@@ -26,7 +26,7 @@ public class Todo {
     private LocalTime endTime;
     private Long duration;
     private String linkApp;
-    private Boolean isCompleted;
+    private Boolean isCompleted; // 90% 이상 넘겨야 완료됨
 
     // Todo에 Routine 설정
     public void setRoutine(Routine routine) {
