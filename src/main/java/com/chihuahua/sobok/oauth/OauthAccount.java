@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -26,5 +27,7 @@ public class OauthAccount {
             name = "user_id",
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Member member;
+
+    @CreationTimestamp
     private LocalDateTime createdAt;
 }

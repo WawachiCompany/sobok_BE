@@ -11,10 +11,11 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -22,8 +23,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 @RequiredArgsConstructor
@@ -52,10 +51,6 @@ public class RoutineService {
 
         routine.setTitle(routineDto.getTitle());
         routine.setDays(routineDto.getDays());
-        routine.setCreatedAt(LocalDateTime.now());
-        routine.setIsSuspended(false);
-        routine.setIsAchieved(false);
-        routine.setIsEnded(false);
         if (routineType.equals("self")) {
             routine.setIsAiRoutine(false);
         } else if (routineType.equals("ai")) {
@@ -85,14 +80,12 @@ public class RoutineService {
                     Category category = new Category();
                     category.setMember(member);
                     category.setCategory(todoDto.getCategory());
-                    category.setCreatedAt(LocalDateTime.now());
                     categoryRepository.save(category);
                 }
                 todo.setStartTime(todoDto.getStartTime());
                 todo.setEndTime(todoDto.getEndTime());
                 todo.setDuration(Duration.between(todoDto.getStartTime(), todoDto.getEndTime()).toMinutes());
                 todo.setLinkApp(todoDto.getLinkApp());
-                todo.setIsCompleted(false);
                 routine.addTodo(todo);
                 return todo;
             }).toList();

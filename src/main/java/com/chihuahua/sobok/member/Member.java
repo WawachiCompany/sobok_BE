@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,16 +32,18 @@ public class Member {
     private String email;
     private String phoneNumber;
     private String birth;
-    private Integer point;
+    private Integer point = 0; // 포인트 (기본값: 0)
+
+    @CreationTimestamp
     private LocalDateTime createdAt;
     private Boolean isOauth;
-    private Boolean isPremium;
-    private Integer consecutiveAchieveCount;
-    private Integer premiumPrice;
+    private Boolean isPremium = false;
+    private Integer consecutiveAchieveCount = 0; // 연속 달성 횟수
+    private Integer premiumPrice = 9999; // 프리미엄 가격 (기본값: 9999원)
 
-    private Integer totalAchievedTime; // 총 달성 시간(분)
-    private Integer totalAccountBalance; // 총 적금 잔액(분)
-    private Integer weeklyRoutineTime; // 일주일 루틴 시간(분)
+    private Integer totalAchievedTime = 0; // 총 달성 시간(분)
+    private Integer totalAccountBalance = 0; // 총 적금 잔액(분)
+    private Integer weeklyRoutineTime = 0; // 일주일 루틴 시간(분)
 
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
     @JsonManagedReference

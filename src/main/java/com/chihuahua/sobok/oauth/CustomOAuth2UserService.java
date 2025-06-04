@@ -6,20 +6,16 @@ import com.nimbusds.jose.JOSEException;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
-import org.springframework.security.oauth2.core.oidc.OidcIdToken;
-import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.Map;
 
 @Service
@@ -71,12 +67,11 @@ public class CustomOAuth2UserService extends OidcUserService {
                     });
 
             // 3. oauth_account 테이블에 저장
-            OauthAccount oauthAccount = oauthAccountRepository.findByOauthIdAndProvider(kakaoId, registrationId)
+            oauthAccountRepository.findByOauthIdAndProvider(kakaoId, registrationId)
                     .orElseGet(() -> {
                         OauthAccount newAccount = new OauthAccount();
                         newAccount.setOauthId(kakaoId);
                         newAccount.setProvider(registrationId);
-                        newAccount.setCreatedAt(LocalDateTime.now());
                         newAccount.setMember(member);
                         return oauthAccountRepository.save(newAccount);
                     });
@@ -110,22 +105,18 @@ public class CustomOAuth2UserService extends OidcUserService {
                         newMember.setEmail(email);
                         newMember.setName(name);
                         newMember.setBirth(birthdate);
-                        newMember.setCreatedAt(LocalDateTime.now());
-                        newMember.setPoint(0);
                         newMember.setUsername(oauthId);
                         newMember.setIsOauth(true);
                         return memberService.saveOrUpdate(newMember);
                     });
 
             // 3. oauth_account 테이블에 저장
-            OauthAccount oauthAccount = oauthAccountRepository.findByOauthIdAndProvider(oauthId, userRequest.getClientRegistration().getRegistrationId())
+            oauthAccountRepository.findByOauthIdAndProvider(oauthId, userRequest.getClientRegistration().getRegistrationId())
                     .orElseGet(() -> {
                         OauthAccount newAccount = new OauthAccount();
                         newAccount.setOauthId(oauthId);
                         newAccount.setProvider(userRequest.getClientRegistration().getRegistrationId());
-                        newAccount.setCreatedAt(LocalDateTime.now());
                         newAccount.setMember(member);
-                        System.out.println("Saving new OauthAccount: " + newAccount);
                         return oauthAccountRepository.save(newAccount);
                     });
 
@@ -158,12 +149,11 @@ public class CustomOAuth2UserService extends OidcUserService {
                         });
 
                 // 3. oauth_account 테이블에 저장
-                OauthAccount oauthAccount = oauthAccountRepository.findByOauthIdAndProvider(appleId, registrationId)
+                oauthAccountRepository.findByOauthIdAndProvider(appleId, registrationId)
                         .orElseGet(() -> {
                             OauthAccount newAccount = new OauthAccount();
                             newAccount.setOauthId(appleId);
                             newAccount.setProvider(registrationId);
-                            newAccount.setCreatedAt(LocalDateTime.now());
                             newAccount.setMember(member);
                             return oauthAccountRepository.save(newAccount);
                         });
@@ -172,9 +162,7 @@ public class CustomOAuth2UserService extends OidcUserService {
             }
         }
 
-        OidcUser oidcUser = super.loadUser(userRequest);
-
-//// 사용자 고유 식별자
+        //// 사용자 고유 식별자
 //        String userId = oidcUser.getName();
 //        System.out.println("userId: " + userId);
 //
@@ -194,6 +182,6 @@ public class CustomOAuth2UserService extends OidcUserService {
 //        OidcUserInfo userInfo = oidcUser.getUserInfo();
 //        System.out.println("userInfo: " + userInfo);
 
-        return oidcUser;
+        return super.loadUser(userRequest);
     }
 }

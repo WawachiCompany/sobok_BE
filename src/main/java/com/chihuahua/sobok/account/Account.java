@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,22 +31,26 @@ public class Account {
 
     private String title;
 //    private String target;
-    private Integer balance; // 단위: 분
+    private Integer balance = 0; // 단위: 분
 //    private Boolean isPublic;
 
 
     private Integer time; // 단위: 분
     private Integer duration; // 단위: 개월
 
-    private Boolean isExpired; // 만기 여부
-    private Boolean isEnded; // 종료 여부
+    private Boolean isExpired = false; // 만기 여부
+    private Boolean isEnded = false; // 종료 여부
+
+    @CreationTimestamp
     private LocalDate createdAt;
 
-    private Boolean isValid; // 활성화 요건 갖추었는지 확인
+    private Boolean isValid = false; // 활성화 요건 갖추었는지 확인
     private Float interest; // 이율
-    private Integer interestBalance; // 이자 잔액
+    private Integer interestBalance = 0; // 이자 잔액
 
     private LocalDate expiredAt; // 만기된 날짜
+
+    @UpdateTimestamp
     private LocalDateTime updatedAt; // 수정된 시간
 
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)

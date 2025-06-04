@@ -45,15 +45,7 @@ public class MemberController {
             member.setEmail(memberDto.getEmail());
             member.setPhoneNumber(memberDto.getPhoneNumber());
             member.setBirth(memberDto.getBirth());
-            member.setPoint(0);
-            member.setCreatedAt(LocalDateTime.now());
             member.setIsOauth(false);
-            member.setIsPremium(false);
-            member.setConsecutiveAchieveCount(0);
-            member.setPremiumPrice(9999);
-            member.setTotalAchievedTime(0);
-            member.setTotalAccountBalance(0);
-            member.setWeeklyRoutineTime(0);
             memberRepository.save(member);
 
             Map<String, Object> response = new HashMap<>();

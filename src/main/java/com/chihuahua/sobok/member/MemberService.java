@@ -148,7 +148,6 @@ public class MemberService {
         pointLog.setPoint(-premiumPrice);
         pointLog.setBalance(point - premiumPrice);
         pointLog.setCategory("구독권 구매");
-        pointLog.setCreatedAt(LocalDateTime.now());
 
         member.setPoint(point - premiumPrice);
         member.setIsPremium(true);

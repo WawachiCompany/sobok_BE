@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -43,15 +44,16 @@ public class Routine {
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<String> days; // 요일 리스트(월 ~ 일)
 
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
-    private Boolean isSuspended; // 보류 여부
+    private Boolean isSuspended = false; // 보류 여부
 
-    private Boolean isAchieved; // 달성 여부(하나라도 완료했는지)
+    private Boolean isAchieved = false; // 달성 여부(하나라도 완료했는지)
 
-    private Boolean isCompleted; // 완료 여부(모든 할 일의 시간이 90퍼를 넘겼는지)
+    private Boolean isCompleted = false; // 완료 여부(모든 할 일의 시간이 90퍼를 넘겼는지)
 
-    private Boolean isEnded; // 종료 여부(적금 만기 또는 삭제)
+    private Boolean isEnded = false; // 종료 여부(적금 만기 또는 삭제)
 
     @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     List<Todo> todos = new ArrayList<>();

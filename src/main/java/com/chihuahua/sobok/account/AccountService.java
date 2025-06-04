@@ -44,14 +44,8 @@ public class AccountService {
         account.setTitle(accountDto.getTitle());
         account.setTime(accountDto.getTime());
         account.setDuration(accountDto.getDuration());
-        account.setBalance(0);
-        account.setIsExpired(false);
-        account.setCreatedAt(LocalDate.now());
-        account.setIsValid(false);
         account.setInterest(calculateInitialInterest(account)); // 이율 계산 필요
-        account.setInterestBalance(0);
         account.setExpiredAt(LocalDate.now().plusMonths(accountDto.getDuration()));
-        account.setUpdatedAt(LocalDateTime.now());
 
         // 멤버와 적금 연결(헬퍼 메서드)
         member.addAccount(account);
@@ -72,8 +66,6 @@ public class AccountService {
                 routineRepository.save(routine);
             }
         }
-
-
 
     }
 
@@ -146,7 +138,6 @@ public class AccountService {
             pointLog.setPoint(Math.round(account.getInterestBalance() * ratio));
             pointLog.setBalance(member.getPoint() + pointLog.getPoint());
             pointLog.setCategory("적금 중도 해지 이자 지급");
-            pointLog.setCreatedAt(LocalDateTime.now());
             pointLogRepository.save(pointLog);
         }
 
@@ -182,8 +173,6 @@ public class AccountService {
         }
 
         account.setInterest(calculateInitialInterest(account)); // 이율 계산 필요
-        account.setUpdatedAt(LocalDateTime.now());
-
         accountRepository.save(account);
         return account;
     }
@@ -198,7 +187,6 @@ public class AccountService {
         accountLog.setAccount(account);
         accountLog.setDepositTime(amount);
         accountLog.setBalance(account.getBalance());
-        accountLog.setCreatedAt(LocalDateTime.now());
         accountLogRepository.save(accountLog);
 
         // totalAchievedTime 업데이트
@@ -282,7 +270,6 @@ public class AccountService {
             pointLog.setPoint(account.getInterestBalance());
             pointLog.setBalance(member.getPoint() + pointLog.getPoint());
             pointLog.setCategory("적금 연장 전 이자 지급");
-            pointLog.setCreatedAt(LocalDateTime.now());
             pointLogRepository.save(pointLog);
         }
         account.setExpiredAt(account.getExpiredAt().plusMonths(duration));
@@ -304,7 +291,7 @@ public class AccountService {
             pointLog.setPoint(account.getInterestBalance());
             pointLog.setBalance(member.getPoint() + pointLog.getPoint());
             pointLog.setCategory("적금 완료 이자 지급");
-            pointLog.setCreatedAt(LocalDateTime.now());
+            
             pointLogRepository.save(pointLog);
         }
 

@@ -4,6 +4,7 @@ import com.chihuahua.sobok.member.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -20,5 +21,6 @@ public class Category {
     private Member member;
 
     private String category;
+    @CreationTimestamp
     private LocalDateTime createdAt;
 }

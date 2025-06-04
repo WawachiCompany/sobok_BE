@@ -2,13 +2,12 @@ package com.chihuahua.sobok.Firebase;
 
 import com.chihuahua.sobok.member.Member;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
-import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -48,7 +47,6 @@ public class FirebaseService {
         FcmToken fcmToken;
         if(existingFcmToken.isPresent()) {
             fcmToken = existingFcmToken.get();
-            fcmToken.setUpdatedAt(LocalDateTime.now());
             fcmToken.setActive(true);
         }
         else {
@@ -56,8 +54,6 @@ public class FirebaseService {
             fcmToken.setMemberId(member.getId());
             fcmToken.setFcmToken(token);
             fcmToken.setActive(true);
-            fcmToken.setCreatedAt(LocalDateTime.now());
-            fcmToken.setUpdatedAt(LocalDateTime.now());
         }
         fcmTokenRepository.save(fcmToken);
     }

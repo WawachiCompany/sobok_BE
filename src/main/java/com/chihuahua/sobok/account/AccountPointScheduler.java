@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -46,7 +45,6 @@ public class AccountPointScheduler {
            pointLog.setPoint(lastMonthTotalTime);
            pointLog.setBalance(member.getPoint());
            pointLog.setCategory("원금 포인트 적립");
-           pointLog.setCreatedAt(LocalDateTime.now());
            pointLogService.save(pointLog);
         }
 
