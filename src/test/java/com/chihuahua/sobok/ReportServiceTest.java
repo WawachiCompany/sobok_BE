@@ -126,6 +126,15 @@ public class ReportServiceTest {
         assertEquals("09:30", result); // 9:30이 2번, 9:00이 1번이므로 9:30이 가장 많음
     }
 
+    @Test
+    @DisplayName("isBetween 메서드는 종료 시간을 포함한다")
+    void isBetweenShouldIncludeEndTime() {
+        assertTrue(reportService.isBetween(
+                java.time.LocalTime.of(11, 59),
+                java.time.LocalTime.of(6, 0),
+                java.time.LocalTime.of(11, 59)));
+    }
+
     // TodoLog 생성 헬퍼 메서드
     private TodoLog createTodoLog(LocalDateTime startTime) {
         TodoLog todoLog = new TodoLog();
