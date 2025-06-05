@@ -321,7 +321,8 @@ public class ReportService {
     }
 
     public boolean isBetween(LocalTime time, LocalTime startTime, LocalTime endTime) {
-        return (time.equals(startTime) || time.isAfter(startTime)) && time.isBefore(endTime);
+        return (time.equals(startTime) || time.isAfter(startTime)) &&
+                (time.equals(endTime) || time.isBefore(endTime));
     }
 
     public String getReportMessage3(Long totalAchievedCount, int currentMonth) {
