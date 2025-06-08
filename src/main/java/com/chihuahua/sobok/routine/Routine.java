@@ -24,12 +24,12 @@ public class Routine {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     @JsonBackReference
     private Account account;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private Member member;
 
@@ -55,7 +55,7 @@ public class Routine {
 
     private Boolean isEnded = false; // 종료 여부(적금 만기 또는 삭제)
 
-    @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     List<Todo> todos = new ArrayList<>();
 
     private Boolean isAiRoutine; // AI 루틴 여부
@@ -111,6 +111,3 @@ public class Routine {
 
 
 }
-
-
-

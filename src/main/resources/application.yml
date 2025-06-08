@@ -55,6 +55,7 @@ spring:
     properties:
       hibernate:
         show_sql: true
+        use_sql_comments: true
     hibernate:
       ddl-auto: update
     open-in-view: false
@@ -74,7 +75,16 @@ server:
 logging:
   level:
     org:
+      hibernate:
+        orm:
+          jdbc:
+            bind: TRACE
+        SQL: DEBUG
+      type:
+        descriptor:
+          sql: TRACE
 #      springframework: DEBUG
+
 openai:
   api:
     key: ${OPENAI_API_KEY}

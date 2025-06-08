@@ -39,15 +39,30 @@ public class RoutineService {
     private final MemberRepository memberRepository;
     private final TodoLogRepository todoLogRepository;
     private final CategoryRepository categoryRepository;
+    private final TodoRepository todoRepository;
+    private final RoutineLogRepository routineLogRepository;
 
     @Transactional
     public void createRoutine(RoutineDto routineDto, Member member, String routineType) {
         Member persistedMember = memberRepository.findById(member.getId()).orElseThrow(
                 () -> new IllegalArgumentException("해당 ID의 멤버가 존재하지 않습니다."));
         Routine routine = new Routine();
-        Account account = accountRepository.findById(
-                routineDto.getAccountId()).orElseThrow(
-                () -> new IllegalArgumentException("해당 적금이 존재하지 않습니다."));
+
+        // accountId가 null이거나 0이면 적금 연결하지 않음
+        if (routineDto.getAccountId() != null && routineDto.getAccountId() > 0) {
+            Account account = accountRepository.findById(
+                    routineDto.getAccountId()).orElseThrow(
+                    () -> new IllegalArgumentException("해당 적금이 존재하지 않습니다."));
+
+            // 루틴과 적금 연결(Account 테이블의 헬퍼 메서드)
+            account.addRoutine(routine);
+            accountRepository.save(account);
+
+        } else {
+            routine.setAccount(null); // 적금 연결하지 않음
+            routine.setIsSuspended(true); // 적금이 없으므로 루틴은 보류 상태로 설정
+        }
+
 
         routine.setTitle(routineDto.getTitle());
         routine.setDays(routineDto.getDays());
@@ -60,12 +75,9 @@ public class RoutineService {
         // 루틴과 멤버 연결(Member 테이블의 헬퍼 메서드)
         persistedMember.addRoutine(routine);
 
-        // 루틴과 적금 연결(Account 테이블의 헬퍼 메서드)
-        account.addRoutine(routine);
+
 
         routineRepository.save(routine);
-        accountRepository.save(account);
-
 
         // Todo 생성 로직 추가
         if (routineDto.getTodos() != null && !routineDto.getTodos().isEmpty()) {
@@ -102,8 +114,10 @@ public class RoutineService {
 
         }
 
-        //적금 활성화 여부 체크
-        accountService.validateAccount(account);
+        // 적금 활성화 여부 체크
+        if(routine.getAccount() != null) {
+            accountService.validateAccount(routine.getAccount());
+        }
     }
 
     //루틴 이름, 연결 적금, 반복 요일 수정
@@ -144,82 +158,109 @@ public class RoutineService {
     @Transactional
     public void deleteRoutine(Member member, Long routineId) {
         // 1. 루틴 존재 여부 확인 (ID 기반으로만 확인)
-        boolean exists = routineRepository.existsByIdAndMemberId(routineId, member.getId());
+        boolean exists = routineRepository.existsByIdAndMemberId(member.getId(), routineId);
         if (!exists) {
             throw new IllegalArgumentException("해당 루틴이 존재하지 않거나 사용자의 루틴이 아닙니다.");
         }
 
-        // 2. 필요한 정보 미리 저장 (계정 ID 등)
+        // 2. 루틴과 관련 객체 조회 및 관계 정리
         Long accountId = null;
         try {
-            // 네이티브 쿼리로 계정 ID만 조회
-            Object result = entityManager.createNativeQuery(
-                            "SELECT account_id FROM routine WHERE id = :id")
-                    .setParameter("id", routineId)
-                    .getSingleResult();
-            accountId = result != null ? ((Number) result).longValue() : null;
+            // 영속성 컨텍스트 초기화로 이전 작업의 잔존 상태 제거
+            entityManager.clear();
+
+            // 루틴 정보 및 관계 가져오기 (영속 객체 새로 로딩)
+            Routine routine = routineRepository.findByMemberAndId(member, routineId)
+                .orElseThrow(() -> new IllegalArgumentException("루틴을 찾을 수 없습니다."));
+
+            Account account = routine.getAccount();
+            accountId = account != null ? account.getId() : null;
+
+            // 연관 관계 해제 (양방향 참조 제거)
+            if (account != null) {
+                // 계정에서 루틴 참조 제거
+                account.getRoutines().remove(routine);
+                routine.setAccount(null);  // 루틴에서 계정 참조 제거
+                accountRepository.save(account);
+            }
+
+            // 멤버에서 루틴 참조 제거
+            member.getRoutines().remove(routine);
+            routine.setMember(null);  // 루틴에서 멤버 참조 제거
+            memberRepository.save(member);
+
+            // 루틴에서 Todo 참조들 해제 (양방향 종속성 완전히 제거)
+            if (routine.getTodos() != null) {
+                routine.getTodos().forEach(todo -> {
+                    todo.setRoutine(null); // Todo에서 루틴 참조 제거
+                });
+            }
+
+            // 변경사항 반영
+            routineRepository.saveAndFlush(routine);
+
+            // 로깅
+            logger.info("루틴 참조 관계 정리 완료: 루틴 ID {}, 계정 ID {}", routineId, accountId);
         } catch (Exception e) {
-            // 계정이 없거나 조회 실패 시 무시
+            logger.warn("루틴 관계 정리 중 오류 발생: {}", e.getMessage());
+            // 오류가 발생해도 삭제 진행
         }
 
-        // 3. 루틴 및 관련 데이터 삭제 (네이티브 쿼리 사용)
-        // TodoLog 삭제
-        entityManager.createNativeQuery(
-                        "DELETE FROM todo_log WHERE todo_id IN (SELECT id FROM todo WHERE routine_id = :id)")
-                .setParameter("id", routineId)
-                .executeUpdate();
+        // 3. 벌크 삭제 연산 (별도 트랜잭션으로 처리)
+        try {
+            // 트랜잭션 분리를 위해 로그 먼저 삭제
+            entityManager.createQuery(
+                    "DELETE FROM TodoLog tl WHERE tl.todo.routine.id = :routineId")
+                    .setParameter("routineId", routineId)
+                    .executeUpdate();
 
-        // RoutineLog 삭제
-        entityManager.createNativeQuery(
-                        "DELETE FROM routine_log WHERE routine_id = :id")
-                .setParameter("id", routineId)
-                .executeUpdate();
+            entityManager.createQuery(
+                    "DELETE FROM RoutineLog rl WHERE rl.routine.id = :routineId")
+                    .setParameter("routineId", routineId)
+                    .executeUpdate();
 
-        // Todo 삭제
-        entityManager.createNativeQuery(
-                        "DELETE FROM todo WHERE routine_id = :id")
-                .setParameter("id", routineId)
-                .executeUpdate();
+            // Todo 삭제
+            entityManager.createQuery(
+                    "DELETE FROM Todo t WHERE t.routine.id = :routineId")
+                    .setParameter("routineId", routineId)
+                    .executeUpdate();
 
-        // RoutineDays 삭제
-        entityManager.createNativeQuery(
-                        "DELETE FROM routine_days WHERE routine_id = :id")
-                .setParameter("id", routineId)
-                .executeUpdate();
+            // 루틴-요일 삭제
+            entityManager.createNativeQuery(
+                    "DELETE FROM routine_days WHERE routine_id = :routineId")
+                    .setParameter("routineId", routineId)
+                    .executeUpdate();
 
-        // 루틴 자체 삭제
-        entityManager.createNativeQuery(
-                        "DELETE FROM routine WHERE id = :id")
-                .setParameter("id", routineId)
-                .executeUpdate();
+            // 루틴 자체 삭제
+            entityManager.createQuery(
+                    "DELETE FROM Routine r WHERE r.id = :routineId")
+                    .setParameter("routineId", routineId)
+                    .executeUpdate();
 
-        // 4. 변경사항 즉시 반영
-        entityManager.flush();
+            // 변경사항 즉시 반영 및 영속성 컨텍스트 초기화
+            entityManager.flush();
+            entityManager.clear();
+        } catch (Exception e) {
+            logger.error("루틴 삭제 중 오류 발생: {}", e.getMessage());
+            throw new RuntimeException("루틴 삭제 중 오류가 발생했습니다.", e);
+        }
 
-        // 5. 계정 유효성 업데이트 (삭제된 루틴 대신 계정 ID 사용)
+        // 4. 계정 유효성 업데이트 (별도 트랜잭션)
         if (accountId != null) {
             try {
-                entityManager.createNativeQuery(
-                                "UPDATE account SET is_valid = " +
-                                        "(SELECT COUNT(*) > 0 FROM routine WHERE account_id = :accountId AND is_suspended = false)")
-                        .setParameter("accountId", accountId)
-                        .executeUpdate();
+                // 영속성 컨텍스트에 새로운 계정 객체 로드
+                accountRepository.findById(accountId).ifPresent(accountService::validateAccount);
             } catch (Exception e) {
-                // 예외 처리 (로깅 등)
+                logger.warn("계정 유효성 업데이트 중 오류: {}", e.getMessage());
+                // 실패해도 삭제는 성공했으므로 예외 발생 안 함
             }
         }
 
-        // 6. 메모리에서 참조 제거
-        try {
-            member.getRoutines().removeIf(r -> routineId.equals(r.getId()));
-        } catch (Exception e) {
-            // 예외 처리 (로깅 등)
-        }
+        // 5. 메모리에서 참조 제거 (안전장치)
+        member.getRoutines().removeIf(r -> r != null && routineId.equals(r.getId()));
 
-        // 7. 삭제 완료 로그 (삭제된 엔티티 참조 없이 ID만 사용)
-        logger.info("Routine {} has been deleted for member {}", routineId, member.getId());
-
-        // 중요: 이 시점 이후로 routineId를 사용한 조회나 참조 작업을 하지 않음
+        // 6. 삭제 완료 로깅
+        logger.info("Routine {} has been completely deleted for member {}", routineId, member.getId());
     }
 
 
