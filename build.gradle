@@ -9,11 +9,10 @@ sentry {
     includeSourceContext = true
 
     org = "chihuahua"
-    projectName = "java-spring-boot"
+    projectName = "sobok"
     authToken = System.getenv("SENTRY_AUTH_TOKEN")
 }
 
-println ">> SENTRY_AUTH_TOKEN: ${System.getenv("SENTRY_AUTH_TOKEN") != null ? 'SET' : 'NOT SET'}"
 
 dependencyManagement {
     imports {
