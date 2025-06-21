@@ -13,6 +13,8 @@ sentry {
     authToken = System.getenv("SENTRY_AUTH_TOKEN")
 }
 
+println ">> SENTRY_AUTH_TOKEN: ${System.getenv("SENTRY_AUTH_TOKEN") != null ? 'SET' : 'NOT SET'}"
+
 dependencyManagement {
     imports {
         mavenBom "io.opentelemetry:opentelemetry-bom:1.50.0"
