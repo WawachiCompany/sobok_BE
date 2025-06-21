@@ -12,7 +12,8 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-#    env:
+    env:
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 #      SPRING_PROFILES_ACTIVE: ${{secrets.SPRING_PROFILES_ACTIVE}}
 #      SPRING_DATASOURCE_URL: ${{secrets.SPRING_DATASOURCE_URL}}
 #      SPRING_DATASOURCE_USERNAME: ${{secrets.SPRING_DATASOURCE_USERNAME}}
