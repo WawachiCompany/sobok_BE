@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -25,6 +26,7 @@ public class RoutineCheckScheduler {
     private final MemberRepository memberRepository;
     private final DailyAchieveRepository dailyAchieveRepository;
     private final RoutineRepository routineRepository;
+    private final RestTemplate restTemplate = new RestTemplate();
 
 
     // 연속 달성일 계산
@@ -76,6 +78,14 @@ public class RoutineCheckScheduler {
 
             memberRepository.save(member);
             dailyAchieveRepository.save(dailyAchieve);
+        }
+        // 스케줄러 성공 시 heartbeat URL로 GET 요청
+        String heartbeatUrl = "https://uptime.betterstack.com/api/v1/heartbeat/bxoKvzw1MonSEQoyaq1zrch2";
+        try {
+            restTemplate.getForObject(heartbeatUrl, String.class);
+        } catch (Exception e) {
+            // 예외 발생 시 로깅 등 필요시 처리
+            System.err.println("Heartbeat 전송 실패: " + e.getMessage());
         }
     }
 }

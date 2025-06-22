@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.client.RestTemplate;
 
 
 import java.time.LocalDate;
@@ -33,6 +34,7 @@ public class AccumulatedAggregationScheduler {
     private final AccountLogRepository accountLogRepository;
     private final RoutineRepository routineRepository;
     private final MonthlyUserReportRepository monthlyUserReportRepository;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Scheduled(cron = "0 0 0 L * *")
     @Transactional
@@ -61,6 +63,13 @@ public class AccumulatedAggregationScheduler {
                 }
             }
             log.info("월별 사용자 통계 집계 완료: 총 {}명 처리됨", processedMembers);
+            // 스케줄러 성공 시 heartbeat URL로 GET 요청
+            String heartbeatUrl = "https://uptime.betterstack.com/api/v1/heartbeat/khFqeznCQdFsCVZeyr6bz9Yk";
+            try {
+                restTemplate.getForObject(heartbeatUrl, String.class);
+            } catch (Exception e) {
+                log.error("Heartbeat 전송 실패: {}", e.getMessage(), e);
+            }
         } catch (Exception e) {
             log.error("월별 사용자 통계 집계 중 예상치 못한 오류 발생: {}", e.getMessage(), e);
             throw e; // 상위 호출자에게 예외 전파

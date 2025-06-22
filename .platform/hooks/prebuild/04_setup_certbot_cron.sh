@@ -1,11 +1,12 @@
 #!/bin/bash
 set -e
 
-CRON_JOB="0 3 * * 1 cd /var/app/current && docker-compose run --rm certbot certbot renew --webroot -w /var/www/certbot --post-hook \"docker-compose exec nginx nginx -s reload\""
+REQUIRED_VERSION="v1.1"
+CRON_JOB="0 3 * * 1 cd /var/app/current && docker-compose run --rm certbot certbot renew --webroot -w /var/www/certbot --post-hook \"docker-compose exec nginx nginx -s reload && curl -fsS https://uptime.betterstack.com/api/v1/heartbeat/ZAx7AYjTUi5RweptjcVSzoym\""
 CRON_MARKER="/opt/.sobok_certbot_cron_configured"
 
-# 크론 작업이 이미 설정되어 있는지 확인
-if [ ! -f "$CRON_MARKER" ] || ! crontab -l 2>/dev/null | grep -q "docker-compose run --rm certbot"; then
+# 크론 작업이 이미 설정되어 있는지 확인 (버전까지 체크)
+if [ ! -f "$CRON_MARKER" ] || [ "$(cat $CRON_MARKER 2>/dev/null)" != "$REQUIRED_VERSION" ]; then
   echo "[INFO] certbot 자동 갱신 크론 작업 설정 중..."
 
   # 기존 크론 작업 가져오기
@@ -24,8 +25,8 @@ if [ ! -f "$CRON_MARKER" ] || ! crontab -l 2>/dev/null | grep -q "docker-compose
     echo "[INFO] certbot 갱신 크론 작업이 성공적으로 추가되었습니다."
   fi
 
-  # 마커 파일 생성
-  echo "v1.0" > $CRON_MARKER
+  # 마커 파일에 버전 기록
+  echo "$REQUIRED_VERSION" > $CRON_MARKER
 else
   echo "[INFO] certbot 갱신 크론 작업이 이미 설정되어 있습니다."
 fi
