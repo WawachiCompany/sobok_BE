@@ -82,9 +82,41 @@ jobs:
           --version-label v${{ env.VERSION_LABEL }} \
           --source-bundle S3Bucket="elasticbeanstalk-ap-northeast-2-140023384172",S3Key="sobok-app-v${{ github.run_number }}.zip"
 
-      # 6. Elastic Beanstalk 환경에 배포 (멀티 컨테이너 설정 제거)
+      # 6-1. BetterStack Monitoring 일시중지
+      - name: Pause BetterStack Monitoring
+        run: |
+          curl --request PATCH \
+          --url https://uptime.betterstack.com/api/v2/monitors/225493 \
+          --header "Authorization: Bearer 3Hu8o619EL5f7YQDBZ3FPwAc" \
+          --header 'Content-Type: application/json' \
+          --data '{"paused": true}'
+
+      # 6-2. Elastic Beanstalk 환경에 배포 (멀티 컨테이너 설정 제거)
       - name: Deploy to Elastic Beanstalk (Single Container)
         run: |
           aws elasticbeanstalk update-environment --application-name sobok-app \
           --environment-name sobok-app-env \
-          --version-label v${{ env.VERSION_LABEL }} \
+          --version-label v${{ env.VERSION_LABEL }}
+
+      # 6-3. Elastic Beanstalk 환경이 Ready 상태가 될 때까지 대기
+      - name: Wait for Elastic Beanstalk environment to be ready
+        run: |
+          for i in {1..60}; do
+            STATUS=$(aws elasticbeanstalk describe-environments --application-name sobok-app --environment-names sobok-app-env --query "Environments[0].Status" --output text)
+            HEALTH=$(aws elasticbeanstalk describe-environments --application-name sobok-app --environment-names sobok-app-env --query "Environments[0].Health" --output text)
+            echo "Current status: $STATUS, health: $HEALTH"
+            if [ "$STATUS" = "Ready" ] && [ "$HEALTH" = "Green" ]; then
+              echo "Environment is ready and healthy!"
+              break
+            fi
+            sleep 10
+          done
+
+      # 6-4. BetterStack Monitoring 재개
+      - name: Pause BetterStack Monitoring
+        run: |
+          curl --request PATCH \
+          --url https://uptime.betterstack.com/api/v2/monitors/225493 \
+          --header "Authorization: Bearer 3Hu8o619EL5f7YQDBZ3FPwAc" \
+          --header 'Content-Type: application/json' \
+          --data '{"paused": false}'
