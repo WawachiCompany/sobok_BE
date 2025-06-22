@@ -86,8 +86,8 @@ jobs:
       - name: Pause BetterStack Monitoring
         run: |
           curl --request PATCH \
-          --url https://uptime.betterstack.com/api/v2/monitors/225493 \
-          --header "Authorization: Bearer 3Hu8o619EL5f7YQDBZ3FPwAc" \
+          --url https://uptime.betterstack.com/api/v2/monitors/3351769 \
+          --header "Authorization: Bearer ${{ secrets.BETTERSTACK_API_KEY }}" \
           --header 'Content-Type: application/json' \
           --data '{"paused": true}'
 
@@ -116,7 +116,7 @@ jobs:
       - name: Pause BetterStack Monitoring
         run: |
           curl --request PATCH \
-          --url https://uptime.betterstack.com/api/v2/monitors/225493 \
-          --header "Authorization: Bearer 3Hu8o619EL5f7YQDBZ3FPwAc" \
+          --url https://uptime.betterstack.com/api/v2/monitors/3351769 \
+          --header "Authorization: Bearer ${{ secrets.BETTERSTACK_API_KEY }}" \
           --header 'Content-Type: application/json' \
           --data '{"paused": false}'
