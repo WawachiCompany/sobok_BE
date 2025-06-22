@@ -72,17 +72,17 @@ server:
   servlet:
     encoding:
       charset: UTF-8
-logging:
-  level:
-    org:
-      hibernate:
-        orm:
-          jdbc:
-            bind: TRACE
-        SQL: DEBUG
-      type:
-        descriptor:
-          sql: TRACE
+#logging:
+#  level:
+#    org:
+#      hibernate:
+#        orm:
+#          jdbc:
+#            bind: TRACE
+#        SQL: DEBUG
+#      type:
+#        descriptor:
+#          sql: TRACE
 #      springframework: DEBUG
 
 openai:
