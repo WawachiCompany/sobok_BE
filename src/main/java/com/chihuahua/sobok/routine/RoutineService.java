@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class RoutineService {
 
     private static final Logger logger = LoggerFactory.getLogger(RoutineService.class);
-    
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -248,16 +248,16 @@ public class RoutineService {
         // 4. 계정 유효성 업데이트 (별도 트랜잭션)
         if (accountId != null) {
             try {
-                // 영속성 컨텍스트에 새로운 계정 객체 로드
+                // 영속성 컨텍스트 초기화 후 계정 다시 로드
+                entityManager.clear();
+
+                // 새로운 트랜잭션에서 계정 로드 (삭제된 루틴 참조 방지)
                 accountRepository.findById(accountId).ifPresent(accountService::validateAccount);
             } catch (Exception e) {
                 logger.warn("계정 유효성 업데이트 중 오류: {}", e.getMessage());
                 // 실패해도 삭제는 성공했으므로 예외 발생 안 함
             }
         }
-
-        // 5. 메모리에서 참조 제거 (안전장치)
-        member.getRoutines().removeIf(r -> r != null && routineId.equals(r.getId()));
 
         // 6. 삭제 완료 로깅
         logger.info("Routine {} has been completely deleted for member {}", routineId, member.getId());
@@ -565,21 +565,21 @@ public class RoutineService {
             // 루틴 조회 및 소유권 검증
             Routine routine = routineRepository.findById(routineId)
                     .orElseThrow(() -> new EntityNotFoundException("해당 ID의 루틴이 존재하지 않습니다."));
-            
+
             // 루틴 소유자 확인
             if (!routine.getMember().getId().equals(member.getId())) {
                 logger.warn("권한 없는 접근 시도: 사용자 {}가 루틴 ID {}에 접근 시도", member.getId(), routineId);
                 return ResponseEntity.status(403)
                         .body(Map.of("message", "해당 루틴에 대한 권한이 없습니다."));
             }
-            
+
             // 이미 종료된 루틴인지 확인
             if (routine.getIsEnded()) {
                 logger.info("이미 완료된 루틴에 대한 완료 요청: 루틴 ID {}", routineId);
                 return ResponseEntity.badRequest()
                         .body(Map.of("message", "이미 완료된 루틴입니다."));
             }
-            
+
             // 루틴과 적금 연결 해제 (양방향 관계)
             Account account = routine.getAccount();
             if (account != null) {
@@ -588,22 +588,22 @@ public class RoutineService {
                 // 적금이 변경되었으므로 적금 상태 유효성 검사
                 accountService.validateAccount(account);
             }
-            
+
             // 할일 상태 리셋
             routine.getTodos().forEach(todo -> todo.setIsCompleted(false));
-            
+
             // 루틴 상태 업데이트
             routine.setIsAchieved(false);
             routine.setIsEnded(true);
             routine.setIsSuspended(false);
-            
+
             logger.info("루틴 완료 처리 성공: 루틴 ID {}, 사용자 ID {}", routineId, member.getId());
             return ResponseEntity.ok(Map.of(
                     "message", "루틴이 성공적으로 완료되었습니다.",
                     "routineId", routine.getId(),
                     "completedAt", LocalDateTime.now()
             ));
-            
+
         } catch (EntityNotFoundException e) {
             logger.error("루틴을 찾을 수 없음: {}", e.getMessage());
             return ResponseEntity.status(404)
@@ -611,7 +611,7 @@ public class RoutineService {
         } catch (Exception e) {
             // 구체적인 예외 정보와 스택 트레이스를 로그로 기록
             logger.error("루틴 완료 처리 중 예상치 못한 오류 발생: {}", e.getMessage(), e);
-            
+
             return ResponseEntity.status(500)
                     .body(Map.of("message", "루틴 완료 처리 중 오류가 발생했습니다."));
         }
