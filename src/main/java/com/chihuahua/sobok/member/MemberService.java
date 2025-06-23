@@ -2,25 +2,27 @@ package com.chihuahua.sobok.member;
 
 import com.chihuahua.sobok.account.Account;
 import com.chihuahua.sobok.exception.BadRequestException;
+import com.chihuahua.sobok.exception.UnauthorizedException;
 import com.chihuahua.sobok.jwt.JwtUtil;
 import com.chihuahua.sobok.member.point.*;
 import com.chihuahua.sobok.routine.todo.Todo;
 import com.chihuahua.sobok.routine.todo.TodoDto;
 import com.chihuahua.sobok.routine.todo.TodoRepository;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,20 @@ public class MemberService {
     private final TodoRepository todoRepository;
     @Lazy
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+
+    public Member createMember(MemberDto memberDto) {
+        Member member = new Member();
+        member.setUsername(memberDto.getUsername());
+        member.setPassword(passwordEncoder.encode(memberDto.getPassword())); // 비밀번호 암호화
+        member.setName(memberDto.getName());
+        member.setDisplayName(memberDto.getDisplayName());
+        member.setEmail(memberDto.getEmail());
+        member.setPhoneNumber(memberDto.getPhoneNumber());
+        member.setBirth(memberDto.getBirth());
+        member.setIsOauth(false);
+        return memberRepository.save(member);
+    }
 
     public boolean isEmailDuplicated(String email) {
         return memberRepository.existsByEmail(email);
@@ -84,7 +100,7 @@ public class MemberService {
 
     @Transactional
     public Member saveOrUpdate(Member member) {
-        var result = memberRepository.findByUsername(member.getUsername());
+        Optional<Member> result = memberRepository.findByUsername(member.getUsername());
         if (result.isPresent()) {
             Member existingMember = result.get();
             existingMember.setName(member.getName());
@@ -96,11 +112,29 @@ public class MemberService {
         }
     }
 
+    public Map<String, Object> loginJWT(MemberLoginDto memberLoginDto, HttpServletResponse response) {
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                memberLoginDto.getUsername(),
+                memberLoginDto.getPassword());
+        Authentication auth = authenticationManagerBuilder.getObject().authenticate(authToken);
+        SecurityContextHolder.getContext().setAuthentication(auth); // 인증 정보 저장
+
+        String jwt = jwtUtil.createToken(SecurityContextHolder.getContext().getAuthentication()); // JWT 생성
+        String refreshToken = jwtUtil.createRefreshToken(SecurityContextHolder.getContext().getAuthentication()); // Refresh Token 생성
+
+        //HttpOnly 쿠키 설정
+        setAccessCookie(response, jwt);
+        setRefreshCookie(response, refreshToken);
+
+        //Access Token ResponseEntity에 저장
+        return memberLoginSuccess(memberLoginDto, jwt);
+    }
+
     public void setAccessCookie(HttpServletResponse response, String accessToken) {
         // HttpOnly 쿠키 설정
         Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
         accessTokenCookie.setHttpOnly(true);
-//            refreshTokenCookie.setSecure(true); // HTTPS에서만 전송
+        accessTokenCookie.setSecure(true);
         accessTokenCookie.setPath("/"); // 전체 경로에서 사용 가능
         accessTokenCookie.setMaxAge(15 * 60); // 15분 유효
         response.addCookie(accessTokenCookie);
@@ -110,11 +144,10 @@ public class MemberService {
         // HttpOnly 쿠키 설정
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
-//            refreshTokenCookie.setSecure(true); // HTTPS에서만 전송
+        refreshTokenCookie.setSecure(true); // HTTPS에서만 전송
         refreshTokenCookie.setPath("/"); // 전체 경로에서 사용 가능
         refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7일 유효
         response.addCookie(refreshTokenCookie);
-
     }
 
     // 쿠키 제거
@@ -130,11 +163,33 @@ public class MemberService {
     public Map<String, Object> memberLoginSuccess(MemberLoginDto memberLoginDto, String jwt) {
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("accessToken", jwt);
-        responseBody.put("username", memberLoginDto.getUsername()); //리턴으로 보내줄 거
+        responseBody.put("username", memberLoginDto.getUsername());
         responseBody.put("message", "로그인 성공");
-        responseBody.put("timestamp", LocalDateTime.now());
         responseBody.put("status", HttpStatus.OK.value());
         return responseBody;
+    }
+
+    public void logout(HttpServletResponse response, HttpServletRequest request) {
+
+        removeCookie(response, "refreshToken");
+        removeCookie(response, "accessToken");
+
+        String refreshToken = jwtUtil.extractRefreshTokenFromRequest(request);
+        jwtUtil.deleteRefreshToken(refreshToken);
+    }
+
+    public Map<String, Object> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+
+        String refreshToken = jwtUtil.extractRefreshTokenFromRequest(request);
+        if (refreshToken != null) {
+            String newAccessToken = jwtUtil.refreshAccessToken(refreshToken, request, response);
+            Map<String, Object> result = new HashMap<>();
+            result.put("accessToken", newAccessToken);
+            result.put("message", "토큰 갱신 성공");
+            return result;
+        } else {
+            throw new BadRequestException("Refresh token이 존재하지 않습니다.");
+        }
     }
 
     public void upgradeToPremium(Member member) {
@@ -169,19 +224,19 @@ public class MemberService {
     public Member getMember() {
         String token = jwtUtil.extractAccessTokenFromRequestHeader();
         if(!jwtUtil.validateToken(token)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "액세스 토큰이 만료되었습니다.");
+            throw new UnauthorizedException("액세스 토큰이 만료되었습니다.");
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication.getPrincipal() instanceof String) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증 정보가 올바르지 않습니다.");
+            throw new UnauthorizedException("인증 정보가 올바르지 않습니다.");
         }
 
         MyUserDetailsService.CustomUser customUser = (MyUserDetailsService.CustomUser) authentication.getPrincipal();
         String username = customUser.getUsername();
 
         return memberRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new UnauthorizedException("유저를 찾을 수 없습니다."));
     }
 
     public Integer calculatePremiumPrice(Member member) {
@@ -277,5 +332,3 @@ public class MemberService {
 
 
 }
-
-
