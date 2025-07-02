@@ -4,10 +4,6 @@ package com.chihuahua.sobok.account;
 import com.chihuahua.sobok.member.Member;
 import com.chihuahua.sobok.member.MemberRepository;
 import com.chihuahua.sobok.member.MemberService;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,9 +133,8 @@ public class AccountController {
 
   @DeleteMapping("/delete")
   public ResponseEntity<?> deleteAccount(@RequestParam Long accountId) {
-    accountService.deleteAccount(accountId);
     Member member = memberService.getMember();
-
+    accountService.deleteAccount(member, accountId);
     // 적금 삭제 후 구독권 가격 계산
     member.setPremiumPrice(memberService.calculatePremiumPrice(member));
     memberRepository.save(member);
@@ -170,7 +165,12 @@ public class AccountController {
   public ResponseEntity<?> depositAccount(@RequestParam Long accountId,
       @RequestParam Integer amount) {
     Member member = memberService.getMember();
-    return accountService.depositAccount(member, accountId, amount);
+    Account account = accountService.depositAccount(member, accountId, amount);
+    Map<String, Object> response = new HashMap<>();
+    response.put("account_id", account.getId());
+    response.put("balance", account.getBalance());
+    response.put("message", "적금 입금 완료");
+    return ResponseEntity.ok(response);
   }
 
   @GetMapping("/log")
@@ -178,31 +178,18 @@ public class AccountController {
       @RequestParam(required = false) String startDate,
       @RequestParam(required = false) String endDate) {
     Member member = memberService.getMember();
-    LocalDateTime start;
-    LocalDateTime end;
-    // 시작일과 종료일이 없으면 이번 달의 시작일과 종료일로 설정
-    if (startDate == null || endDate == null) {
-      LocalDate now = LocalDate.now();
-      start = now.with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay();
-      end = now.with(TemporalAdjusters.lastDayOfMonth()).atTime(23, 59, 59);
-    } else {
-      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-      LocalDate startLocalDate = LocalDate.parse(startDate, formatter);
-      LocalDate endLocalDate = LocalDate.parse(endDate, formatter);
-
-      start = startLocalDate.atStartOfDay();
-      end = endLocalDate.atTime(23, 59, 59);
-    }
-    Account account = accountRepository.findByMemberAndId(member, accountId);
-    return accountService.getAccountLog(account, start, end);
+    List<AccountLogDto> logs = accountService.getAccountLog(member, accountId, startDate, endDate);
+    Map<String, Object> response = new HashMap<>();
+    response.put("account_logs", logs);
+    response.put("message", "적금 로그 조회 성공");
+    return ResponseEntity.ok(response);
   }
 
   @PostMapping("/extend")
   public ResponseEntity<?> extendAccount(@RequestParam Long accountId,
       @RequestParam Integer duration) {
     Member member = memberService.getMember();
-    Account account = accountRepository.findByMemberAndId(member, accountId);
-    accountService.extendAccount(account, duration);
+    accountService.extendAccount(member, accountId, duration);
     Map<String, Object> response = new HashMap<>();
     response.put("message", "적금 연장 완료");
     return ResponseEntity.ok(response);
@@ -211,8 +198,7 @@ public class AccountController {
   @PostMapping("/end")
   public ResponseEntity<?> endAccount(@RequestParam Long accountId) {
     Member member = memberService.getMember();
-    Account account = accountRepository.findByMemberAndId(member, accountId);
-    accountService.endAccount(account);
+    accountService.endAccount(member, accountId);
     Map<String, Object> response = new HashMap<>();
     response.put("message", "적금 종료 완료");
     return ResponseEntity.ok(response);
