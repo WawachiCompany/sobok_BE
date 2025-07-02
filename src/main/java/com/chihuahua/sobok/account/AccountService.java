@@ -321,6 +321,7 @@ public class AccountService {
     }
 
     account.setIsEnded(true);
+    accountRepository.save(account);
   }
 
 }
