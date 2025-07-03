@@ -131,7 +131,7 @@ public class AccountService {
       PointLog pointLog = new PointLog();
       pointLog.setMember(member);
       pointLog.setPoint(Math.round(account.getInterestBalance() * ratio));
-      pointLog.setBalance(member.getPoint() + pointLog.getPoint());
+      pointLog.setBalance(member.getPoint());
       pointLog.setCategory("적금 중도 해지 이자 지급");
       pointLogRepository.save(pointLog);
     }
@@ -182,6 +182,7 @@ public class AccountService {
     return account;
   }
 
+  @Transactional
   public Account depositAccount(Member member, Long accountId, Integer amount) {
     Account account = accountRepository.findByMemberAndId(member, accountId).orElseThrow(
         () -> new IllegalArgumentException("해당 적금을 찾을 수 없습니다."));
@@ -208,6 +209,7 @@ public class AccountService {
     return account;
   }
 
+  @Transactional
   public void validateAccount(Account account) {
     //Account 활성화 여부 체크(루틴의 duration 합 = 적금의 duration)
     List<Routine> routines = account.getRoutines();
@@ -270,6 +272,7 @@ public class AccountService {
     }).toList();
   }
 
+  @Transactional
   public void extendAccount(Member member, Long accountId, Integer duration) {
     Account account = accountRepository.findByMemberAndId(member, accountId).orElseThrow(
         () -> new IllegalArgumentException("해당 적금을 찾을 수 없습니다."));
@@ -282,7 +285,7 @@ public class AccountService {
       PointLog pointLog = new PointLog();
       pointLog.setMember(member);
       pointLog.setPoint(account.getInterestBalance());
-      pointLog.setBalance(member.getPoint() + pointLog.getPoint());
+      pointLog.setBalance(member.getPoint());
       pointLog.setCategory("적금 연장 전 이자 지급");
       pointLogRepository.save(pointLog);
     }
@@ -291,6 +294,7 @@ public class AccountService {
     accountRepository.save(account);
   }
 
+  @Transactional
   public void endAccount(Member member, Long accountId) {
     Account account = accountRepository.findByMemberAndId(member, accountId).orElseThrow(
         () -> new IllegalArgumentException("해당 적금을 찾을 수 없습니다."));
@@ -304,7 +308,7 @@ public class AccountService {
       PointLog pointLog = new PointLog();
       pointLog.setMember(member);
       pointLog.setPoint(account.getInterestBalance());
-      pointLog.setBalance(member.getPoint() + pointLog.getPoint());
+      pointLog.setBalance(member.getPoint());
       pointLog.setCategory("적금 완료 이자 지급");
 
       pointLogRepository.save(pointLog);
