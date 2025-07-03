@@ -67,11 +67,11 @@ jobs:
           zip -r sobok-app-v${{ github.run_number }}.zip .
           aws s3 cp sobok-app-v${{ github.run_number }}.zip s3://elasticbeanstalk-ap-northeast-2-140023384172/
 
-      # 5-3. S3 버킷에서 최신 10개 애플리케이션 유지
+      # 5-3. S3 버킷에서 최신 5개 애플리케이션 유지
       - name: Clean up old application versions in S3
         run: |
           aws s3 ls s3://elasticbeanstalk-ap-northeast-2-140023384172/ | 
-          grep sobok-app-v | sort -t'v' -k2 -nr | awk 'NR>10 {print $4}' | while read key; do
+          grep sobok-app-v | sort -t'v' -k2 -nr | awk 'NR>5 {print $4}' | while read key; do
           aws s3 rm s3://elasticbeanstalk-ap-northeast-2-140023384172/$key
           done
 
