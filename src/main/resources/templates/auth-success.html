@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로그인 성공</title>
+</head>
+<body>
+<div
+    style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif;">
+  <div style="text-align: center;">
+    <h2>로그인 성공!</h2>
+    <p id="status-message">처리 중...</p>
+    <div id="web-success" style="display: none;">
+      <p>✅ 로그인이 완료되었습니다!</p>
+      <button onclick="closeWindow()"
+              style="margin-top: 10px; padding: 10px 20px; background: #007AFF; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        창 닫기
+      </button>
+    </div>
+  </div>
+</div>
+
+<script th:inline="javascript">
+  // 토큰을 받아서 앱으로 전달
+  const accessToken = /*[[${accessToken}]]*/ '';
+  const refreshToken = /*[[${refreshToken}]]*/ '';
+
+  // 환경 감지 - 안전한 체크
+  const isWebView = /wv|WebView/.test(navigator.userAgent);
+  const hasReactNativeWebView = typeof window !== 'undefined' &&
+      typeof window['ReactNativeWebView'] !== 'undefined' &&
+      window['ReactNativeWebView'];
+  const isReactNativeApp = isWebView || hasReactNativeWebView;
+
+  function handleSuccess() {
+    if (isReactNativeApp) {
+      // React Native WebView 환경
+      document.getElementById('status-message').textContent = 'WebView 환경에서 토큰 전달 완료';
+      console.log('WebView 환경에서 토큰 전달 완료');
+
+      // React Native로 메시지 전송 (안전한 체크)
+      if (hasReactNativeWebView && window['ReactNativeWebView']
+          && window['ReactNativeWebView'].postMessage) {
+        try {
+          window['ReactNativeWebView'].postMessage(JSON.stringify({
+            type: 'LOGIN_SUCCESS',
+            accessToken: accessToken,
+            refreshToken: refreshToken
+          }));
+        } catch (error) {
+          console.error('React Native 메시지 전송 실패:', error);
+        }
+      }
+
+      // WebView에서도 자동으로 창 닫기 (1초 후)
+      setTimeout(() => {
+        document.getElementById('status-message').textContent = '로그인 완료! 창을 닫는 중...';
+        // React Native에서 WebView 닫기 처리
+        if (hasReactNativeWebView && window['ReactNativeWebView']
+            && window['ReactNativeWebView'].postMessage) {
+          try {
+            window['ReactNativeWebView'].postMessage(JSON.stringify({
+              type: 'CLOSE_WEBVIEW'
+            }));
+          } catch (error) {
+            console.error('WebView 닫기 메시지 전송 실패:', error);
+          }
+        }
+      }, 1000);
+
+    } else {
+      // 모든 브라우저 환경 - 딥링크 시도
+      document.getElementById('status-message').textContent = '앱으로 이동 중...';
+
+      const deepLinkUrl = `sobok://auth/success?accessToken=${encodeURIComponent(
+          accessToken)}&refreshToken=${encodeURIComponent(refreshToken)}`;
+
+      // 딥링크 시도
+      try {
+        window.location.href = deepLinkUrl;
+      } catch (error) {
+        console.error('딥링크 실행 실패:', error);
+      }
+
+      // 딥링크 실패시 웹 로그인 완료 UI 표시 (3초 후)
+      setTimeout(() => {
+        // 웹 브라우저 - 로그인 완료 처리로 전환
+        document.getElementById('status-message').style.display = 'none';
+        document.getElementById('web-success').style.display = 'block';
+
+        // 로컬 스토리지에 토큰 저장 (웹 앱용)
+        try {
+          if (typeof (Storage) !== "undefined") {
+            localStorage.setItem('accessToken', accessToken);
+            localStorage.setItem('refreshToken', refreshToken);
+            console.log('토큰이 로컬스토리지에 저장되었습니다.');
+          }
+        } catch (error) {
+          console.error('로컬스토리지 저장 실패:', error);
+        }
+
+        // 부모 창이 있으면 메시지 전송 (팝업 창인 경우)
+        try {
+          if (window.opener && !window.opener.closed) {
+            window.opener.postMessage({
+              type: 'LOGIN_SUCCESS',
+              accessToken: accessToken,
+              refreshToken: refreshToken
+            }, '*');
+            console.log('부모 창에 로그인 성공 메시지 전송');
+          }
+        } catch (error) {
+          console.error('부모 창 메시지 전송 실패:', error);
+        }
+      }, 3000);
+    }
+  }
+
+  function closeWindow() {
+    try {
+      if (window.opener && !window.opener.closed) {
+        window.close();
+      } else {
+        // 메인 페이지로 리다이렉트 (웹 앱의 홈 페이지)
+        window.location.href = '/'; // 또는 적절한 홈 페이지 URL
+      }
+    } catch (error) {
+      console.error('창 닫기 실패:', error);
+      // 대안으로 홈 페이지로 이동
+      window.location.href = '/';
+    }
+  }
+
+  // 페이지 로드 시 실행
+  try {
+    handleSuccess();
+  } catch (error) {
+    console.error('로그인 처리 중 오류 발생:', error);
+    document.getElementById('status-message').textContent = '로그인 처리 중 오류가 발생했습니다.';
+  }
+</script>
+</body>
+</html>

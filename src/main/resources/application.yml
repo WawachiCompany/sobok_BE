@@ -156,7 +156,7 @@ spring:
           apple:
             client-id: "com.chihuahua.sobok.signin"
             authorization-grant-type: authorization_code
-            redirect-uri: "com.aszini.sobok://oauth/callback"
+            redirect-uri: "{baseUrl}/login/oauth2/code/apple"
             scope: openid, email, name
 firebase:
   config:
