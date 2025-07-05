@@ -1,2 +1,2 @@
-license_key: <%= ENV['NEW_RELIC_LICENSE_KEY'] %>
+license_key: ${NEW_RELIC_LICENSE_KEY}
 

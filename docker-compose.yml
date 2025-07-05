@@ -59,11 +59,14 @@ services:
         ADD newrelic-infra.yml /etc/newrelic-infra.yml
     networks:
       - app-network
+    env_file:
+      - /opt/secrets/.env
     cap_add:
       - SYS_PTRACE
     privileged: true
     pid: host
     volumes:
+      - /opt/secrets:/opt/secrets:ro
       - /:/host:ro
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
@@ -71,4 +74,3 @@ services:
 networks:
   app-network:
     driver: bridge
-
