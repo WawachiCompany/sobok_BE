@@ -1,1 +1,2 @@
-license_key: 7a6b5a322835f37b78efed6e0e437ec7FFFFNRAL
+license_key: <%= ENV['NEW_RELIC_LICENSE_KEY'] %>
+

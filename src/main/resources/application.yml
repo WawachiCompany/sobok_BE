@@ -120,12 +120,6 @@ otel:
     exporter: otlp
   sdk:
     disabled: false
-sentry:
-  dsn: https://67a7d84f85a59abcc03104dcb65b728b@o4509473972748288.ingest.us.sentry.io/4509473973796864
-  traces-sample-rate: 1.0   # 0.0 ~ 1.0 (100% 수집 시 1.0)
-  environment: dev
-  release: sobok@1.0.0
-  send-default-pii: true
 
 ---
 spring:
