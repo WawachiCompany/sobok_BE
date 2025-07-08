@@ -86,7 +86,7 @@ openai:
 social-login:
   provider:
     apple:
-      client-id: "com.chihuahua.sobok.signin"  # 일관된 클라이언트 ID 사용
+      client-id: "com.wawachi.sobok"  # 일관된 클라이언트 ID 사용
       team-id: ${APPLE_TEAM_ID}
       key-id: ${APPLE_KEY_ID}
 management:
