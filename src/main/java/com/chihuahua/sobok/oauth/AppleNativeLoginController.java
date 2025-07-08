@@ -3,7 +3,6 @@ package com.chihuahua.sobok.oauth;
 import com.chihuahua.sobok.jwt.JwtUtil;
 import com.chihuahua.sobok.member.Member;
 import com.chihuahua.sobok.member.MemberRepository;
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -49,8 +48,6 @@ public class AppleNativeLoginController {
         Member newMember = new Member();
         newMember.setEmail(userInfo.getEmail()); // private relay 이메일
         newMember.setName(userInfo.getName() != null ? userInfo.getName() : "Apple User");
-        newMember.setCreatedAt(LocalDateTime.now());
-        newMember.setPoint(0);
         newMember.setUsername(userInfo.getSub());
         newMember.setIsOauth(true);
         member = memberRepository.save(newMember);
