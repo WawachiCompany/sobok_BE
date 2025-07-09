@@ -357,5 +357,38 @@ public class MemberService {
     memberRepository.save(member);
   }
 
+  // Apple OAuth 회원의 추가 정보 입력
+  public void updateAppleOauthAdditionalInfo(Member member,
+      AppleOauthAdditionalInfoDto additionalInfoDto) {
+    // OAuth 회원인지 확인
+    if (!Boolean.TRUE.equals(member.getIsOauth())) {
+      throw new BadRequestException("OAuth 회원이 아닙니다.");
+    }
 
+    // 중복 검사
+    if (additionalInfoDto.getPhoneNumber() != null) {
+      if (isPhoneNumberDuplicated(additionalInfoDto.getPhoneNumber())) {
+        throw new BadRequestException("이미 사용 중인 전화번호입니다.");
+      }
+      member.setPhoneNumber(additionalInfoDto.getPhoneNumber());
+    }
+
+    if (additionalInfoDto.getDisplayName() != null) {
+      if (isDisplayNameDuplicated(additionalInfoDto.getDisplayName())) {
+        throw new BadRequestException("이미 사용 중인 닉네임입니다.");
+      }
+      member.setDisplayName(additionalInfoDto.getDisplayName());
+    }
+
+    // 이름과 생년월일은 중복 검사 없이 업데이트
+    if (additionalInfoDto.getName() != null) {
+      member.setName(additionalInfoDto.getName());
+    }
+
+    if (additionalInfoDto.getBirth() != null) {
+      member.setBirth(additionalInfoDto.getBirth());
+    }
+
+    memberRepository.save(member);
+  }
 }
