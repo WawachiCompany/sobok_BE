@@ -252,6 +252,14 @@ public class MemberService {
       return oauthAccount.getMember();
     }
 
+    // 카카오 네이티브 로그인인 경우
+    if ("native".equals(loginType) && "kakao".equals(provider)) {
+      String kakaoId = claims.getSubject();
+      OauthAccount oauthAccount = oauthAccountRepository.findByOauthIdAndProvider(kakaoId, "kakao")
+          .orElseThrow(() -> new UnauthorizedException("카카오 OAuth 계정을 찾을 수 없습니다."));
+      return oauthAccount.getMember();
+    }
+
     // 일반 로그인 및 OAuth 로그인인 경우
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null || authentication.getPrincipal() instanceof String) {

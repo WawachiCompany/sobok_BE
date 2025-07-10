@@ -3,6 +3,7 @@ package com.chihuahua.sobok.jwt;
 
 import com.chihuahua.sobok.member.MyUserDetailsService;
 import com.chihuahua.sobok.oauth.AppleUserInfo;
+import com.chihuahua.sobok.oauth.KakaoUserInfo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -172,6 +173,39 @@ public class JwtUtil {
         .subject(userInfo.getSub())
         .claim("email", userInfo.getEmail())
         .claim("provider", "apple")
+        .claim("loginType", "native")
+        .issuedAt(now)
+        .expiration(expiration)
+        .signWith(key)
+        .compact();
+  }
+
+  // 카카오 네이티브 로그인용 토큰 생성
+  public String createTokenForKakaoUser(KakaoUserInfo userInfo) {
+    Date now = new Date();
+    Date expiration = new Date(now.getTime() + ACCESS_TOKEN_EXPIRATION);
+
+    return Jwts.builder()
+        .subject(userInfo.getId())
+        .claim("email", userInfo.getEmail())
+        .claim("nickname", userInfo.getNickname())
+        .claim("provider", "kakao")
+        .claim("loginType", "native")
+        .issuedAt(now)
+        .expiration(expiration)
+        .signWith(key)
+        .compact();
+  }
+
+  public String createRefreshTokenForKakaoUser(KakaoUserInfo userInfo) {
+    Date now = new Date();
+    Date expiration = new Date(now.getTime() + REFRESH_TOKEN_EXPIRATION);
+
+    return Jwts.builder()
+        .subject(userInfo.getId())
+        .claim("email", userInfo.getEmail())
+        .claim("nickname", userInfo.getNickname())
+        .claim("provider", "kakao")
         .claim("loginType", "native")
         .issuedAt(now)
         .expiration(expiration)
