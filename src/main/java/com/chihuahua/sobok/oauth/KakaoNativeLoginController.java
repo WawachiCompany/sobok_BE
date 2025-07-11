@@ -58,7 +58,6 @@ public class KakaoNativeLoginController {
           Member newMember = new Member();
           newMember.setEmail(userInfo.getEmail());
           newMember.setUsername(userInfo.getId()); // 카카오 ID를 username으로 사용
-          newMember.setDisplayName(userInfo.getNickname()); // 카카오 닉네임을 displayName으로 사용
           newMember.setIsOauth(true);
           member = memberRepository.save(newMember);
 
@@ -106,8 +105,6 @@ public class KakaoNativeLoginController {
           "user", Map.of(
               "id", member.getId(),
               "email", member.getEmail(),
-              "name", member.getName(),
-              "displayName", member.getDisplayName(),
               "provider", "kakao",
               "isExistingUser", isExistingUser // 기존 사용자 여부
           )

@@ -54,13 +54,13 @@ public class KakaoTokenVerifier {
           userInfo.setEmail(kakaoAccount.get("email").asText());
         }
 
-        // 프로필 정보 추출
-        JsonNode profile = kakaoAccount.get("profile");
-        if (profile != null) {
-          if (profile.has("nickname")) {
-            userInfo.setNickname(profile.get("nickname").asText());
-          }
-        }
+        // 프로필 정보 추출(닉네임 사용 여부에 따라 주석 처리)
+//        JsonNode profile = kakaoAccount.get("profile");
+//        if (profile != null) {
+//          if (profile.has("nickname")) {
+//            userInfo.setNickname(profile.get("nickname").asText());
+//          }
+//        }
       }
 
       log.info("카카오 사용자 정보 조회 성공: id={}, email={}", userInfo.getId(), userInfo.getEmail());
