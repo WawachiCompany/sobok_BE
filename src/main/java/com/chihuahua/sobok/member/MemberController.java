@@ -117,12 +117,12 @@ public class MemberController {
     return ResponseEntity.ok(response);
   }
 
-  // Apple / 카카오 OAuth 회원의 추가 정보 입력
+  // Apple, 카카오 OAuth 회원의 추가 정보 입력
   @PutMapping("/oauth/additional-info")
-  public ResponseEntity<Map<String, Object>> updateAppleOauthAdditionalInfo(
+  public ResponseEntity<Map<String, Object>> updateOauthAdditionalInfo(
       @RequestBody OauthAdditionalInfoDto additionalInfoDto) {
     Member member = memberService.getMember();
-    memberService.updateAppleOauthAdditionalInfo(member, additionalInfoDto);
+    memberService.updateOauthAdditionalInfo(member, additionalInfoDto);
 
     Map<String, Object> response = new HashMap<>();
     response.put("message", "추가 정보 입력 완료");

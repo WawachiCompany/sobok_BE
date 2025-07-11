@@ -366,7 +366,7 @@ public class MemberService {
   }
 
   // Apple OAuth 회원의 추가 정보 입력
-  public void updateAppleOauthAdditionalInfo(Member member,
+  public void updateOauthAdditionalInfo(Member member,
       OauthAdditionalInfoDto additionalInfoDto) {
     // OAuth 회원인지 확인
     if (!Boolean.TRUE.equals(member.getIsOauth())) {
