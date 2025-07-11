@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AppleOauthAdditionalInfoDto {
+public class OauthAdditionalInfoDto {
 
   private String name;
   private String displayName;
