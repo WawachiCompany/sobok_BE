@@ -1,10 +1,10 @@
 package com.chihuahua.sobok.oauth;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@Builder
+@Getter
+@Setter
 public class AppleUserInfo {
 
   private String sub;  // Apple 사용자 고유 ID

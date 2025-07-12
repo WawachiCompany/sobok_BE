@@ -3,6 +3,7 @@ package com.chihuahua.sobok.jwt;
 
 import com.chihuahua.sobok.member.MyUserDetailsService;
 import com.chihuahua.sobok.oauth.AppleUserInfo;
+import com.chihuahua.sobok.oauth.GoogleUserInfo;
 import com.chihuahua.sobok.oauth.KakaoUserInfo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -15,17 +16,14 @@ import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -49,6 +47,35 @@ public class JwtUtil {
       HttpServletResponse response) {
     if (validateToken(refreshToken)) {
       Claims claims = extractToken(refreshToken);
+      String loginType = claims.get("loginType", String.class);
+      String provider = claims.get("provider", String.class);
+
+      // 소셜 로그인인 경우
+      if ("native".equals(loginType)) {
+        if ("apple".equals(provider)) {
+          // Apple 로그인용 새 액세스 토큰 생성
+          AppleUserInfo userInfo = new AppleUserInfo();
+          userInfo.setSub(claims.getSubject());
+          userInfo.setEmail(claims.get("email", String.class));
+          return createTokenForAppleUser(userInfo);
+        } else if ("kakao".equals(provider)) {
+          // 카카오 로그인용 새 액세스 토큰 생성
+          KakaoUserInfo userInfo = new KakaoUserInfo();
+          userInfo.setId(claims.getSubject());
+          userInfo.setEmail(claims.get("email", String.class));
+          userInfo.setNickname(claims.get("nickname", String.class));
+          return createTokenForKakaoUser(userInfo);
+        } else if ("google".equals(provider)) {
+          // 구글 로그인용 새 액세스 토큰 생성
+          GoogleUserInfo userInfo = new GoogleUserInfo();
+          userInfo.setSub(claims.getSubject());
+          userInfo.setEmail(claims.get("email", String.class));
+          userInfo.setName(claims.get("name", String.class));
+          return createTokenForGoogleUser(userInfo);
+        }
+      }
+
+      // 일반 로그인인 경우
       String username = claims.get("username", String.class);
       // 새로운 액세스 토큰 생성
       String newAccessToken = createToken(username);
@@ -62,7 +89,7 @@ public class JwtUtil {
       UsernamePasswordAuthenticationToken authentication =
           new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-      // 🔥 SecurityContextHolder를 즉시 업데이트
+      // SecurityContextHolder를 즉시 업데이트
       SecurityContext context = SecurityContextHolder.createEmptyContext();
       context.setAuthentication(authentication);
       SecurityContextHolder.setContext(context);
@@ -76,10 +103,12 @@ public class JwtUtil {
     }
   }
 
-  // JWT 만들어주는 함수 (username을 인자로 받는 오버로드 메서드)
+  // JWT 만들어주는 함수 (username을 인자로 받는 오버로드 메서드) -> Refresh Token을 통한 토큰 갱신 시 사용
   public String createToken(String username) {
     return Jwts.builder()
         .claim("username", username)
+        .claim("loginType", "normal")
+        .claim("provider", "local")
         .issuedAt(new Date(System.currentTimeMillis()))
         .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
         .signWith(key)
@@ -88,65 +117,36 @@ public class JwtUtil {
 
   // JWT 만들어주는 함수
   public String createToken(Authentication auth) {
-    if (auth.getPrincipal() instanceof DefaultOidcUser user) {
-      //Oauth_id 고유 식별자
-      return Jwts.builder()
-          .claim("username", user.getName()) //Oauth_id 고유 식별자
-          .claim("displayName", user.getAttributes().get("name"))
-          .claim("authorities", user.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-              .collect(Collectors.joining(",")))
-          .issuedAt(new Date(System.currentTimeMillis()))
-          .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION)) //유효기간 15분
-          .signWith(key)
-          .compact();
-    } else {
-      var user = (MyUserDetailsService.CustomUser) auth.getPrincipal();
-      System.out.println("jwt에서의 auth:" + user.toString());
-      var authorities = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-          .collect(Collectors.joining(","));
-      return Jwts.builder()
-          .claim("username", user.getUsername())
-          .claim("displayName", user.displayName)
-          .claim("authorities", authorities)
-          .issuedAt(new Date(System.currentTimeMillis()))
-          .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION)) //유효기간 10초
-          .signWith(key)
-          .compact();
-    }
+    var user = (MyUserDetailsService.CustomUser) auth.getPrincipal();
+    return Jwts.builder()
+        .claim("username", user.getUsername())
+        .claim("displayName", user.displayName)
+        .claim("loginType", "normal")
+        .claim("provider", "local")
+        .issuedAt(new Date(System.currentTimeMillis()))
+        .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
+        .signWith(key)
+        .compact();
   }
 
   // JWT Refresh Token 생성 및 refreshTokenRepository에 저장
   public String createRefreshToken(Authentication auth) {
-    if (auth.getPrincipal() instanceof DefaultOidcUser user) {
-      var jwt = Jwts.builder()
-          .claim("username", user.getName()) //Oauth_id 고유 식별자
-          .issuedAt(new Date(System.currentTimeMillis()))
-          .expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
-          .signWith(key)
-          .compact();
-      //refreshTokenRepository에 저장
-      RefreshToken refreshToken = new RefreshToken();
-      refreshToken.setRefreshToken(jwt);
-      refreshToken.setUsername(user.getName());
-      refreshToken.setExpiredAt(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION));
-      refreshTokenRepository.save(refreshToken);
-      return jwt;
-    } else {
-      var user = (MyUserDetailsService.CustomUser) auth.getPrincipal();
-      var jwt = Jwts.builder()
-          .claim("username", user.getUsername())
-          .issuedAt(new Date(System.currentTimeMillis()))
-          .expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
-          .signWith(key)
-          .compact();
-      //refreshTokenRepository에 저장
-      RefreshToken refreshToken = new RefreshToken();
-      refreshToken.setRefreshToken(jwt);
-      refreshToken.setUsername(user.getUsername());
-      refreshToken.setExpiredAt(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION));
-      refreshTokenRepository.save(refreshToken);
-      return jwt;
-    }
+    var user = (MyUserDetailsService.CustomUser) auth.getPrincipal();
+    var jwt = Jwts.builder()
+        .claim("username", user.getUsername())
+        .claim("loginType", "normal")
+        .claim("provider", "local")
+        .issuedAt(new Date(System.currentTimeMillis()))
+        .expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
+        .signWith(key)
+        .compact();
+    //refreshTokenRepository에 저장
+    RefreshToken refreshToken = new RefreshToken();
+    refreshToken.setRefreshToken(jwt);
+    refreshToken.setUsername(user.getUsername());
+    refreshToken.setExpiredAt(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION));
+    refreshTokenRepository.save(refreshToken);
+    return jwt;
   }
 
   // Apple 네이티브 로그인용 토큰 생성
@@ -169,7 +169,7 @@ public class JwtUtil {
     Date now = new Date();
     Date expiration = new Date(now.getTime() + REFRESH_TOKEN_EXPIRATION);
 
-    return Jwts.builder()
+    String jwt = Jwts.builder()
         .subject(userInfo.getSub())
         .claim("email", userInfo.getEmail())
         .claim("provider", "apple")
@@ -178,6 +178,15 @@ public class JwtUtil {
         .expiration(expiration)
         .signWith(key)
         .compact();
+
+    // RefreshToken DB에 저장
+    RefreshToken refreshToken = new RefreshToken();
+    refreshToken.setRefreshToken(jwt);
+    refreshToken.setUsername(userInfo.getSub()); // Apple sub를 username으로 사용
+    refreshToken.setExpiredAt(expiration);
+    refreshTokenRepository.save(refreshToken);
+
+    return jwt;
   }
 
   // 카카오 네이티브 로그인용 토큰 생성
@@ -201,7 +210,7 @@ public class JwtUtil {
     Date now = new Date();
     Date expiration = new Date(now.getTime() + REFRESH_TOKEN_EXPIRATION);
 
-    return Jwts.builder()
+    String jwt = Jwts.builder()
         .subject(userInfo.getId())
         .claim("email", userInfo.getEmail())
         .claim("nickname", userInfo.getNickname())
@@ -211,6 +220,57 @@ public class JwtUtil {
         .expiration(expiration)
         .signWith(key)
         .compact();
+
+    // RefreshToken DB에 저장
+    RefreshToken refreshToken = new RefreshToken();
+    refreshToken.setRefreshToken(jwt);
+    refreshToken.setUsername(userInfo.getId()); // 카카오 ID를 username으로 사용
+    refreshToken.setExpiredAt(expiration);
+    refreshTokenRepository.save(refreshToken);
+
+    return jwt;
+  }
+
+  // 구글 네이티브 로그인용 토큰 생성
+  public String createTokenForGoogleUser(GoogleUserInfo userInfo) {
+    Date now = new Date();
+    Date expiration = new Date(now.getTime() + ACCESS_TOKEN_EXPIRATION);
+
+    return Jwts.builder()
+        .subject(userInfo.getSub())
+        .claim("email", userInfo.getEmail())
+        .claim("name", userInfo.getName())
+        .claim("provider", "google")
+        .claim("loginType", "native")
+        .issuedAt(now)
+        .expiration(expiration)
+        .signWith(key)
+        .compact();
+  }
+
+  public String createRefreshTokenForGoogleUser(GoogleUserInfo userInfo) {
+    Date now = new Date();
+    Date expiration = new Date(now.getTime() + REFRESH_TOKEN_EXPIRATION);
+
+    String jwt = Jwts.builder()
+        .subject(userInfo.getSub())
+        .claim("email", userInfo.getEmail())
+        .claim("name", userInfo.getName())
+        .claim("provider", "google")
+        .claim("loginType", "native")
+        .issuedAt(now)
+        .expiration(expiration)
+        .signWith(key)
+        .compact();
+
+    // RefreshToken DB에 저장
+    RefreshToken refreshToken = new RefreshToken();
+    refreshToken.setRefreshToken(jwt);
+    refreshToken.setUsername(userInfo.getSub()); // 구글 sub를 username으로 사용
+    refreshToken.setExpiredAt(expiration);
+    refreshTokenRepository.save(refreshToken);
+
+    return jwt;
   }
 
   // JWT Token 유효성 검사 함수

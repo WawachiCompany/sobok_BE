@@ -117,7 +117,7 @@ public class MemberController {
     return ResponseEntity.ok(response);
   }
 
-  // Apple, 카카오 OAuth 회원의 추가 정보 입력
+  // 모든 OAuth 회원(Apple, 카카오, 구글)의 추가 정보 입력 - 통합 API
   @PutMapping("/oauth/additional-info")
   public ResponseEntity<Map<String, Object>> updateOauthAdditionalInfo(
       @RequestBody OauthAdditionalInfoDto additionalInfoDto) {
@@ -126,6 +126,22 @@ public class MemberController {
 
     Map<String, Object> response = new HashMap<>();
     response.put("message", "추가 정보 입력 완료");
+    response.put("needsAdditionalInfo", memberService.needsAdditionalInfo(member));
+    return ResponseEntity.ok(response);
+  }
+
+  // 모든 OAuth 회원이 추가 정보 입력이 필요한지 확인 - 통합 API
+  @GetMapping("/oauth/needs-additional-info")
+  public ResponseEntity<Map<String, Object>> checkOauthNeedsAdditionalInfo() {
+    Member member = memberService.getMember();
+    Map<String, Object> response = new HashMap<>();
+    response.put("needsAdditionalInfo", memberService.needsAdditionalInfo(member));
+    response.put("currentInfo", Map.of(
+        "name", member.getName() != null ? member.getName() : "",
+        "displayName", member.getDisplayName() != null ? member.getDisplayName() : "",
+        "phoneNumber", member.getPhoneNumber() != null ? member.getPhoneNumber() : "",
+        "birth", member.getBirth() != null ? member.getBirth() : ""
+    ));
     return ResponseEntity.ok(response);
   }
 
