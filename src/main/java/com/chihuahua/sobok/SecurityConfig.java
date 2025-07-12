@@ -36,6 +36,9 @@ public class SecurityConfig {
             new HttpSessionSecurityContextRepository())) // SecurityContext 유지
         .authorizeHttpRequests((authorize) -> authorize
             .requestMatchers("/**", "/api/auth/**").permitAll()
+            .requestMatchers("/user/login/jwt", "/user/refresh-token", "/user/create")
+            .permitAll() // 로그인, 토큰 갱신, 회원가입
+            .requestMatchers("/user/is-duplicated/**").permitAll() // 중복 체크
             .anyRequest().authenticated()
         );
 
