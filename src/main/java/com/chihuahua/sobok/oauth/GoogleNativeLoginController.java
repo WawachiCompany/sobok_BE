@@ -102,14 +102,11 @@ public class GoogleNativeLoginController {
       return ResponseEntity.ok(Map.of(
           "accessToken", accessToken,
           "refreshToken", refreshToken,
-          "isExistingUser", isExistingUser, // 기존 사용자 여부
           "user", Map.of(
               "id", member.getId(),
               "email", member.getEmail() != null ? member.getEmail() : "",
-              "name", member.getName() != null ? member.getName() : "",
-              "displayName", member.getDisplayName() != null ? member.getDisplayName() : "",
               "provider", "google",
-              "isNewUser", !isExistingUser // 신규 사용자 여부
+              "isExistingUser", isExistingUser // 기존 사용자 여부
           )
       ));
 
