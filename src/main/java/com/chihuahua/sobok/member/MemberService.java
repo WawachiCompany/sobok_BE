@@ -85,19 +85,22 @@ public class MemberService {
   // MemberController에서 유저 정보 조회
   public Map<String, Object> getUserInfo(Member member) {
     Map<String, Object> response = new HashMap<>();
-    response.put("username", member.getUsername());
+    response.put("username", member.getUsername() != null ? member.getUsername() : "");
     response.put("id", member.getId());
-    response.put("name", member.getName());
-    response.put("displayName", member.getDisplayName());
-    response.put("point", member.getPoint());
-    response.put("email", member.getEmail());
-    response.put("phoneNumber", member.getPhoneNumber());
-    response.put("birth", member.getBirth());
-    response.put("isPremium", member.getIsPremium());
-    response.put("totalAchievedTime", member.getTotalAchievedTime());
-    response.put("totalAccountBalance", member.getTotalAccountBalance());
-    response.put("weeklyRoutineTime", member.getWeeklyRoutineTime());
-    if (member.getIsPremium()) {
+    response.put("name", member.getName() != null ? member.getName() : "");
+    response.put("displayName", member.getDisplayName() != null ? member.getDisplayName() : "");
+    response.put("point", member.getPoint() != null ? member.getPoint() : 0);
+    response.put("email", member.getEmail() != null ? member.getEmail() : "");
+    response.put("phoneNumber", member.getPhoneNumber() != null ? member.getPhoneNumber() : "");
+    response.put("birth", member.getBirth() != null ? member.getBirth() : "");
+    response.put("isPremium", member.getIsPremium() != null ? member.getIsPremium() : false);
+    response.put("totalAchievedTime",
+        member.getTotalAchievedTime() != null ? member.getTotalAchievedTime() : 0);
+    response.put("totalAccountBalance",
+        member.getTotalAccountBalance() != null ? member.getTotalAccountBalance() : 0);
+    response.put("weeklyRoutineTime",
+        member.getWeeklyRoutineTime() != null ? member.getWeeklyRoutineTime() : 0);
+    if (Boolean.TRUE.equals(member.getIsPremium())) {
       Premium premium = premiumRepository.findByMemberAndEndAtAfter(member, LocalDate.now())
           .orElseThrow(() -> new IllegalArgumentException("프리미엄 정보를 찾을 수 없습니다."));
       response.put("premiumEndAt", premium.getEndAt());
