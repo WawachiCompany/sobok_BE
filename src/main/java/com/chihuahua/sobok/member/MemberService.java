@@ -263,7 +263,16 @@ public class MemberService {
       return oauthAccount.getMember();
     }
 
-    // 일반 로그인 및 OAuth 로그인인 경우
+    // 구글 네이티브 로그인인 경우
+    if ("native".equals(loginType) && "google".equals(provider)) {
+      String googleSub = claims.getSubject();
+      OauthAccount oauthAccount = oauthAccountRepository.findByOauthIdAndProvider(googleSub,
+              "google")
+          .orElseThrow(() -> new UnauthorizedException("구글 OAuth 계정을 찾을 수 없습니다."));
+      return oauthAccount.getMember();
+    }
+
+    // 일반 로그인인 경우
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null || authentication.getPrincipal() instanceof String) {
       throw new UnauthorizedException("인증 정보가 올바르지 않습니다.");
@@ -401,5 +410,17 @@ public class MemberService {
     }
 
     memberRepository.save(member);
+  }
+
+  // OAuth 회원이 추가 정보 입력이 필요한지 확인
+  public boolean needsAdditionalInfo(Member member) {
+    if (!Boolean.TRUE.equals(member.getIsOauth())) {
+      return false;
+    }
+
+    return member.getName() == null || member.getName().trim().isEmpty() ||
+        member.getDisplayName() == null || member.getDisplayName().trim().isEmpty() ||
+        member.getPhoneNumber() == null || member.getPhoneNumber().trim().isEmpty() ||
+        member.getBirth() == null || member.getBirth().trim().isEmpty();
   }
 }
