@@ -13,14 +13,11 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -81,10 +78,7 @@ public class JwtUtil {
       String newAccessToken = createToken(username);
 
       // CustomUser에 필요한 정보 추출
-      List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-      authorities.add(new SimpleGrantedAuthority("일반유저"));
-
-      UserDetails userDetails = new MyUserDetailsService.CustomUser(username, "", authorities);
+      UserDetails userDetails = new MyUserDetailsService.CustomUser(username, "");
 
       UsernamePasswordAuthenticationToken authentication =
           new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
