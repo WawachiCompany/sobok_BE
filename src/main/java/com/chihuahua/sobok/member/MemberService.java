@@ -273,16 +273,14 @@ public class MemberService {
     }
 
     // 일반 로그인인 경우
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication == null || authentication.getPrincipal() instanceof String) {
-      throw new UnauthorizedException("인증 정보가 올바르지 않습니다.");
+    if ("normal".equals(loginType) && "local".equals(provider)) {
+      String username = claims.get("username", String.class);
+      return memberRepository.findByUsername(username)
+          .orElseThrow(() -> new UnauthorizedException("유저를 찾을 수 없습니다."));
     }
 
-    MyUserDetailsService.CustomUser customUser = (MyUserDetailsService.CustomUser) authentication.getPrincipal();
-    String username = customUser.getUsername();
-
-    return memberRepository.findByUsername(username)
-        .orElseThrow(() -> new UnauthorizedException("유저를 찾을 수 없습니다."));
+    // 예상치 못한 로그인 타입
+    throw new UnauthorizedException("지원하지 않는 로그인 타입입니다.");
   }
 
   public Integer calculatePremiumPrice(Member member) {
