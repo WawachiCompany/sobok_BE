@@ -24,6 +24,13 @@ public class JwtFilter extends OncePerRequestFilter {
       FilterChain filterChain
   ) throws ServletException, IOException {
     try {
+      // 특정 URL에 대해서는 JWT 필터를 스킵
+      String requestURI = request.getRequestURI();
+      if (shouldSkipFilter(requestURI)) {
+        filterChain.doFilter(request, response);
+        return;
+      }
+
       Cookie[] cookies = request.getCookies();
       if (cookies == null) {
         filterChain.doFilter(request, response);
@@ -90,6 +97,15 @@ public class JwtFilter extends OncePerRequestFilter {
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       response.getWriter().write("인증에 실패했습니다: " + e.getMessage());
     }
+  }
+
+  private boolean shouldSkipFilter(String requestURI) {
+    // JWT 필터를 스킵할 URL 패턴들
+    return requestURI.startsWith("/user/login/jwt") ||
+        requestURI.startsWith("/user/refresh-token") ||
+        requestURI.startsWith("/user/create") ||
+        requestURI.startsWith("/user/is-duplicated/") ||
+        requestURI.startsWith("/api/auth/");
   }
 //    @Override
 //    protected void doFilterInternal(
