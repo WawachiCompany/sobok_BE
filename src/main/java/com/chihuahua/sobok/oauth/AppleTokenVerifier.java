@@ -94,10 +94,11 @@ public class AppleTokenVerifier {
     String email = claimsSet.getStringClaim("email");
     Boolean emailVerified = claimsSet.getBooleanClaim("email_verified");
 
-    return AppleUserInfo.builder()
-        .sub(sub)
-        .email(email)
-        .emailVerified(emailVerified != null ? emailVerified : false)
-        .build();
+    AppleUserInfo userInfo = new AppleUserInfo();
+    userInfo.setSub(sub);
+    userInfo.setEmail(email);
+    userInfo.setEmailVerified(emailVerified != null ? emailVerified : false);
+
+    return userInfo;
   }
 }
