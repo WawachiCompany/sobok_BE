@@ -29,6 +29,7 @@ public class AccountService {
 
   private final AccountRepository accountRepository;
   private final AccountLogRepository accountLogRepository;
+  private final InterestLogRepository interestLogRepository;
   private final PointLogRepository pointLogRepository;
   private final MemberRepository memberRepository;
   private final RoutineRepository routineRepository;
@@ -328,6 +329,35 @@ public class AccountService {
 
     account.setIsEnded(true);
     accountRepository.save(account);
+  }
+
+  public Map<String, Object> getInterestBalance(Member member, Long accountId) {
+    Account account = accountRepository.findByMemberAndId(member, accountId).orElseThrow(
+        () -> new IllegalArgumentException("해당 적금을 찾을 수 없습니다."));
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("totalBalance", account.getInterestBalance());
+
+    // 월별 이자 로그 조회
+    List<InterestLog> interestLogs = interestLogRepository.findByAccountId(
+        accountId);
+
+    Map<String, Object> monthlyInterest = new HashMap<>();
+    if (interestLogs.isEmpty()) {
+      monthlyInterest.put("data", "none");
+    } else {
+      List<Map<String, Object>> monthlyData = interestLogs.stream().map(log -> {
+        Map<String, Object> monthData = new HashMap<>();
+        monthData.put("yearMonth", log.getTargetYearMonth());
+        monthData.put("interest", log.getInterest());
+        return monthData;
+      }).collect(Collectors.toList());
+      monthlyInterest.put("data", monthlyData);
+    }
+
+    response.put("monthlyInterest", monthlyInterest);
+    response.put("message", "적금 이자 조회 성공");
+    return response;
   }
 
 }

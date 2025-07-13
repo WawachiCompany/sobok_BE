@@ -204,6 +204,13 @@ public class AccountController {
     return ResponseEntity.ok(response);
   }
 
+  @GetMapping("/interest-balance")
+  public ResponseEntity<?> getInterestBalance(@RequestParam Long accountId) {
+    Member member = memberService.getMember();
+    Map<String, Object> interestBalance = accountService.getInterestBalance(member, accountId);
+    return ResponseEntity.ok(interestBalance);
+  }
+
 }
 
 

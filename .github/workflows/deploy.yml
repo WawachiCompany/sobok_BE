@@ -95,6 +95,7 @@ jobs:
       # 6-4. BetterStack Monitoring 재개
       - name: Resume BetterStack Monitoring
         run: |
+          sleep 60
           curl --request PATCH \
           --url https://uptime.betterstack.com/api/v2/monitors/3351769 \
           --header "Authorization: Bearer ${{ secrets.BETTERSTACK_API_KEY }}" \

@@ -2,7 +2,7 @@
 set -e
 
 REQUIRED_VERSION="v1.1"
-CRON_JOB="0 3 * * 1 cd /var/app/current && docker-compose run --rm certbot certbot renew --webroot -w /var/www/certbot --post-hook \"docker-compose exec nginx nginx -s reload && curl -fsS https://uptime.betterstack.com/api/v1/heartbeat/ZAx7AYjTUi5RweptjcVSzoym\""
+CRON_JOB="0 3 * * 1 cd /var/app/current && docker-compose run --rm certbot certbot renew --webroot -w /var/www/certbot --post-hook \"docker-compose exec nginx nginx -s reload\""
 CRON_MARKER="/opt/.sobok_certbot_cron_configured"
 
 # 크론 작업이 이미 설정되어 있는지 확인 (버전까지 체크)
