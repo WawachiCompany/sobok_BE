@@ -92,6 +92,7 @@ public class AccountService {
     response.put("time", account.getTime());    // 저금 시간
     response.put("duration", account.getDuration());    // 적금 기간
     response.put("is_expired", account.getIsExpired());    // 만기 여부
+    response.put("is_extended", account.getIsExtended());    // 연장 여부
     response.put("is_valid", account.getIsValid());    // 활성화 여부
     response.put("interest", account.getInterest());    // 이율
     response.put("created_at", account.getCreatedAt());    // 생성일
@@ -291,6 +292,7 @@ public class AccountService {
     }
     account.setExpiredAt(account.getExpiredAt().plusMonths(duration));
     account.setIsExpired(false);
+    account.setIsExtended(true);
     accountRepository.save(account);
   }
 
