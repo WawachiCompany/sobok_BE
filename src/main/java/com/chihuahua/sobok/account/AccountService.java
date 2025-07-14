@@ -1,6 +1,7 @@
 package com.chihuahua.sobok.account;
 
 
+import com.chihuahua.sobok.exception.BadRequestException;
 import com.chihuahua.sobok.member.Member;
 import com.chihuahua.sobok.member.MemberRepository;
 import com.chihuahua.sobok.member.MemberService;
@@ -319,6 +320,14 @@ public class AccountService {
   public void endAccount(Member member, Long accountId) {
     Account account = accountRepository.findByMemberAndId(member, accountId).orElseThrow(
         () -> new IllegalArgumentException("해당 적금을 찾을 수 없습니다."));
+
+    if (account.getIsEnded()) {
+      throw new BadRequestException("이미 종료된 적금입니다.");
+    }
+
+    if (account.getIsExpired()) {
+      throw new BadRequestException("만기된 적금은 종료할 수 없습니다.");
+    }
 
     if (account.getInterestBalance() != 0) {
       // 이자 지급
