@@ -91,7 +91,10 @@ test {
             displayGranularity 2
         }
     }
-    jvmArgs = ['-XX:+EnableDynamicAgentLoading']
+    jvmArgs = [
+            '-XX:+EnableDynamicAgentLoading',
+            '-Xlog:cds=off'  // CDS 관련 로그만 비활성화 (Java 21 호환)
+    ]
     // 테스트가 실패해도 모든 테스트 실행
     ignoreFailures = true
 }
