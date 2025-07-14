@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,13 +127,14 @@ public class AccountService {
     float ratio = (float) daysPassed / totalDays;
 
     // 이자 지급
-    member.setPoint(member.getPoint() + Math.round(account.getInterestBalance() * ratio));
-    memberRepository.save(member);
+    int interestAmount = Math.round(account.getInterestBalance() * ratio);
+    if (interestAmount != 0) {
+      member.setPoint(member.getPoint() + interestAmount);
+      memberRepository.save(member);
 
-    if (Math.round(account.getInterestBalance() * ratio) != 0) {
       PointLog pointLog = new PointLog();
       pointLog.setMember(member);
-      pointLog.setPoint(Math.round(account.getInterestBalance() * ratio));
+      pointLog.setPoint(interestAmount);
       pointLog.setBalance(member.getPoint());
       pointLog.setCategory("적금 중도 해지 이자 지급");
       pointLogRepository.save(pointLog);
@@ -140,19 +142,27 @@ public class AccountService {
 
     // 적금에 연결된 루틴 모두 종료 처리 및 적금 연결 해제
     List<Routine> routines = account.getRoutines();
-    if (!routines.isEmpty()) {
-      for (Routine routine : routines) {
+    if (routines != null && !routines.isEmpty()) {
+      // ConcurrentModificationException 방지를 위해 새로운 리스트로 복사
+      List<Routine> routinesCopy = new ArrayList<>(routines);
+      for (Routine routine : routinesCopy) {
         routine.setIsEnded(true);
         routine.setAccount(null);
       }
-      routineRepository.saveAll(routines);
+      routineRepository.saveAll(routinesCopy);
+
+      // Account의 routines 컬렉션 명시적으로 클리어
+      account.getRoutines().clear();
     }
 
     // 적금 로그 삭제
     accountLogRepository.deleteAllByAccount(account);
 
-    // 멤버 적금 연결관계 해제(헬퍼 메서드)
+    // 멤버 적금 연결관계 해제(헬퍼 메서드) - Account 삭제 전에 수행
     member.removeAccount(account);
+
+    // EntityManager flush로 변경사항 즉시 반영
+    entityManager.flush();
 
     // 적금 삭제
     accountRepository.delete(account);
@@ -215,9 +225,17 @@ public class AccountService {
   public void validateAccount(Account account) {
     //Account 활성화 여부 체크(루틴의 duration 합 = 적금의 duration)
     List<Routine> routines = account.getRoutines();
+    if (routines == null || routines.isEmpty()) {
+      account.setIsValid(false);
+      accountRepository.save(account);
+      return;
+    }
+
     long totalDurationOfRoutines = routines.stream()
+        .filter(routine -> routine.getDuration() != null && routine.getDays() != null)
         .mapToLong(routine -> routine.getDuration() * routine.getDays().size())
         .sum() * 4; // 4주로 고정
+
     if (totalDurationOfRoutines == account.getTime()) {
       account.setIsValid(true);
       accountRepository.save(account);
@@ -319,12 +337,14 @@ public class AccountService {
 
     // 적금에 연결된 루틴 모두 종료 처리 및 적금 연결 해제
     List<Routine> routines = account.getRoutines();
-    if (!routines.isEmpty()) {
-      for (Routine routine : routines) {
+    if (routines != null && !routines.isEmpty()) {
+      // ConcurrentModificationException 방지를 위해 새로운 리스트로 복사
+      List<Routine> routinesCopy = new ArrayList<>(routines);
+      for (Routine routine : routinesCopy) {
         routine.setIsEnded(true);
         routine.setAccount(null);
       }
-      routineRepository.saveAll(routines);
+      routineRepository.saveAll(routinesCopy);
     }
 
     account.setIsEnded(true);

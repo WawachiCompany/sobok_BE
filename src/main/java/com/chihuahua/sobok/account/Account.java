@@ -61,7 +61,7 @@ public class Account {
   @UpdateTimestamp
   private LocalDateTime updatedAt; // 수정된 시간
 
-  @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
+  @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
   @JsonManagedReference
   private List<Routine> routines = new ArrayList<>();
 
