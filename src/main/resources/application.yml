@@ -3,43 +3,20 @@ spring:
     time-zone: Asia/Seoul
   application:
     name: sobok
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${GOOGLE_CLIENT_ID}
-            client-secret: ${GOOGLE_CLIENT_SECRET}
-            scope: openid, profile, email, https://www.googleapis.com/auth/user.birthday.read
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-          kakao:
-            client-id: ${KAKAO_CLIENT_ID}
-            client-secret: ""
-            authorization-grant-type: authorization_code
-            #            client-authentication-method: POST
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-            scope:
-              - account_email
-              - profile_nickname
-              - openid
-        provider:
-          google:
-            authorization-uri: https://accounts.google.com/o/oauth2/auth
-            token-uri: https://oauth2.googleapis.com/token
-            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-            user-name-attribute: sub
-          kakao:
-            authorization-uri: https://kauth.kakao.com/oauth/authorize
-            token-uri: https://kauth.kakao.com/oauth/token
-            user-info-uri: https://kapi.kakao.com/v2/user/me
-            user-name-attribute: sub
-            jwk-set-uri: https://kauth.kakao.com/.well-known/jwks.json
+
+  # JPA Repository와 Redis Repository 구분을 위한 설정
   data:
+    jpa:
+      repositories:
+        enabled: true
     redis:
       host: ${SPRING_REDIS_HOST}
       port: ${SPRING_REDIS_PORT}
       password: ${SPRING_REDIS_PASSWORD}
       timeout: 6000
+      repositories:
+        enabled: false  # Redis Repository 기능 비활성화
+
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
@@ -87,8 +64,6 @@ social-login:
   provider:
     apple:
       client-id: "com.wawachi.sobok"  # 일관된 클라이언트 ID 사용
-      team-id: ${APPLE_TEAM_ID}
-      key-id: ${APPLE_KEY_ID}
 management:
   tracing:
     sampling:

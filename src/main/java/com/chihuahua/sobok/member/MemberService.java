@@ -285,6 +285,9 @@ public class MemberService {
 
   public Integer calculatePremiumPrice(Member member) {
     List<Account> accounts = member.getAccounts();
+    if (accounts == null || accounts.isEmpty()) {
+      return 9999; // 기본 프리미엄 가격
+    }
     long totalTimeOfAccounts = accounts.stream()
         .mapToLong(Account::getTime)
         .sum();
