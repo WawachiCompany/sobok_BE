@@ -43,18 +43,10 @@ server:
   servlet:
     encoding:
       charset: UTF-8
-#logging:
-#  level:
-#    org:
-#      hibernate:
-#        orm:
-#          jdbc:
-#            bind: TRACE
-#        SQL: DEBUG
-#      type:
-#        descriptor:
-#          sql: TRACE
-#      springframework: DEBUG
+
+firebase:
+  config:
+    path: ${FIREBASE_CONFIG_PATH:src/main/resources/firebase-adminsdk.json}
 
 openai:
   api:

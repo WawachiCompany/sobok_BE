@@ -15,28 +15,42 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/fcm")
 public class FirebaseController {
 
-    private final FirebaseService firebaseService;
-    private final MemberService memberService;
+  private final FirebaseService firebaseService;
+  private final MemberService memberService;
 
-    @PostMapping("/send")
-    public ResponseEntity<?> sendPushNotification(@RequestBody FcmMessageRequestDto fcmMessageRequestDto) {
-        Member member = memberService.getMember();
-        try {
-            firebaseService.sendPushNotification(fcmMessageRequestDto.getTitle(), fcmMessageRequestDto.getBody(), member);
-            return ResponseEntity.ok("푸시 알림 전송 완료");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("푸시 알림 전송 실패: " + e.getMessage());
-        }
+  @PostMapping("/send")
+  public ResponseEntity<?> sendPushNotification(
+      @RequestBody FcmMessageRequestDto fcmMessageRequestDto) {
+    Member member = memberService.getMember();
+    try {
+      firebaseService.sendPushNotification(fcmMessageRequestDto.getTitle(),
+          fcmMessageRequestDto.getBody(), member);
+      return ResponseEntity.ok("푸시 알림 전송 완료");
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body("푸시 알림 전송 실패: " + e.getMessage());
     }
+  }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerFcmToken(@RequestParam String fcmToken) {
-        Member member = memberService.getMember();
-        try {
-            firebaseService.registerFcmToken(fcmToken, member);
-            return ResponseEntity.ok("토큰 등록 성공");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("토큰 등록 실패: " + e.getMessage());
-        }
+  @PostMapping("/register")
+  public ResponseEntity<?> registerFcmToken(@RequestParam String fcmToken) {
+    Member member = memberService.getMember();
+    try {
+      firebaseService.registerFcmToken(fcmToken, member);
+      return ResponseEntity.ok("토큰 등록 성공");
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body("토큰 등록 실패: " + e.getMessage());
     }
+  }
+
+  @PostMapping("/send/test")
+  public ResponseEntity<?> sendPushNotificationTest(
+      @RequestBody FcmMessageRequestDto fcmMessageRequestDto) {
+    try {
+      firebaseService.sendMessage(fcmMessageRequestDto.getToken(), fcmMessageRequestDto.getTitle(),
+          fcmMessageRequestDto.getBody());
+      return ResponseEntity.ok("테스트 푸시 알림 전송 완료");
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body("테스트 푸시 알림 전송 실패: " + e.getMessage());
+    }
+  }
 }

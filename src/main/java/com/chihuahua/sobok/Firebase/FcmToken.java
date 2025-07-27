@@ -1,32 +1,35 @@
 package com.chihuahua.sobok.Firebase;
 
+import com.chihuahua.sobok.member.Member;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @Setter
 public class FcmToken {
-    @Id
-    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
-    private Long id;
 
-    private Long memberId;
+  @Id
+  @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+  private Long id;
 
-    private String fcmToken;
+  @ManyToOne
+  private Member member;
 
-    private Boolean active;
+  private String fcmToken;
 
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+  private Boolean active;
 
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
+  @CreationTimestamp
+  private LocalDateTime createdAt;
+
+  @UpdateTimestamp
+  private LocalDateTime updatedAt;
 }
