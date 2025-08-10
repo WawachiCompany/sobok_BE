@@ -1,22 +1,25 @@
 spring:
+  # 테스트용 데이터소스 설정
   datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:mysql://localhost:3306/sobok_test
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # 테스트용 Liquibase 설정
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+    drop-first: true  # 각 테스트 실행시마다 DB 초기화
+    contexts: test
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
-    show-sql: true
+      ddl-auto: validate  # Liquibase가 스키마 관리
     properties:
       hibernate:
+        show_sql: true
         format_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
-
-  h2:
-    console:
-      enabled: true
 
   # Redis 자동 설정 비활성화
   autoconfigure:
@@ -28,7 +31,14 @@ spring:
 firebase:
   enabled: false
 
+# CoolSMS 테스트용 더미 설정 추가
+coolsms:
+  apiKey: test-api-key
+  apiSecret: test-api-secret
+  apiFrom: 01000000000
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+

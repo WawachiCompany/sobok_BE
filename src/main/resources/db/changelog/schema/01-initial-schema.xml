@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <!-- Initial Schema Creation from Production Dump -->
+  <changeSet id="schema-001-create-initial-tables" author="developer" context="dev, test">
+    <comment>Create initial database schema from production dump</comment>
+
+    <!-- Use existing SQL file for schema creation -->
+    <sqlFile path="sobok-schema.sql"
+      relativeToChangelogFile="true"
+      stripComments="true"
+      splitStatements="true"
+      endDelimiter=";"
+    />
+
+    <rollback>
+      <!-- Drop all tables in reverse order -->
+      <sql>
+        SET FOREIGN_KEY_CHECKS = 0;
+        DROP TABLE IF EXISTS todo_log;
+        DROP TABLE IF EXISTS todo;
+        DROP TABLE IF EXISTS survey_spare_time;
+        DROP TABLE IF EXISTS survey_like_option;
+        DROP TABLE IF EXISTS survey;
+        DROP TABLE IF EXISTS spare_time_days;
+        DROP TABLE IF EXISTS spare_time;
+        DROP TABLE IF EXISTS snow_card;
+        DROP TABLE IF EXISTS routine_log;
+        DROP TABLE IF EXISTS routine_days;
+        DROP TABLE IF EXISTS routine;
+        DROP TABLE IF EXISTS refresh_token;
+        DROP TABLE IF EXISTS premium;
+        DROP TABLE IF EXISTS point_log;
+        DROP TABLE IF EXISTS oauth_account;
+        DROP TABLE IF EXISTS monthly_user_report;
+        DROP TABLE IF EXISTS link_apps;
+        DROP TABLE IF EXISTS interest_log;
+        DROP TABLE IF EXISTS fcm_token;
+        DROP TABLE IF EXISTS ended_account;
+        DROP TABLE IF EXISTS daily_achieve;
+        DROP TABLE IF EXISTS category;
+        DROP TABLE IF EXISTS ai_routine_days;
+        DROP TABLE IF EXISTS ai_routine;
+        DROP TABLE IF EXISTS account_log;
+        DROP TABLE IF EXISTS account;
+        DROP TABLE IF EXISTS member;
+        SET FOREIGN_KEY_CHECKS = 1;
+      </sql>
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>

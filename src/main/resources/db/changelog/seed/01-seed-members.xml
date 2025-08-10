@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <!-- Seed Members Data -->
+  <changeSet id="seed-members-001-basic" author="system">
+    <comment>Insert test member data for development environment</comment>
+
+    <!-- 테스트 패스워드: "password" (bcrypt 암호화됨) -->
+    <insert tableName="member">
+      <column name="id" valueNumeric="1"/>
+      <column name="display_name" value="김철수"/>
+      <column name="password" value="$2a$12$AUMP80a.osUNrQXiV51gzeeW9j1.1.jlgsUKI4k4vr2XsTYtJYSfS"/>
+      <column name="username" value="chulsoo"/>
+      <column name="birth" value="1995-03-15"/>
+      <column name="created_at" value="2024-01-15 09:00:00.000000"/>
+      <column name="email" value="chulsoo@example.com"/>
+      <column name="name" value="김철수"/>
+      <column name="phone_number" value="010-1234-5678"/>
+      <column name="point" valueNumeric="1500"/>
+      <column name="is_oauth" valueBoolean="false"/>
+      <column name="is_premium" valueBoolean="true"/>
+      <column name="consecutive_achieve_count" valueNumeric="15"/>
+      <column name="premium_price" valueNumeric="9900"/>
+      <column name="total_achieved_time" valueNumeric="7200"/>
+      <column name="total_account_balance" valueNumeric="250000"/>
+      <column name="weekly_routine_time" valueNumeric="300"/>
+    </insert>
+
+    <insert tableName="member">
+      <column name="id" valueNumeric="2"/>
+      <column name="display_name" value="이영희"/>
+      <column name="password" value="$2a$12$AUMP80a.osUNrQXiV51gzeeW9j1.1.jlgsUKI4k4vr2XsTYtJYSfS"/>
+      <column name="username" value="younghee"/>
+      <column name="birth" value="1992-07-22"/>
+      <column name="created_at" value="2024-02-10 14:30:00.000000"/>
+      <column name="email" value="younghee@example.com"/>
+      <column name="name" value="이영희"/>
+      <column name="phone_number" value="010-2345-6789"/>
+      <column name="point" valueNumeric="2300"/>
+      <column name="is_oauth" valueBoolean="false"/>
+      <column name="is_premium" valueBoolean="false"/>
+      <column name="consecutive_achieve_count" valueNumeric="8"/>
+      <column name="premium_price" valueNumeric="0"/>
+      <column name="total_achieved_time" valueNumeric="4800"/>
+      <column name="total_account_balance" valueNumeric="180000"/>
+      <column name="weekly_routine_time" valueNumeric="240"/>
+    </insert>
+
+    <insert tableName="member">
+      <column name="id" valueNumeric="3"/>
+      <column name="display_name" value="박민수"/>
+      <column name="password" value="$2a$12$AUMP80a.osUNrQXiV51gzeeW9j1.1.jlgsUKI4k4vr2XsTYtJYSfS"/>
+      <column name="username" value="minsoo"/>
+      <column name="birth" value="1990-11-08"/>
+      <column name="created_at" value="2024-03-05 11:15:00.000000"/>
+      <column name="email" value="minsoo@example.com"/>
+      <column name="name" value="박민수"/>
+      <column name="phone_number" value="010-3456-7890"/>
+      <column name="point" valueNumeric="800"/>
+      <column name="is_oauth" valueBoolean="true"/>
+      <column name="is_premium" valueBoolean="false"/>
+      <column name="consecutive_achieve_count" valueNumeric="3"/>
+      <column name="premium_price" valueNumeric="0"/>
+      <column name="total_achieved_time" valueNumeric="1800"/>
+      <column name="total_account_balance" valueNumeric="128000"/>
+      <column name="weekly_routine_time" valueNumeric="180"/>
+    </insert>
+
+    <rollback>
+      <sql>
+        DELETE FROM member WHERE id IN (1, 2, 3);
+      </sql>
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>

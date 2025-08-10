@@ -1,5 +1,6 @@
-package com.chihuahua.sobok;
+package com.chihuahua.sobok.account;
 
 public class AccountServiceTest {
+
 
 }

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <!-- Seed Members Data -->
+  <changeSet id="seed-accounts-001-members" author="system">
+    <comment>Insert test member data for account testing</comment>
+
+    <!-- Member 1 (김철수) Accounts -->
+    <insert tableName="account">
+      <column name="id" valueNumeric="1"/>
+      <column name="title" value="김철수1"/>
+      <column name="duration" valueNumeric="30"/>
+      <column name="time" valueNumeric="60"/>
+      <column name="user_id" valueNumeric="1"/>
+      <column name="is_expired" valueBoolean="false"/>
+      <column name="created_at" value="2024-01-15"/>
+      <column name="balance" valueNumeric="45000"/>
+      <column name="interest" valueNumeric="3.5"/>
+      <column name="is_valid" valueBoolean="true"/>
+      <column name="expired_at" value="2024-02-14"/>
+      <column name="updated_at" value="2024-08-10 10:00:00.000000"/>
+      <column name="interest_balance" valueNumeric="525"/>
+      <column name="is_ended" valueBoolean="false"/>
+      <column name="is_extended" valueBoolean="false"/>
+    </insert>
+
+    <insert tableName="account">
+      <column name="id" valueNumeric="2"/>
+      <column name="title" value="김철수2"/>
+      <column name="duration" valueNumeric="60"/>
+      <column name="time" valueNumeric="90"/>
+      <column name="user_id" valueNumeric="1"/>
+      <column name="is_expired" valueBoolean="false"/>
+      <column name="created_at" value="2024-01-20"/>
+      <column name="balance" valueNumeric="82000"/>
+      <column name="interest" valueNumeric="4.0"/>
+      <column name="is_valid" valueBoolean="true"/>
+      <column name="expired_at" value="2024-03-20"/>
+      <column name="updated_at" value="2024-08-10 10:00:00.000000"/>
+      <column name="interest_balance" valueNumeric="1640"/>
+      <column name="is_ended" valueBoolean="false"/>
+      <column name="is_extended" valueBoolean="false"/>
+    </insert>
+
+    <insert tableName="account">
+      <column name="id" valueNumeric="3"/>
+      <column name="title" value="김철수3"/>
+      <column name="duration" valueNumeric="45"/>
+      <column name="time" valueNumeric="120"/>
+      <column name="user_id" valueNumeric="1"/>
+      <column name="is_expired" valueBoolean="false"/>
+      <column name="created_at" value="2024-02-01"/>
+      <column name="balance" valueNumeric="95000"/>
+      <column name="interest" valueNumeric="3.8"/>
+      <column name="is_valid" valueBoolean="true"/>
+      <column name="expired_at" value="2024-03-17"/>
+      <column name="updated_at" value="2024-08-10 10:00:00.000000"/>
+      <column name="interest_balance" valueNumeric="1805"/>
+      <column name="is_ended" valueBoolean="false"/>
+      <column name="is_extended" valueBoolean="false"/>
+    </insert>
+
+    <!-- Member 2 (이영희) Accounts -->
+    <insert tableName="account">
+      <column name="id" valueNumeric="4"/>
+      <column name="title" value="이영희1"/>
+      <column name="duration" valueNumeric="30"/>
+      <column name="time" valueNumeric="45"/>
+      <column name="user_id" valueNumeric="2"/>
+      <column name="is_expired" valueBoolean="false"/>
+      <column name="created_at" value="2024-02-10"/>
+      <column name="balance" valueNumeric="35000"/>
+      <column name="interest" valueNumeric="3.2"/>
+      <column name="is_valid" valueBoolean="true"/>
+      <column name="expired_at" value="2024-03-11"/>
+      <column name="updated_at" value="2024-08-10 10:00:00.000000"/>
+      <column name="interest_balance" valueNumeric="560"/>
+      <column name="is_ended" valueBoolean="false"/>
+      <column name="is_extended" valueBoolean="false"/>
+    </insert>
+
+    <insert tableName="account">
+      <column name="id" valueNumeric="5"/>
+      <column name="title" value="이영희2"/>
+      <column name="duration" valueNumeric="45"/>
+      <column name="time" valueNumeric="75"/>
+      <column name="user_id" valueNumeric="2"/>
+      <column name="is_expired" valueBoolean="false"/>
+      <column name="created_at" value="2024-02-20"/>
+      <column name="balance" valueNumeric="58000"/>
+      <column name="interest" valueNumeric="3.7"/>
+      <column name="is_valid" valueBoolean="true"/>
+      <column name="expired_at" value="2024-04-05"/>
+      <column name="updated_at" value="2024-08-10 10:00:00.000000"/>
+      <column name="interest_balance" valueNumeric="1073"/>
+      <column name="is_ended" valueBoolean="false"/>
+      <column name="is_extended" valueBoolean="false"/>
+    </insert>
+
+    <insert tableName="account">
+      <column name="id" valueNumeric="6"/>
+      <column name="title" value="이영희3"/>
+      <column name="duration" valueNumeric="60"/>
+      <column name="time" valueNumeric="90"/>
+      <column name="user_id" valueNumeric="2"/>
+      <column name="is_expired" valueBoolean="false"/>
+      <column name="created_at" value="2024-03-01"/>
+      <column name="balance" valueNumeric="72000"/>
+      <column name="interest" valueNumeric="4.1"/>
+      <column name="is_valid" valueBoolean="true"/>
+      <column name="expired_at" value="2024-04-30"/>
+      <column name="updated_at" value="2024-08-10 10:00:00.000000"/>
+      <column name="interest_balance" valueNumeric="1476"/>
+      <column name="is_ended" valueBoolean="false"/>
+      <column name="is_extended" valueBoolean="false"/>
+    </insert>
+
+    <!-- Member 3 (박민수) Accounts -->
+    <insert tableName="account">
+      <column name="id" valueNumeric="7"/>
+      <column name="title" value="박민수1"/>
+      <column name="duration" valueNumeric="60"/>
+      <column name="time" valueNumeric="120"/>
+      <column name="user_id" valueNumeric="3"/>
+      <column name="is_expired" valueBoolean="false"/>
+      <column name="created_at" value="2024-03-05"/>
+      <column name="balance" valueNumeric="68000"/>
+      <column name="interest" valueNumeric="4.3"/>
+      <column name="is_valid" valueBoolean="true"/>
+      <column name="expired_at" value="2024-05-04"/>
+      <column name="updated_at" value="2024-08-10 10:00:00.000000"/>
+      <column name="interest_balance" valueNumeric="1462"/>
+      <column name="is_ended" valueBoolean="false"/>
+      <column name="is_extended" valueBoolean="false"/>
+    </insert>
+
+    <insert tableName="account">
+      <column name="id" valueNumeric="8"/>
+      <column name="title" value="박민수2"/>
+      <column name="duration" valueNumeric="30"/>
+      <column name="time" valueNumeric="60"/>
+      <column name="user_id" valueNumeric="3"/>
+      <column name="is_expired" valueBoolean="false"/>
+      <column name="created_at" value="2024-03-15"/>
+      <column name="balance" valueNumeric="25000"/>
+      <column name="interest" valueNumeric="3.6"/>
+      <column name="is_valid" valueBoolean="true"/>
+      <column name="expired_at" value="2024-04-14"/>
+      <column name="updated_at" value="2024-08-10 10:00:00.000000"/>
+      <column name="interest_balance" valueNumeric="450"/>
+      <column name="is_ended" valueBoolean="false"/>
+      <column name="is_extended" valueBoolean="false"/>
+    </insert>
+
+    <insert tableName="account">
+      <column name="id" valueNumeric="9"/>
+      <column name="title" value="박민수3"/>
+      <column name="duration" valueNumeric="45"/>
+      <column name="time" valueNumeric="90"/>
+      <column name="user_id" valueNumeric="3"/>
+      <column name="is_expired" valueBoolean="false"/>
+      <column name="created_at" value="2024-03-25"/>
+      <column name="balance" valueNumeric="35000"/>
+      <column name="interest" valueNumeric="4.0"/>
+      <column name="is_valid" valueBoolean="true"/>
+      <column name="expired_at" value="2024-05-09"/>
+      <column name="updated_at" value="2024-08-10 10:00:00.000000"/>
+      <column name="interest_balance" valueNumeric="700"/>
+      <column name="is_ended" valueBoolean="false"/>
+      <column name="is_extended" valueBoolean="false"/>
+    </insert>
+
+    <rollback>
+      <sql>
+        DELETE FROM account WHERE id IN (1, 2, 3, 4, 5, 6, 7, 8, 9);
+      </sql>
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>

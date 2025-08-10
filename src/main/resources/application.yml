@@ -16,20 +16,14 @@ spring:
       timeout: 6000
       repositories:
         enabled: false  # Redis Repository 기능 비활성화
-
-  datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+  # 공통 JPA 설정
   jpa:
     properties:
       hibernate:
         show_sql: false
         use_sql_comments: true
-    hibernate:
-      ddl-auto: update
     open-in-view: false
+
 coolsms:
   apiKey: ${COOLSMS_API_KEY}
   apiSecret: ${COOLSMS_API_SECRET}
@@ -56,6 +50,7 @@ social-login:
   provider:
     apple:
       client-id: "com.wawachi.sobok"  # 일관된 클라이언트 ID 사용
+
 management:
   tracing:
     sampling:
@@ -82,18 +77,89 @@ otel:
   sdk:
     disabled: false
 ---
+# 로컬 개발 환경 (Docker MySQL + Liquibase)
 spring:
   config:
     activate:
-      on-profile: dev
+      on-profile: dev-local
+  # 로컬 Docker MySQL 설정
+  datasource:
+    url: jdbc:mysql://localhost:3306/sobok_dev_local
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # Liquibase 설정 (개발 환경에서만 활성화)
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+    drop-first: false
+    contexts: dev  # dev 컨텍스트만 실행
+
+  jpa:
+    hibernate:
+      ddl-auto: none  # Liquibase가 스키마 관리
+    properties:
+      hibernate:
+        show_sql: true  # 개발시 SQL 로그 활성화
+        format_sql: true
+
 firebase:
   config:
     path: src/main/resources/firebase-adminsdk.json
+---
+# 원격 개발 환경 (실제 DB 접근, 개발용)
+spring:
+  config:
+    activate:
+      on-profile: dev-remote
+
+  # 실제 운영 DB에 접근 (읽기 전용 권장)
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # Liquibase 비활성화 (실제 DB는 건드리지 않음)
+  liquibase:
+    enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: none  # 실제 DB 스키마 변경 금지
+    properties:
+      hibernate:
+        show_sql: true  # 개발시 쿼리 확인용
+        format_sql: true
+
+firebase:
+  config:
+    path: src/main/resources/firebase-adminsdk.json
+
 ---
 spring:
   config:
     activate:
       on-profile: prod
+  # 운영 DB 설정 (환경변수 사용)
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # Liquibase 비활성화 (운영에서는 기존 DB 사용)
+  liquibase:
+    enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: none  # 운영에서는 스키마 변경 금지
+    properties:
+      hibernate:
+        show_sql: false
+
 firebase:
   config:
     path: /opt/secrets/firebase-adminsdk.json

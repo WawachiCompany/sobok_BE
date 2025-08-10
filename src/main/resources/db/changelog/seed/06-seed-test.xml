@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <!-- Seed Test Members Data -->
+  <changeSet id="seed-test-001-members" author="system">
+    <comment>Insert test member data</comment>
+
+    <!-- 테스트 패스워드: "password" (bcrypt 암호화됨) -->
+    <insert tableName="member">
+      <column name="id" valueNumeric="1"/>
+      <column name="display_name" value="test"/>
+      <column name="password" value="$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi."/>
+      <column name="username" value="test"/>
+      <column name="birth" value="1995-03-15"/>
+      <column name="created_at" value="2024-01-15 09:00:00.000000"/>
+      <column name="email" value="chulsoo@example.com"/>
+      <column name="name" value="김테스트"/>
+      <column name="phone_number" value="010-1111-1111"/>
+      <column name="point" valueNumeric="1500"/>
+      <column name="is_oauth" valueBoolean="false"/>
+      <column name="is_premium" valueBoolean="true"/>
+      <column name="consecutive_achieve_count" valueNumeric="15"/>
+      <column name="premium_price" valueNumeric="9900"/>
+      <column name="total_achieved_time" valueNumeric="7200"/>
+      <column name="total_account_balance" valueNumeric="250000"/>
+      <column name="weekly_routine_time" valueNumeric="300"/>
+    </insert>
+
+    <rollback>
+      <sql>
+        DELETE FROM member WHERE id = 1;
+      </sql>
+    </rollback>
+  </changeSet>
+
+  <changeSet id="seed-test-002-accounts" author="system">
+    <comment>Insert test account data</comment>
+
+    <!-- Member 1 (김철수) Accounts -->
+    <insert tableName="account">
+      <column name="id" valueNumeric="1"/>
+      <column name="title" value="김철수1"/>
+      <column name="duration" valueNumeric="30"/>
+      <column name="time" valueNumeric="60"/>
+      <column name="user_id" valueNumeric="1"/>
+      <column name="is_expired" valueBoolean="false"/>
+      <column name="created_at" value="2024-01-15"/>
+      <column name="balance" valueNumeric="45000"/>
+      <column name="interest" valueNumeric="3.5"/>
+      <column name="is_valid" valueBoolean="true"/>
+      <column name="expired_at" value="2024-02-14"/>
+      <column name="updated_at" value="2024-08-10 10:00:00.000000"/>
+      <column name="interest_balance" valueNumeric="525"/>
+      <column name="is_ended" valueBoolean="false"/>
+      <column name="is_extended" valueBoolean="false"/>
+    </insert>
+
+    <rollback>
+      <sql>
+        DELETE FROM account WHERE id = 1;
+      </sql>
+    </rollback>
+  </changeSet>
+
+  <changeSet id="seed-test-003-routines" author="system">
+    <comment>Insert test routine data</comment>
+
+    <insert tableName="routine">
+      <column name="id" valueNumeric="1"/>
+      <column name="created_at" value="2024-01-15 09:00:00.000000"/>
+      <column name="duration" valueNumeric="30"/>
+      <column name="end_time" value="07:30:00"/>
+      <column name="is_suspended" valueBoolean="false"/>
+      <column name="start_time" value="07:00:00"/>
+      <column name="title" value="김철수1의 1번 루틴"/>
+      <column name="account_id" valueNumeric="1"/>
+      <column name="user_id" valueNumeric="1"/>
+      <column name="is_ended" valueBoolean="false"/>
+      <column name="is_achieved" valueBoolean="true"/>
+      <column name="is_ai_routine" valueBoolean="false"/>
+      <column name="is_completed" valueBoolean="false"/>
+    </insert>
+
+    <rollback>
+      <sql>
+        DELETE FROM routine WHERE id = 1;
+      </sql>
+    </rollback>
+  </changeSet>
+
+  <changeSet id="seed-test-004-todos" author="system">
+    <comment>Insert test todo data</comment>
+
+    <!-- 김철수1의 1번 루틴 Todos -->
+    <insert tableName="todo">
+      <column name="id" valueNumeric="1"/>
+      <column name="end_time" value="07:15:00"/>
+      <column name="is_completed" valueBoolean="true"/>
+      <column name="link_app" value=""/>
+      <column name="start_time" value="07:00:00"/>
+      <column name="title" value="김철수1의 1번 루틴의 1번 할일"/>
+      <column name="routine_id" valueNumeric="1"/>
+      <column name="duration" valueNumeric="15"/>
+      <column name="category" value="건강"/>
+    </insert>
+
+    <insert tableName="todo">
+      <column name="id" valueNumeric="2"/>
+      <column name="end_time" value="07:30:00"/>
+      <column name="is_completed" valueBoolean="true"/>
+      <column name="link_app" value=""/>
+      <column name="start_time" value="07:15:00"/>
+      <column name="title" value="김철수1의 1번 루틴의 2번 할일"/>
+      <column name="routine_id" valueNumeric="1"/>
+      <column name="duration" valueNumeric="15"/>
+      <column name="category" value="건강"/>
+    </insert>
+
+    <rollback>
+      <sql>
+        DELETE FROM todo WHERE id IN (1, 2);
+      </sql>
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>
