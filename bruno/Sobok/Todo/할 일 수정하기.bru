@@ -1,0 +1,26 @@
+meta {
+  name: 할 일 수정하기
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{base}}/todo/update
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "id" : 123,
+      "title" : "updateTodo Test",
+      "startTime" : "03:00",
+      "endTime" : "03:30",
+      "category" : "english",
+      "linkApp" : "exampleApp3"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

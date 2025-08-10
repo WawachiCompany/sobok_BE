@@ -1,0 +1,19 @@
+meta {
+  name: 할 일 종료하기
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base}}/todo/end?todoId=14
+  body: none
+  auth: inherit
+}
+
+params:query {
+  todoId: 14
+}
+
+settings {
+  encodeUrl: true
+}

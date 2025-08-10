@@ -1,0 +1,37 @@
+meta {
+  name: 자율루틴 생성하기
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base}}/routine/create/self
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "accountId": 72,
+    "title": "My RoutineTest",
+    "days": ["MONDAY", "TUESDAY","WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
+    "todos": [
+      {
+        "title": "Todo 1",
+        "startTime": "18:00",
+        "endTime": "18:30",
+        "linkApp": "exampleApp1"
+      },
+      {
+        "title": "Todo 2",
+        "startTime": "18:30",
+        "endTime": "19:00",
+        "linkApp": "exampleApp2"
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+}

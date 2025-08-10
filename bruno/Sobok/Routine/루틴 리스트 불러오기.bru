@@ -1,0 +1,15 @@
+meta {
+  name: 루틴 리스트 불러오기
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base}}/routine/by-list
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

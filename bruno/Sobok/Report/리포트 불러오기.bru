@@ -1,0 +1,19 @@
+meta {
+  name: 리포트 불러오기
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base}}/report?yearMonth=2025-03
+  body: none
+  auth: inherit
+}
+
+params:query {
+  yearMonth: 2025-03
+}
+
+settings {
+  encodeUrl: true
+}

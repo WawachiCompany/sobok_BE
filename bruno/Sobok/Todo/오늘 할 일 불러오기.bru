@@ -1,0 +1,15 @@
+meta {
+  name: 오늘 할 일 불러오기
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base}}/todo/today
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

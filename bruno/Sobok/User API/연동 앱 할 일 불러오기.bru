@@ -1,0 +1,23 @@
+meta {
+  name: 연동 앱 할 일 불러오기
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{base}}/user/link-app/todos?linkApp=유튜브
+  body: none
+  auth: bearer
+}
+
+params:query {
+  linkApp: 유튜브
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzM4NCJ9.eyJ1c2VybmFtZSI6ImFzemluaSIsImRpc3BsYXlOYW1lIjoi7KC464uIIiwiYXV0aG9yaXRpZXMiOiLsnbzrsJjsnKDsoIAiLCJpYXQiOjE3NDIyMDExOTUsImV4cCI6MTc0MjIwMjA5NX0.kVnkSX-d32rqFkr_na5gmXVffC3ZG3QIYe7cShCcBR4IMvviCnPyzE-H64yjymiY
+}
+
+settings {
+  encodeUrl: true
+}

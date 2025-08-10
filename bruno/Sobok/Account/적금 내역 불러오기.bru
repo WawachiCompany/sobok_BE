@@ -1,0 +1,21 @@
+meta {
+  name: 적금 내역 불러오기
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{base}}/account/log?accountId=2&startDate=2025-01-10&endDate=2025-02-02
+  body: none
+  auth: inherit
+}
+
+params:query {
+  accountId: 2
+  startDate: 2025-01-10
+  endDate: 2025-02-02
+}
+
+settings {
+  encodeUrl: true
+}

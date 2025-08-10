@@ -1,0 +1,15 @@
+meta {
+  name: 오늘 완료한 루틴 불러오기
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{base}}/routine/today/completed
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

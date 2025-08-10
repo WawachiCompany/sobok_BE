@@ -1,0 +1,15 @@
+meta {
+  name: 가장 가까운 할 일 불러오기
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base}}/todo/closest
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

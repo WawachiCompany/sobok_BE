@@ -1,0 +1,15 @@
+meta {
+  name: 만료된 루틴 존재 여부 (적금 생성 시)
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{base}}/routine/is-ended
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

@@ -1,0 +1,35 @@
+meta {
+  name: AI루틴 생성하기
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base}}/routine/create/ai
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzM4NCJ9.eyJ1c2VybmFtZSI6ImFzemluaSIsImRpc3BsYXlOYW1lIjoi7KC464uIIiwiYXV0aG9yaXRpZXMiOiLsnbzrsJjsnKDsoIAiLCJpYXQiOjE3NDY2MTAxMjEsImV4cCI6MTc0NjY5NjUyMX0.R6Rwfnx2if6zKtWrO7vXKnsOXURGcYz0eQZ9OuB6n3zl2BhT6bmUNxBNxYku9t1c
+}
+
+body:json {
+  {
+    "accountId": 61,
+    "title": "AI RoutineTest",
+    "days": ["MONDAY", "TUESDAY","WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
+    "todos": [
+      {
+        "title": "Todo 1",
+        "startTime": "03:00",
+        "endTime": "03:30",
+        "linkApp": "exampleApp1"
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+}

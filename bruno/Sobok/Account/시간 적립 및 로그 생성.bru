@@ -1,0 +1,20 @@
+meta {
+  name: 시간 적립 및 로그 생성
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{base}}/account/deposit?accountId=71&amount=30
+  body: none
+  auth: inherit
+}
+
+params:query {
+  accountId: 71
+  amount: 30
+}
+
+settings {
+  encodeUrl: true
+}

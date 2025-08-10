@@ -1,0 +1,19 @@
+meta {
+  name: 루틴 보류 토글
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{base}}/routine/suspend?routineId=2
+  body: none
+  auth: inherit
+}
+
+params:query {
+  routineId: 2
+}
+
+settings {
+  encodeUrl: true
+}

@@ -1,0 +1,29 @@
+meta {
+  name: 적금 생성하기
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base}}/account/create
+  body: json
+  auth: inherit
+}
+
+headers {
+  Authorization: eyJhbGciOiJIUzM4NCJ9.eyJ1c2VybmFtZSI6InBvc3RtYW4iLCJhdXRob3JpdGllcyI6IuydvOuwmOycoOyggCIsImlhdCI6MTczNjUxNjIzMywiZXhwIjoxNzM2NTE3MTMzfQ.nWWo3nEFBS0KTjW0k5NqwALOVZshzEdZGj7q95CNjbq2DHBpCBLqLVF2j_ehfnZv
+}
+
+body:json {
+  {
+      "title" : "test123",
+      "target" : "test4",
+      "isPublic" : "true",
+      "time" : "3600",
+      "duration" : "12"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

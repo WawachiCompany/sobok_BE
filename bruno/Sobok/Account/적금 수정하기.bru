@@ -1,0 +1,30 @@
+meta {
+  name: 적금 수정하기
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{base}}/account/edit?accountId=2
+  body: json
+  auth: inherit
+}
+
+params:query {
+  accountId: 2
+}
+
+body:json {
+  {
+      "title": "edit_test",
+      "target": "edit_test",
+      "category": "english",
+      "time": 60,
+      "duration": 12,
+      "isPublic": true
+  }
+}
+
+settings {
+  encodeUrl: true
+}

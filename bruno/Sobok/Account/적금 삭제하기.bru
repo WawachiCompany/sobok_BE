@@ -1,0 +1,19 @@
+meta {
+  name: 적금 삭제하기
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{base}}/account/delete?accountId=72
+  body: none
+  auth: inherit
+}
+
+params:query {
+  accountId: 72
+}
+
+settings {
+  encodeUrl: true
+}

@@ -1,0 +1,22 @@
+meta {
+  name: 인증번호 검증
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base}}/sms/verify
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "phoneNumber" : "01095574842",
+      "code" : 766294
+  }
+}
+
+settings {
+  encodeUrl: true
+}

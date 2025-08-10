@@ -1,0 +1,26 @@
+meta {
+  name: 캘린더 달성 상태 불러오기(월/주별)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base}}/statistics/date/log?date=2025-02-25
+  body: json
+  auth: inherit
+}
+
+params:query {
+  date: 2025-02-25
+}
+
+body:json {
+  {
+      "startDate": "2025-02-01",
+      "endDate": "2025-02-28"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

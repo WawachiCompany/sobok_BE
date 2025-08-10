@@ -1,0 +1,19 @@
+meta {
+  name: 루틴 삭제하기
+  type: http
+  seq: 9
+}
+
+delete {
+  url: {{base}}/routine/delete?routineId=105
+  body: none
+  auth: inherit
+}
+
+params:query {
+  routineId: 105
+}
+
+settings {
+  encodeUrl: true
+}

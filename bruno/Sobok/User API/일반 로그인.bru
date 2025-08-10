@@ -1,0 +1,69 @@
+meta {
+  name: 일반 로그인
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base}}/user/login/jwt
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username" : "aszini",
+    "password" : "password1234!"
+  }
+  
+  // {
+  //   "username" : "postman",
+  //   "password" : "1q2w3e4r"
+  // }
+}
+
+script:post-response {
+  test("Response status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  
+  test("Response time is within an acceptable range", function () {
+    expect(res.getResponseTime()).to.be.below(500);
+  });
+  
+  
+  test("Response has the required fields - accessToken, message, username, timestamp, and status", function () {
+      const responseData = res.getBody();
+  
+      expect(responseData).to.be.an('object');
+      expect(responseData.accessToken).to.exist;
+      expect(responseData.message).to.exist;
+      expect(responseData.username).to.exist;
+      expect(responseData.timestamp).to.exist;
+      expect(responseData.status).to.exist;
+  });
+  
+  
+  test("AccessToken is a non-empty string", function () {
+    const responseData = res.getBody();
+    expect(responseData.accessToken).to.be.a('string').and.to.have.lengthOf.at.least(1, "AccessToken should not be empty");
+  });
+  
+  
+  test("Timestamp is in a valid date format", function () {
+      const responseData = res.getBody();
+      
+      expect(responseData).to.be.an('object');
+      expect(responseData.timestamp).to.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6}Z$/, "Timestamp should be in valid date format");
+  });
+  
+  test("Get AccessToken and store it in environment variable", function () {
+      let jsonData = res.getBody();
+      bru.setEnvVar("accessToken", jsonData.accessToken);
+  });
+}
+
+settings {
+  encodeUrl: true
+}

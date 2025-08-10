@@ -1,0 +1,19 @@
+meta {
+  name: 적금 완료하기
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{base}}/account/end?accountId=4
+  body: none
+  auth: inherit
+}
+
+params:query {
+  accountId: 4
+}
+
+settings {
+  encodeUrl: true
+}

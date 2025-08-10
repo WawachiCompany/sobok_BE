@@ -1,0 +1,19 @@
+meta {
+  name: 해당 날짜 루틴 불러오기
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base}}/routine/by-date?dateString=2025-05-01
+  body: none
+  auth: inherit
+}
+
+params:query {
+  dateString: 2025-05-01
+}
+
+settings {
+  encodeUrl: true
+}

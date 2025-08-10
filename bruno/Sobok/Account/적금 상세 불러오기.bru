@@ -1,0 +1,25 @@
+meta {
+  name: 적금 상세 불러오기
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base}}/account/details?accountId=1
+  body: none
+  auth: inherit
+}
+
+params:query {
+  accountId: 1
+}
+
+script:pre-request {
+  const path = require('path');
+  const mod = require(path.resolve(process.cwd(), 'Sobok/scripts/login.js')); // 절대경로로 강제 로딩
+  return mod.loginChulsoo(req);
+}
+
+settings {
+  encodeUrl: true
+}

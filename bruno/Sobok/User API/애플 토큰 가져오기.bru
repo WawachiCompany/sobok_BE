@@ -1,0 +1,21 @@
+meta {
+  name: 애플 토큰 가져오기
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{base}}/api/auth/apple/native
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "identityToken" : "eyJraWQiOiJVYUlJRlkyZlc0IiwiYWxnIjoiUlMyNTYifQ.eyJpc3MiOiJodHRwczovL2FwcGxlaWQuYXBwbGUuY29tIiwiYXVkIjoiY29tLndhd2FjaGkuc29ib2siLCJleHAiOjE3NTIwNzAwODgsImlhdCI6MTc1MTk4MzY4OCwic3ViIjoiMDAwMDI2LjQ3YTc4MjBlZGFiMjRiY2FiZjdkYmI4NzgyNjNlYzNiLjAzMjMiLCJub25jZSI6IjU5NTVkNGMxMjBkNTc3YTZmZDdkZWY2NTU4MjQxYjAzYWY1MWEwMzc2NzQ2YTViMjZkYmJhMDQzMzU5MWE1MDUiLCJjX2hhc2giOiJuSjNXWXZmT2ZQUDlFVGtSQXZMSDh3IiwiZW1haWwiOiJhc3ppbmlAbmF2ZXIuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImF1dGhfdGltZSI6MTc1MTk4MzY4OCwibm9uY2Vfc3VwcG9ydGVkIjp0cnVlfQ.KYWbN8YQIAT7uqRhD0MZFQ0VrYfUlrIzBr0aL8tl4LZhA3ioHqFkkNAPw0NxEIzv1Y1gf3Rdf3qB284zmutGmayD52Sm00tgavLXHQQd8rpfdSEDhg5CH1theLVaeNjiUsWDVIh85NxSj-NOcDHvh5FFnMPit4-wPbB7PJIDB-CnlaPzm3dljTJZEDn-K1D4Xt4C1CR9xmRB_uxRs1JJQUuEne61UnYWHbxVNiqj0-iFsbimWtNj1Qi2wcYB7PN0zioxiWbf8VIP1IFo8DUBgxC27rCf_TZPKy9hDoOTrB_i0iZFMa3gf1D4zzh5SeWIcozD951nwFzcEZFPDOAgeA"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

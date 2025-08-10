@@ -1,0 +1,24 @@
+meta {
+  name: 토큰 갱신
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{base}}/user/refresh-token
+  body: none
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  ~Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJ1c2VybmFtZSI6InBvc3RtYW4iLCJhdXRob3JpdGllcyI6IuydvOuwmOycoOyggCIsImlhdCI6MTczNjUxNDQ0OSwiZXhwIjoxNzM2NTE1MzQ5fQ.HAelbiztmO6RJDaB1QJNToHhMABX1_n3DxKVst6N5h4Svjx9xaDRhi90qmn_VvOk
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzM4NCJ9.eyJ1c2VybmFtZSI6InBvc3RtYW4iLCJpYXQiOjE3MzY1MTQ0OTEsImV4cCI6MTczNjUxNTM5MX0.D4yskiVPNsdg4hEFUWtmjdHYElkF0gBLR2_bLs8IQceGEYkQX8bTxj7LU8_X961_
+}
+
+settings {
+  encodeUrl: true
+}

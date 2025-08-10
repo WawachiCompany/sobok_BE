@@ -1,0 +1,15 @@
+meta {
+  name: 오늘 모은 시간 불러오기
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{base}}/routine/today/completed-time
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

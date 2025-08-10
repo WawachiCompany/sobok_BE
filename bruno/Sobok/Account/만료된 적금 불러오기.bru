@@ -1,0 +1,15 @@
+meta {
+  name: 만료된 적금 불러오기
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base}}/account/list/expired
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

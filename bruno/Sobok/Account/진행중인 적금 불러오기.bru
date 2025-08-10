@@ -1,0 +1,15 @@
+meta {
+  name: 진행중인 적금 불러오기
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base}}/account/list/ongoing
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

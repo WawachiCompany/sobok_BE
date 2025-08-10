@@ -1,0 +1,43 @@
+meta {
+  name: 루틴 수정하기
+  type: http
+  seq: 11
+}
+
+put {
+  url: {{base}}/routine/update?routineId=2
+  body: json
+  auth: inherit
+}
+
+params:query {
+  routineId: 2
+}
+
+body:json {
+  {
+    "accountId": 4,
+    "title": "My Routine update",
+    "startTime": "08:00",
+    "endTime": "09:00",
+    "days": ["MONDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"],
+    "todos": [
+      {
+        "title": "Todo 1 update",
+        "startTime": "08:10",
+        "endTime": "08:20",
+        "linkApp": "exampleApp1"
+      },
+      {
+        "title": "Todo 2 update",
+        "startTime": "08:30",
+        "endTime": "08:40",
+        "linkApp": "exampleApp2"
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+}
