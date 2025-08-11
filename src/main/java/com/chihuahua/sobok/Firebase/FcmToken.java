@@ -4,6 +4,7 @@ import com.chihuahua.sobok.member.Member;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
 import lombok.Getter;
@@ -21,6 +22,7 @@ public class FcmToken {
   private Long id;
 
   @ManyToOne
+  @JoinColumn(name = "member_id")
   private Member member;
 
   private String fcmToken;

@@ -130,7 +130,7 @@ spring:
       ddl-auto: none  # 실제 DB 스키마 변경 금지
     properties:
       hibernate:
-        show_sql: true  # 개발시 쿼리 확인용
+        show_sql: false  # 개발시 쿼리 확인용
         format_sql: true
 
 firebase:

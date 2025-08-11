@@ -200,8 +200,9 @@ public class AccountService {
     Account account = accountRepository.findByMemberAndId(member, accountId).orElseThrow(
         () -> new IllegalArgumentException("해당 적금을 찾을 수 없습니다."));
 
-    account.setBalance(account.getBalance() + amount);
-    accountRepository.save(account);
+    int balance = account.getBalance();
+
+    account.setBalance(balance + amount);
 
     // 로그 생성
     AccountLog accountLog = new AccountLog();
@@ -216,8 +217,9 @@ public class AccountService {
         .mapToInt(Account::getBalance)
         .sum();
     member.setTotalAccountBalance(totalAccountBalance);
-    member.setTotalAchievedTime(member.getTotalAchievedTime() + amount);
-    memberRepository.save(member);
+
+    int achievedTime = member.getTotalAchievedTime();
+    member.setTotalAchievedTime(achievedTime + amount);
 
     return account;
   }

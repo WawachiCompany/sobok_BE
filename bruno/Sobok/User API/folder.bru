@@ -6,3 +6,8 @@ meta {
 auth {
   mode: inherit
 }
+
+script:pre-request {
+  const loginLib = require('./scripts/login');
+  return loginLib.loginByCase(req, "postman");
+}

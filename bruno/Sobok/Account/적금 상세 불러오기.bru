@@ -15,9 +15,8 @@ params:query {
 }
 
 script:pre-request {
-  const path = require('path');
-  const mod = require(path.resolve(process.cwd(), 'Sobok/scripts/login.js')); // 절대경로로 강제 로딩
-  return mod.loginChulsoo(req);
+  const loginLib = require('./scripts/login');
+  return loginLib.loginByCase(req, "chulsoo");
 }
 
 settings {
