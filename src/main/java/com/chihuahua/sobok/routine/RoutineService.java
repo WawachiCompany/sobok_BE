@@ -244,7 +244,7 @@ public class RoutineService {
           .executeUpdate();
 
       entityManager.createNativeQuery(
-              "DELETE FROM routine_days WHERE routine_id = :routineId")
+              "DELETE FROM routine_day WHERE routine_id = :routineId")
           .setParameter("routineId", routineId)
           .executeUpdate();
 
