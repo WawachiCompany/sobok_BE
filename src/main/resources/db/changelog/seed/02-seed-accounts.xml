@@ -15,7 +15,7 @@
       <column name="title" value="김철수1"/>
       <column name="duration" valueNumeric="30"/>
       <column name="time" valueNumeric="60"/>
-      <column name="user_id" valueNumeric="1"/>
+      <column name="member_id" valueNumeric="1"/>
       <column name="is_expired" valueBoolean="false"/>
       <column name="created_at" value="2024-01-15"/>
       <column name="balance" valueNumeric="45000"/>
@@ -33,7 +33,7 @@
       <column name="title" value="김철수2"/>
       <column name="duration" valueNumeric="60"/>
       <column name="time" valueNumeric="90"/>
-      <column name="user_id" valueNumeric="1"/>
+      <column name="member_id" valueNumeric="1"/>
       <column name="is_expired" valueBoolean="false"/>
       <column name="created_at" value="2024-01-20"/>
       <column name="balance" valueNumeric="82000"/>
@@ -51,7 +51,7 @@
       <column name="title" value="김철수3"/>
       <column name="duration" valueNumeric="45"/>
       <column name="time" valueNumeric="120"/>
-      <column name="user_id" valueNumeric="1"/>
+      <column name="member_id" valueNumeric="1"/>
       <column name="is_expired" valueBoolean="false"/>
       <column name="created_at" value="2024-02-01"/>
       <column name="balance" valueNumeric="95000"/>
@@ -70,7 +70,7 @@
       <column name="title" value="이영희1"/>
       <column name="duration" valueNumeric="30"/>
       <column name="time" valueNumeric="45"/>
-      <column name="user_id" valueNumeric="2"/>
+      <column name="member_id" valueNumeric="2"/>
       <column name="is_expired" valueBoolean="false"/>
       <column name="created_at" value="2024-02-10"/>
       <column name="balance" valueNumeric="35000"/>
@@ -88,7 +88,7 @@
       <column name="title" value="이영희2"/>
       <column name="duration" valueNumeric="45"/>
       <column name="time" valueNumeric="75"/>
-      <column name="user_id" valueNumeric="2"/>
+      <column name="member_id" valueNumeric="2"/>
       <column name="is_expired" valueBoolean="false"/>
       <column name="created_at" value="2024-02-20"/>
       <column name="balance" valueNumeric="58000"/>
@@ -106,7 +106,7 @@
       <column name="title" value="이영희3"/>
       <column name="duration" valueNumeric="60"/>
       <column name="time" valueNumeric="90"/>
-      <column name="user_id" valueNumeric="2"/>
+      <column name="member_id" valueNumeric="2"/>
       <column name="is_expired" valueBoolean="false"/>
       <column name="created_at" value="2024-03-01"/>
       <column name="balance" valueNumeric="72000"/>
@@ -125,7 +125,7 @@
       <column name="title" value="박민수1"/>
       <column name="duration" valueNumeric="60"/>
       <column name="time" valueNumeric="120"/>
-      <column name="user_id" valueNumeric="3"/>
+      <column name="member_id" valueNumeric="3"/>
       <column name="is_expired" valueBoolean="false"/>
       <column name="created_at" value="2024-03-05"/>
       <column name="balance" valueNumeric="68000"/>
@@ -143,7 +143,7 @@
       <column name="title" value="박민수2"/>
       <column name="duration" valueNumeric="30"/>
       <column name="time" valueNumeric="60"/>
-      <column name="user_id" valueNumeric="3"/>
+      <column name="member_id" valueNumeric="3"/>
       <column name="is_expired" valueBoolean="false"/>
       <column name="created_at" value="2024-03-15"/>
       <column name="balance" valueNumeric="25000"/>
@@ -161,7 +161,7 @@
       <column name="title" value="박민수3"/>
       <column name="duration" valueNumeric="45"/>
       <column name="time" valueNumeric="90"/>
-      <column name="user_id" valueNumeric="3"/>
+      <column name="member_id" valueNumeric="3"/>
       <column name="is_expired" valueBoolean="false"/>
       <column name="created_at" value="2024-03-25"/>
       <column name="balance" valueNumeric="35000"/>

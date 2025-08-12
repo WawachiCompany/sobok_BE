@@ -1,9 +1,12 @@
 package com.chihuahua.sobok.statistics.report;
 
-
+import com.chihuahua.sobok.member.Member;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,16 +14,19 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MonthlyUserReport {
-    @Id
-    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
-    private Long id;
 
-    private Long memberId;
+  @Id
+  @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+  private Long id;
 
-    private String targetYearMonth;
+  @ManyToOne
+  @JoinColumn(name = "member_id", foreignKey = @ForeignKey(name = "FK_monthly_user_report_member"))
+  private Member member;
 
-    private Long totalAccumulatedTime;
-    private Long AverageAccumulatedTime;
+  private String targetYearMonth;
+
+  private Long totalAccumulatedTime;
+  private Long AverageAccumulatedTime;
 
 
 }

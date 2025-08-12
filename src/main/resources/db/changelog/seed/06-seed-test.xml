@@ -46,7 +46,7 @@
       <column name="title" value="김철수1"/>
       <column name="duration" valueNumeric="30"/>
       <column name="time" valueNumeric="60"/>
-      <column name="user_id" valueNumeric="1"/>
+      <column name="member_id" valueNumeric="1"/>
       <column name="is_expired" valueBoolean="false"/>
       <column name="created_at" value="2024-01-15"/>
       <column name="balance" valueNumeric="45000"/>
@@ -78,7 +78,7 @@
       <column name="start_time" value="07:00:00"/>
       <column name="title" value="김철수1의 1번 루틴"/>
       <column name="account_id" valueNumeric="1"/>
-      <column name="user_id" valueNumeric="1"/>
+      <column name="member_id" valueNumeric="1"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>

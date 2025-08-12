@@ -2,44 +2,94 @@ package com.chihuahua.sobok.survey;
 
 
 import com.chihuahua.sobok.member.Member;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-
-import java.util.List;
 
 @Entity
 @Getter
 @Setter
 public class Survey {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String spareTpo;
+  @OneToOne
+  @JoinColumn(name = "member_id")
+  private Member member;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "survey_spare_time", joinColumns = @JoinColumn(name = "survey_id"))
-    @Column(name = "spare_time")
-    @Cascade(CascadeType.ALL)
-    private List<String> spareTime;
+  private String spareTpo;
 
-    private String preference1;
-    private String preference2;
-    private String preference3;
+  @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+  private List<SurveySpareTime> surveySpareTimeList = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "survey_like_option", joinColumns = @JoinColumn(name = "survey_id"))
-    @Column(name = "like_option")
-    @Cascade(CascadeType.ALL)
-    private List<String> likeOption;
+  private String preference1;
+  private String preference2;
+  private String preference3;
 
-    private String extraRequest;
+  @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+  private List<SurveyLikeOption> surveyLikeOptionList = new ArrayList<>();
 
+  private String extraRequest;
+
+  // 헬퍼 메서드: spareTime 추가
+  public void addSpareTime(String spareTime) {
+    SurveySpareTime surveySpareTime = new SurveySpareTime();
+    surveySpareTime.setSpareTime(spareTime);
+    surveySpareTime.setSurvey(this);
+    this.surveySpareTimeList.add(surveySpareTime);
+  }
+
+  // 헬퍼 메서드: spareTime 리스트 설정
+  public void setSpareTime(List<String> spareTimeList) {
+    this.surveySpareTimeList.clear();
+    if (spareTimeList != null) {
+      for (String spareTime : spareTimeList) {
+        addSpareTime(spareTime);
+      }
+    }
+  }
+
+  // 헬퍼 메서드: spareTime 리스트 조회
+  public List<String> getSpareTime() {
+    return this.surveySpareTimeList.stream()
+        .map(SurveySpareTime::getSpareTime)
+        .toList();
+  }
+
+  // 헬퍼 메서드: likeOption 추가
+  public void addLikeOption(String likeOption) {
+    SurveyLikeOption surveyLikeOption = new SurveyLikeOption();
+    surveyLikeOption.setLike_option(likeOption);
+    surveyLikeOption.setSurvey(this);
+    this.surveyLikeOptionList.add(surveyLikeOption);
+  }
+
+  // 헬퍼 메서드: likeOption 리스트 설정
+  public void setLikeOption(List<String> likeOptionList) {
+    this.surveyLikeOptionList.clear();
+    if (likeOptionList != null) {
+      for (String likeOption : likeOptionList) {
+        addLikeOption(likeOption);
+      }
+    }
+  }
+
+  // 헬퍼 메서드: likeOption 리스트 조회
+  public List<String> getLikeOption() {
+    return this.surveyLikeOptionList.stream()
+        .map(SurveyLikeOption::getLike_option)
+        .toList();
+  }
 }

@@ -5,18 +5,13 @@ meta {
 }
 
 get {
-  url: {{base}}/account/details?accountId=1
+  url: {{base}}/account/details?accountId=66
   body: none
   auth: inherit
 }
 
 params:query {
-  accountId: 1
-}
-
-script:pre-request {
-  const loginLib = require('./scripts/login');
-  return loginLib.loginByCase(req, "chulsoo");
+  accountId: 66
 }
 
 settings {

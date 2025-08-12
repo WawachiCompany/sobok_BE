@@ -6,16 +6,20 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
   <!-- Schema Creation from existing SQL dump -->
-  <include file="classpath:db/changelog/schema/01-initial-schema.xml" context="dev, test"/>
+  <include file="db/changelog/schema/01-initial-schema.xml" context="dev, test"/>
+
+  <!-- Schema Updates -->
+  <includeAll path="db/changelog/auto"/>
 
   <!-- Development Seed Data -->
-  <include file="classpath:db/changelog/seed/01-seed-members.xml" context="dev"/>
-  <include file="classpath:db/changelog/seed/02-seed-accounts.xml" context="dev"/>
-  <include file="classpath:db/changelog/seed/03-seed-routines.xml" context="dev"/>
-  <include file="classpath:db/changelog/seed/04-seed-todos.xml" context="dev"/>
-  <include file="classpath:db/changelog/seed/05-seed-etcs.xml" context="dev"/>
+  <include file="db/changelog/seed/01-seed-members.xml" context="dev"/>
+  <include file="db/changelog/seed/02-seed-accounts.xml" context="dev"/>
+  <include file="db/changelog/seed/03-seed-routines.xml" context="dev"/>
+  <include file="db/changelog/seed/04-seed-todos.xml" context="dev"/>
+  <include file="db/changelog/seed/05-seed-etcs.xml" context="dev"/>
 
   <!-- Test Seed Data -->
-  <include file="classpath:db/changelog/seed/06-seed-test.xml" context="test"/>
+  <include file="db/changelog/seed/06-seed-test.xml" context="test"/>
+
 
 </databaseChangeLog>

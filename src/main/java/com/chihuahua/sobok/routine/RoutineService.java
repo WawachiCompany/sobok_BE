@@ -74,7 +74,6 @@ public class RoutineService {
     }
 
     routine.setTitle(routineDto.getTitle());
-    routine.setDays(routineDto.getDays());
     if (routineType.equals("self")) {
       routine.setIsAiRoutine(false);
     } else if (routineType.equals("ai")) {
@@ -165,21 +164,22 @@ public class RoutineService {
   @Transactional
   public void deleteRoutine(Member member, Long routineId) {
     // 1. 루틴 존재 여부 확인
-    boolean exists = routineRepository.existsByIdAndMemberId(member.getId(), routineId);
-    if (!exists) {
-      throw new IllegalArgumentException("해당 루틴이 존재하지 않거나 사용자의 루틴이 아닙니다.");
+    Optional<Routine> routineOptional = routineRepository.findByMemberAndId(member, routineId);
+    if (routineOptional.isEmpty()) {
+      throw new EntityNotFoundException("해당 ID의 루틴이 존재하지 않습니다.");
     }
 
-    // 2. 연관 관계 해제를 위한 별도 메서드 호출
-    Long accountId = disconnectRoutineRelations(member.getId(), routineId);
+    Routine routine = routineOptional.get();
 
+    // 2. 연관 관계 해제를 위한 별도 메서드 호출
+    List<Todo> todos = todoRepository.findByRoutine(routine);
+    for (Todo todo : todos) {
+      routine.removeTodo(todo);
+    }
     // 3. 벌크 삭제 연산 (cascade 없이 직접 삭제)
     performBulkDeletion(routineId);
 
     // 4. 계정 유효성 업데이트
-    if (accountId != null) {
-      updateAccountValidityAsync(accountId);
-    }
 
     logger.info("Routine {} has been completely deleted for member {}", routineId, member.getId());
   }

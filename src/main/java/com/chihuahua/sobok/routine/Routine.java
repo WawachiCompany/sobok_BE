@@ -6,11 +6,9 @@ import com.chihuahua.sobok.member.Member;
 import com.chihuahua.sobok.routine.todo.Todo;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
@@ -36,12 +33,12 @@ public class Routine {
   private Long id;
 
   @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "account_id")
+  @JoinColumn(name = "account_id", foreignKey = @ForeignKey(name = "FK_routine_account"))
   @JsonBackReference
   private Account account;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id")
+  @JoinColumn(name = "member_id", foreignKey = @ForeignKey(name = "FK_routine_member"))
   private Member member;
 
   private String title;
@@ -49,11 +46,8 @@ public class Routine {
   private LocalTime endTime;
   private Long duration; // 단위: 분
 
-  @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "routine_days", joinColumns = @JoinColumn(name = "routine_id"))
-  @Column(name = "day")
-  @Cascade(org.hibernate.annotations.CascadeType.ALL)
-  private List<String> days; // 요일 리스트(월 ~ 일)
+  @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+  private List<RoutineDay> routineDays = new ArrayList<>();
 
   @CreationTimestamp
   private LocalDateTime createdAt;
@@ -70,6 +64,31 @@ public class Routine {
   List<Todo> todos = new ArrayList<>();
 
   private Boolean isAiRoutine; // AI 루틴 여부
+
+  // 헬퍼 메서드: day 추가
+  public void addDay(String day) {
+    RoutineDay routineDay = new RoutineDay();
+    routineDay.setDay(day);
+    routineDay.setRoutine(this);
+    this.routineDays.add(routineDay);
+  }
+
+  // 헬퍼 메서드: days 리스트 설정
+  public void setDays(List<String> days) {
+    this.routineDays.clear();
+    if (days != null) {
+      for (String day : days) {
+        addDay(day);
+      }
+    }
+  }
+
+  // 헬퍼 메서드: days 리스트 조회
+  public List<String> getDays() {
+    return this.routineDays.stream()
+        .map(RoutineDay::getDay)
+        .toList();
+  }
 
   // Routine에 Todo 추가
   public void addTodo(Todo todo) {

@@ -274,7 +274,7 @@
       <column name="created_at" value="2024-03-05 11:15:00.000000"/>
       <column name="oauth_id" value="google_12345_minsoo"/>
       <column name="provider" value="GOOGLE"/>
-      <column name="user_id" valueNumeric="3"/>
+      <column name="member_id" valueNumeric="3"/>
     </insert>
 
     <rollback>

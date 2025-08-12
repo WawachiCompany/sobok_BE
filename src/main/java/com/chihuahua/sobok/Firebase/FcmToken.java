@@ -2,6 +2,7 @@ package com.chihuahua.sobok.Firebase;
 
 import com.chihuahua.sobok.member.Member;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -22,7 +23,7 @@ public class FcmToken {
   private Long id;
 
   @ManyToOne
-  @JoinColumn(name = "member_id")
+  @JoinColumn(name = "member_id", foreignKey = @ForeignKey(name = "FK_fcm_token_member"))
   private Member member;
 
   private String fcmToken;

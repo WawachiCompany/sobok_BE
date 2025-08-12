@@ -52,7 +52,7 @@ public class AccountPointScheduler {
         InterestLog interestLog = new InterestLog();
         interestLog.setTargetYearMonth(
             today.minusMonths(1).format(DateTimeFormatter.ofPattern("yyyy-MM")));
-        interestLog.setAccountId(account.getId());
+        interestLog.setAccount(account);
         interestLog.setInterest(interest);
         interestLogRepository.save(interestLog);
 

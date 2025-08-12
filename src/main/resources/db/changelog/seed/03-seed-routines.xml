@@ -19,7 +19,7 @@
       <column name="start_time" value="07:00:00"/>
       <column name="title" value="김철수1의 1번 루틴"/>
       <column name="account_id" valueNumeric="1"/>
-      <column name="user_id" valueNumeric="1"/>
+      <column name="member_id" valueNumeric="1"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>
@@ -35,7 +35,7 @@
       <column name="start_time" value="07:00:00"/>
       <column name="title" value="김철수1의 2번 루틴"/>
       <column name="account_id" valueNumeric="1"/>
-      <column name="user_id" valueNumeric="1"/>
+      <column name="member_id" valueNumeric="1"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>
@@ -52,7 +52,7 @@
       <column name="start_time" value="21:00:00"/>
       <column name="title" value="김철수2의 1번 루틴"/>
       <column name="account_id" valueNumeric="2"/>
-      <column name="user_id" valueNumeric="1"/>
+      <column name="member_id" valueNumeric="1"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>
@@ -68,7 +68,7 @@
       <column name="start_time" value="21:00:00"/>
       <column name="title" value="김철수2의 2번 루틴"/>
       <column name="account_id" valueNumeric="2"/>
-      <column name="user_id" valueNumeric="1"/>
+      <column name="member_id" valueNumeric="1"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>
@@ -85,7 +85,7 @@
       <column name="start_time" value="18:00:00"/>
       <column name="title" value="김철수3의 1번 루틴"/>
       <column name="account_id" valueNumeric="3"/>
-      <column name="user_id" valueNumeric="1"/>
+      <column name="member_id" valueNumeric="1"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>
@@ -101,7 +101,7 @@
       <column name="start_time" value="18:00:00"/>
       <column name="title" value="김철수3의 2번 루틴"/>
       <column name="account_id" valueNumeric="3"/>
-      <column name="user_id" valueNumeric="1"/>
+      <column name="member_id" valueNumeric="1"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>
@@ -118,7 +118,7 @@
       <column name="start_time" value="07:00:00"/>
       <column name="title" value="이영희1의 1번 루틴"/>
       <column name="account_id" valueNumeric="4"/>
-      <column name="user_id" valueNumeric="2"/>
+      <column name="member_id" valueNumeric="2"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>
@@ -134,7 +134,7 @@
       <column name="start_time" value="07:00:00"/>
       <column name="title" value="이영희1의 2번 루틴"/>
       <column name="account_id" valueNumeric="4"/>
-      <column name="user_id" valueNumeric="2"/>
+      <column name="member_id" valueNumeric="2"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>
@@ -151,7 +151,7 @@
       <column name="start_time" value="19:00:00"/>
       <column name="title" value="이영희2의 1번 루틴"/>
       <column name="account_id" valueNumeric="5"/>
-      <column name="user_id" valueNumeric="2"/>
+      <column name="member_id" valueNumeric="2"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>
@@ -167,7 +167,7 @@
       <column name="start_time" value="19:00:00"/>
       <column name="title" value="이영희2의 2번 루틴"/>
       <column name="account_id" valueNumeric="5"/>
-      <column name="user_id" valueNumeric="2"/>
+      <column name="member_id" valueNumeric="2"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>
@@ -184,7 +184,7 @@
       <column name="start_time" value="21:00:00"/>
       <column name="title" value="이영희3의 1번 루틴"/>
       <column name="account_id" valueNumeric="6"/>
-      <column name="user_id" valueNumeric="2"/>
+      <column name="member_id" valueNumeric="2"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>
@@ -200,7 +200,7 @@
       <column name="start_time" value="21:00:00"/>
       <column name="title" value="이영희3의 2번 루틴"/>
       <column name="account_id" valueNumeric="6"/>
-      <column name="user_id" valueNumeric="2"/>
+      <column name="member_id" valueNumeric="2"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>
@@ -217,7 +217,7 @@
       <column name="start_time" value="15:00:00"/>
       <column name="title" value="박민수1의 1번 루틴"/>
       <column name="account_id" valueNumeric="7"/>
-      <column name="user_id" valueNumeric="3"/>
+      <column name="member_id" valueNumeric="3"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>
@@ -233,7 +233,7 @@
       <column name="start_time" value="15:00:00"/>
       <column name="title" value="박민수1의 2번 루틴"/>
       <column name="account_id" valueNumeric="7"/>
-      <column name="user_id" valueNumeric="3"/>
+      <column name="member_id" valueNumeric="3"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>
@@ -250,7 +250,7 @@
       <column name="start_time" value="14:00:00"/>
       <column name="title" value="박민수2의 1번 루틴"/>
       <column name="account_id" valueNumeric="8"/>
-      <column name="user_id" valueNumeric="3"/>
+      <column name="member_id" valueNumeric="3"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>
@@ -266,7 +266,7 @@
       <column name="start_time" value="14:00:00"/>
       <column name="title" value="박민수2의 2번 루틴"/>
       <column name="account_id" valueNumeric="8"/>
-      <column name="user_id" valueNumeric="3"/>
+      <column name="member_id" valueNumeric="3"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>
@@ -283,7 +283,7 @@
       <column name="start_time" value="17:00:00"/>
       <column name="title" value="박민수3의 1번 루틴"/>
       <column name="account_id" valueNumeric="9"/>
-      <column name="user_id" valueNumeric="3"/>
+      <column name="member_id" valueNumeric="3"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>
@@ -299,7 +299,7 @@
       <column name="start_time" value="17:00:00"/>
       <column name="title" value="박민수3의 2번 루틴"/>
       <column name="account_id" valueNumeric="9"/>
-      <column name="user_id" valueNumeric="3"/>
+      <column name="member_id" valueNumeric="3"/>
       <column name="is_ended" valueBoolean="false"/>
       <column name="is_achieved" valueBoolean="true"/>
       <column name="is_ai_routine" valueBoolean="false"/>
@@ -319,225 +319,225 @@
 
     <!-- 모든 1번 루틴들 (월수금) -->
     <!-- 루틴 1 (김철수1의 1번 루틴) -->
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="1"/>
       <column name="day" value="MONDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="1"/>
       <column name="day" value="WEDNESDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="1"/>
       <column name="day" value="FRIDAY"/>
     </insert>
 
     <!-- 루틴 3 (김철수2의 1번 루틴) -->
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="3"/>
       <column name="day" value="MONDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="3"/>
       <column name="day" value="WEDNESDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="3"/>
       <column name="day" value="FRIDAY"/>
     </insert>
 
     <!-- 루틴 5 (김철수3의 1번 루틴) -->
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="5"/>
       <column name="day" value="MONDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="5"/>
       <column name="day" value="WEDNESDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="5"/>
       <column name="day" value="FRIDAY"/>
     </insert>
 
     <!-- 루틴 7 (이영희1의 1번 루틴) -->
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="7"/>
       <column name="day" value="MONDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="7"/>
       <column name="day" value="WEDNESDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="7"/>
       <column name="day" value="FRIDAY"/>
     </insert>
 
     <!-- 루틴 9 (이영희2의 1번 루틴) -->
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="9"/>
       <column name="day" value="MONDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="9"/>
       <column name="day" value="WEDNESDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="9"/>
       <column name="day" value="FRIDAY"/>
     </insert>
 
     <!-- 루틴 11 (이영희3의 1번 루틴) -->
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="11"/>
       <column name="day" value="MONDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="11"/>
       <column name="day" value="WEDNESDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="11"/>
       <column name="day" value="FRIDAY"/>
     </insert>
 
     <!-- 루틴 13 (박민수1의 1번 루틴) -->
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="13"/>
       <column name="day" value="MONDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="13"/>
       <column name="day" value="WEDNESDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="13"/>
       <column name="day" value="FRIDAY"/>
     </insert>
 
     <!-- 루틴 15 (박민수2의 1번 루틴) -->
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="15"/>
       <column name="day" value="MONDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="15"/>
       <column name="day" value="WEDNESDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="15"/>
       <column name="day" value="FRIDAY"/>
     </insert>
 
     <!-- 루틴 17 (박민수3의 1번 루틴) -->
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="17"/>
       <column name="day" value="MONDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="17"/>
       <column name="day" value="WEDNESDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="17"/>
       <column name="day" value="FRIDAY"/>
     </insert>
 
     <!-- 모든 2번 루틴들 (화목) -->
     <!-- 루틴 2 (김철수1의 2번 루틴) -->
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="2"/>
       <column name="day" value="TUESDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="2"/>
       <column name="day" value="THURSDAY"/>
     </insert>
 
     <!-- 루틴 4 (김철수2의 2번 루틴) -->
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="4"/>
       <column name="day" value="TUESDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="4"/>
       <column name="day" value="THURSDAY"/>
     </insert>
 
     <!-- 루틴 6 (김철수3의 2번 루틴) -->
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="6"/>
       <column name="day" value="TUESDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="6"/>
       <column name="day" value="THURSDAY"/>
     </insert>
 
     <!-- 루틴 8 (이영희1의 2번 루틴) -->
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="8"/>
       <column name="day" value="TUESDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="8"/>
       <column name="day" value="THURSDAY"/>
     </insert>
 
     <!-- 루틴 10 (이영희2의 2번 루틴) -->
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="10"/>
       <column name="day" value="TUESDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="10"/>
       <column name="day" value="THURSDAY"/>
     </insert>
 
     <!-- 루틴 12 (이영희3의 2번 루틴) -->
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="12"/>
       <column name="day" value="TUESDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="12"/>
       <column name="day" value="THURSDAY"/>
     </insert>
 
     <!-- 루틴 14 (박민수1의 2번 루틴) -->
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="14"/>
       <column name="day" value="TUESDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="14"/>
       <column name="day" value="THURSDAY"/>
     </insert>
 
     <!-- 루틴 16 (박민수2의 2번 루틴) -->
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="16"/>
       <column name="day" value="TUESDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="16"/>
       <column name="day" value="THURSDAY"/>
     </insert>
 
     <!-- 루틴 18 (박민수3의 2번 루틴) -->
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="18"/>
       <column name="day" value="TUESDAY"/>
     </insert>
-    <insert tableName="routine_days">
+    <insert tableName="routine_day">
       <column name="routine_id" valueNumeric="18"/>
       <column name="day" value="THURSDAY"/>
     </insert>
 
     <rollback>
       <sql>
-        DELETE FROM routine_days WHERE routine_id BETWEEN 1 AND 18;
+        DELETE FROM routine_day WHERE routine_id BETWEEN 1 AND 18;
       </sql>
     </rollback>
   </changeSet>

@@ -5,14 +5,11 @@ import com.chihuahua.sobok.account.Account;
 import com.chihuahua.sobok.routine.Routine;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -62,9 +59,33 @@ public class Member {
   @JsonManagedReference
   private List<Account> accounts;
 
-  @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "link_apps", joinColumns = @JoinColumn(name = "member_id"))
-  private List<String> linkApps;
+  @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+  private List<MemberLinkApp> memberLinkApps = new ArrayList<>();
+
+  // 헬퍼 메서드: linkApp 추가
+  public void addLinkApp(String linkApp) {
+    MemberLinkApp memberLinkApp = new MemberLinkApp();
+    memberLinkApp.setLinkApp(linkApp);
+    memberLinkApp.setMember(this);
+    this.memberLinkApps.add(memberLinkApp);
+  }
+
+  // 헬퍼 메서드: linkApps 리스트 설정
+  public void setLinkApps(List<String> linkApps) {
+    this.memberLinkApps.clear();
+    if (linkApps != null) {
+      for (String linkApp : linkApps) {
+        addLinkApp(linkApp);
+      }
+    }
+  }
+
+  // 헬퍼 메서드: linkApps 리스트 조회
+  public List<String> getLinkApps() {
+    return this.memberLinkApps.stream()
+        .map(MemberLinkApp::getLinkApp)
+        .toList();
+  }
 
   // Member에 Account 추가
   public void addAccount(Account account) {

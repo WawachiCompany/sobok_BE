@@ -5,8 +5,10 @@ import com.chihuahua.sobok.member.Member;
 import com.chihuahua.sobok.routine.Routine;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,7 +34,7 @@ public class Account {
   private Long id;
 
   @ManyToOne
-  @JoinColumn(name = "user_id")
+  @JoinColumn(name = "member_id", foreignKey = @ForeignKey(name = "FK_account_member"))
   @JsonBackReference
   private Member member;
 
@@ -53,6 +55,7 @@ public class Account {
   private LocalDate createdAt;
 
   private Boolean isValid = false; // 활성화 요건 갖추었는지 확인
+  @Column(columnDefinition = "FLOAT(23)")
   private Float interest; // 이율
   private Integer interestBalance = 0; // 이자 잔액
 
@@ -97,4 +100,3 @@ public class Account {
 
 
 }
-
