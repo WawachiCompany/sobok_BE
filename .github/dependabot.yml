@@ -15,6 +15,7 @@ updates:
         # Spring Boot/Framework + Data/JPA + DB drivers + Liquibase + Thymeleaf + Redis
         patterns:
           - "org.springframework.boot:*"
+          - "org.springframework.boot"
           - "org.springframework:*"
           - "org.springframework.data:*"
           - "org.springframework.security:*"

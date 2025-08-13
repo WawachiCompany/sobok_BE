@@ -13,7 +13,9 @@ permissions:
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.actor != 'dependabot[bot]' }}   # 디펜더봇 머지면 스킵
+    if: ${{ github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_commit.author.name != 'dependabot[bot]' }}  # pull_request를 통한 CI인 경우에는 스킵 / push의 주체가 dependabot인 경우 스킵
     runs-on: ubuntu-latest
 
     steps:
@@ -100,7 +102,6 @@ jobs:
       # 6-4. BetterStack Monitoring 재개
       - name: Resume BetterStack Monitoring
         run: |
-          sleep 60
           curl --request PATCH \
           --url https://uptime.betterstack.com/api/v2/monitors/3351769 \
           --header "Authorization: Bearer ${{ secrets.BETTERSTACK_API_KEY }}" \
