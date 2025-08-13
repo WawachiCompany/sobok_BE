@@ -20,8 +20,8 @@ plugins {
 
 dependencyManagement {
     imports {
-        mavenBom "io.opentelemetry:opentelemetry-bom:1.50.0"
-        mavenBom "io.opentelemetry:opentelemetry-bom-alpha:1.50.0-alpha" // alpha BOM 추가
+        mavenBom "io.opentelemetry:opentelemetry-bom:1.53.0"
+        mavenBom "io.opentelemetry:opentelemetry-bom-alpha:1.53.0-alpha" // alpha BOM 추가
     }
 }
 
@@ -83,7 +83,7 @@ dependencies {
     implementation("io.opentelemetry:opentelemetry-sdk")
     implementation("io.opentelemetry:opentelemetry-exporter-otlp")
     implementation("io.opentelemetry:opentelemetry-api-incubator")
-    implementation("io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:2.16.0")
+    implementation("io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:2.18.1")
     implementation 'org.liquibase:liquibase-core:4.33.0'
     liquibaseRuntime 'org.liquibase:liquibase-core:4.33.0'
     liquibaseRuntime 'org.apache.commons:commons-lang3:3.18.0'
