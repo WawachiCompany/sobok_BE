@@ -3,7 +3,7 @@ name: Deploy to AWS Elastic Beanstalk
 on:
   workflow_run:
     workflows:
-      - CodeQL Advanced # CodeQL 분석이 완료된 후에 실행
+      - CI # CI 완료된 후에 실행
     types:
       - completed
 
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }} # CodeQL 분석이 성공적으로 완료된 경우에만 실행
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.actor != 'dependabot[bot]' }}   # 디펜더봇 머지면 스킵
     runs-on: ubuntu-latest
 
     steps:

@@ -1,6 +1,7 @@
 buildscript {
     repositories {
         mavenCentral()
+        gradlePluginPortal()
     }
     dependencies {
         classpath 'org.liquibase:liquibase-core:4.33.0'
@@ -86,7 +87,7 @@ dependencies {
     implementation 'org.liquibase:liquibase-core:4.33.0'
     liquibaseRuntime 'org.liquibase:liquibase-core:4.33.0'
     liquibaseRuntime 'org.apache.commons:commons-lang3:3.18.0'
-    liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:3.0.2'
+    liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:4.0.1'
     liquibaseRuntime 'info.picocli:picocli:4.7.7'
     liquibaseRuntime 'org.liquibase.ext:liquibase-hibernate6:4.33.0'
     liquibaseRuntime group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'

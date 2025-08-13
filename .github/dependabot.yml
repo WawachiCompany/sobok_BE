@@ -10,3 +10,54 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: [ "version-update:semver-major" ]
+    groups:
+      platform-core:
+        # Spring Boot/Framework + Data/JPA + DB drivers + Liquibase + Thymeleaf + Redis
+        patterns:
+          - "org.springframework.boot:*"
+          - "org.springframework:*"
+          - "org.springframework.data:*"
+          - "org.springframework.security:*"
+          - "org.hibernate:*"
+          - "jakarta.persistence:*"
+          - "org.thymeleaf:*"
+          - "org.thymeleaf.extras:*"
+          - "org.springframework.boot:spring-boot-starter-data-redis"
+          - "mysql:*"
+          - "com.h2database:*"
+          - "org.liquibase:*"
+          - "org.liquibase.ext:*"
+          - "org.liquibase:liquibase-gradle-plugin"
+          - "org.liquibase:liquibase-groovy-dsl"
+          - "info.picocli:*"
+          - "javax.xml.bind:*"
+
+      observability:
+        # Micrometer & OpenTelemetry 일괄
+        patterns:
+          - "io.micrometer:*"
+          - "io.opentelemetry:*"
+          - "io.opentelemetry.instrumentation:*"
+
+      testing:
+        # 테스트 스택 전부 한 PR
+        patterns:
+          - "org.junit:*"
+          - "org.mockito:*"
+          - "org.assertj:*"
+          - "org.testcontainers:*"
+          - "com.h2database:*"
+
+      tooling-and-thirdparty:
+        # 빌드 플러그인/로그/보안/인증 및 기타 3rd-party 라이브러리
+        patterns:
+          - "com.github.ben-manes:gradle-versions-plugin"
+          - "org.jetbrains.kotlin:*"
+          - "com.autonomousapps:*"
+          - "ch.qos.logback:*"
+          - "io.jsonwebtoken:*"
+          - "com.nimbusds:*"
+          - "com.google.firebase:*"
+          - "io.netty:*"
+          - "net.nurigo:*"
+          - "io.github.cdimascio:*"
