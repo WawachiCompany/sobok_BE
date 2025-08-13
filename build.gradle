@@ -83,7 +83,7 @@ dependencies {
     implementation("io.opentelemetry:opentelemetry-sdk")
     implementation("io.opentelemetry:opentelemetry-exporter-otlp")
     implementation("io.opentelemetry:opentelemetry-api-incubator")
-    implementation("io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:2.16.0")
+    implementation("io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:2.18.1")
     implementation 'org.liquibase:liquibase-core:4.33.0'
     liquibaseRuntime 'org.liquibase:liquibase-core:4.33.0'
     liquibaseRuntime 'org.apache.commons:commons-lang3:3.18.0'
