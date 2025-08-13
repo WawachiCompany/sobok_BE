@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Gradle Wrapper 검증(보안)
+      - uses: gradle/wrapper-validation-action@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 23
+          cache: gradle
+
+      # (선택) .env 값을 CI 비밀로 주입하고 싶다면 → env에 넣기
+      # env:
+      #   SPRING_PROFILES_ACTIVE: test
+      #   SPRING_DATASOURCE_URL: ${{ secrets.TEST_DB_URL }}
+      #   SPRING_DATASOURCE_USERNAME: ${{ secrets.TEST_DB_USER }}
+      #   SPRING_DATASOURCE_PASSWORD: ${{ secrets.TEST_DB_PASS }}
+
+      - name: Build & Test
+        run: ./gradlew clean build --no-daemon
+
+      # 테스트 리포트/아티팩트 업로드 (실패 원인 파악에 유용)
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            **/build/reports/tests/test/**
+            **/build/test-results/test/**

@@ -12,6 +12,8 @@ plugins {
     id 'org.springframework.boot' version '3.4.1'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'org.liquibase.gradle' version '3.0.2'
+    id "com.github.ben-manes.versions" version "0.52.0"
+    id "com.autonomousapps.dependency-analysis" version "2.19.0"
 }
 
 
@@ -154,7 +156,7 @@ tasks.register('lbUpdateDev', JavaExec) {
 }
 
 // Generate a changelog (diff) from Hibernate -> DB (sobok_dev_local)
-tasks.register('lbDiffHibernateDev', JavaExec) {
+tasks.register('lbDiffDev', JavaExec) {
     group = 'liquibase'
     description = 'Liquibase DIFF-CHANGELOG (Hibernate -> sobok_dev_local)'
     mainClass.set(LB_MAIN)

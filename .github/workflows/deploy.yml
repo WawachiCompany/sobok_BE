@@ -1,9 +1,11 @@
 name: Deploy to AWS Elastic Beanstalk
 
 on:
-  push:
-    branches:
-      - main  # main 브랜치에 push될 때 실행
+  workflow_run:
+    workflows:
+      - CodeQL Advanced # CodeQL 분석이 완료된 후에 실행
+    types:
+      - completed
 
 permissions:
   id-token: write  # GitHub에서 OIDC 토큰 발급을 허용
@@ -11,12 +13,15 @@ permissions:
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} # CodeQL 분석이 성공적으로 완료된 경우에만 실행
     runs-on: ubuntu-latest
 
     steps:
       # 1. GitHub 저장소에서 코드 가져오기
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       # 2. OIDC를 사용하여 AWS 로그인 (IAM 역할 사용)
       - name: Configure AWS credentials using OIDC
