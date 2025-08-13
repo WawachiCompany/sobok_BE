@@ -116,11 +116,3 @@ jobs:
           guid: ${{ secrets.NEW_RELIC_DEPLOYMENT_ENTITY_GUID }}
           version: "v${{ env.VERSION_LABEL }}"
           user: "${{ github.actor }}"
-
-      # 8. Notion 연결
-      - name: Connect to Notion step
-        id: notion
-        uses: alessandrobelli/NotionHook@1.0
-        with:
-          notion_secret: ${{ secrets.NOTION_SECRET }}
-          notion_database: ${{ secrets.NOTION_DATABASE }}
