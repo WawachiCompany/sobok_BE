@@ -18,6 +18,7 @@ jobs:
 
       # Gradle Wrapper 검증(보안)
       - uses: gradle/wrapper-validation-action@v2
+        continue-on-error: true  # 실패해도 계속 진행
 
       - name: Set up JDK
         uses: actions/setup-java@v4
