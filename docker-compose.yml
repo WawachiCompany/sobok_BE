@@ -27,10 +27,14 @@ services:
       - ./certbot/www:/var/www/certbot  # 웹 인증용 디렉토리
     entrypoint: [ "/bin/sh", "-c" ]
     command: >
-      "certbot certonly --webroot --webroot-path /var/www/certbot
-      --email hjkim4842@gmail.com --agree-tos --no-eff-email
-      --rsa-key-size 4096 --force-renewal
-      -d sobok-app.com -d www.sobok-app.com"
+      "if [ ! -f /etc/letsencrypt/live/sobok-app.com/fullchain.pem ]; then
+         certbot certonly --webroot --webroot-path /var/www/certbot
+         --email hjkim4842@gmail.com --agree-tos --no-eff-email
+         --rsa-key-size 4096 --force-renewal
+         -d sobok-app.com -d www.sobok-app.com;
+       else
+         echo 'Certificate already exists. Skipping certbot.';
+       fi"
     networks:
       - app-network
   spring-boot-app:
