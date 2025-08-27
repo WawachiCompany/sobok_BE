@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,7 @@ public class TodoService {
   private final AccountService accountService;
   private final MemberService memberService;
   private final CategoryRepository categoryRepository;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Transactional
   public ResponseEntity<?> startTodo(Member member, Long todoId) {
@@ -152,6 +154,8 @@ public class TodoService {
         responseMap.put("routineDuration", routineLog.getDuration());
         responseMap.put("routineCompleted", true);
       }
+
+      eventPublisher.publishEvent(new TodoCompletedEvent(this, todo));
 
       return ResponseEntity.ok(responseMap);
 
