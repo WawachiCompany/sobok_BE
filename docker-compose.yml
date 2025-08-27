@@ -28,10 +28,7 @@ services:
     entrypoint: [ "/bin/sh", "-c" ]
     command: >
       "if [ ! -f /etc/letsencrypt/live/sobok-app.com/fullchain.pem ]; then
-         certbot certonly --webroot --webroot-path /var/www/certbot \
-         --email hjkim4842@gmail.com --agree-tos --no-eff-email \
-         --rsa-key-size 4096 --force-renewal \
-         -d sobok-app.com -d www.sobok-app.com;
+         certbot certonly --webroot --webroot-path /var/www/certbot --email hjkim4842@gmail.com --agree-tos --no-eff-email --rsa-key-size 4096 --force-renewal -d sobok-app.com -d www.sobok-app.com;
        else
          echo 'Certificate already exists. Skipping certbot.';
        fi"
