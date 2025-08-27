@@ -5,6 +5,7 @@ import com.chihuahua.sobok.routine.Routine;
 import com.chihuahua.sobok.routine.RoutineRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
@@ -24,6 +25,24 @@ public class PushNotificationScheduler {
   @Transactional
   public void sendPushNotification() {
     List<FcmToken> fcmTokens = fcmTokenRepository.findAll();
+
+    // 현재 시간을 가져와서 시간대별 메시지 설정
+    int currentHour = LocalTime.now().getHour();
+    String title;
+    String body;
+
+    // 시간대별로 다른 메시지 설정
+    if (currentHour == 9) {
+      title = "아침 해가 밝았어요!";
+      body = "상쾌하게 시작해볼까요?";
+    } else if (currentHour == 15) {
+      title = "나른한 오후 … 이대로는 안되겠어요!";
+      body = "소복과 함께 잠 깨러 가보시죠!";
+    } else {  // 21시
+      title = "오늘 하루도 수고하셨어요!";
+      body = "최고의 하루를 만들기 위해! 마지막까지 달려볼까요?";
+    }
+
     for (FcmToken fcmToken : fcmTokens) {
       Member member = fcmToken.getMember();
       LocalDate date = LocalDate.now();
@@ -37,11 +56,7 @@ public class PushNotificationScheduler {
       }
 
       String token = fcmToken.getFcmToken();
-      String title = "아직 완료하지 않은 루틴이 있어요!";
-      String body = "빨리 완료하고 오늘의 루틴을 달성해보세요!";
-
       firebaseService.sendMessage(token, title, body);
     }
-
   }
 }
