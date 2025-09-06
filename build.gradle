@@ -77,7 +77,7 @@ dependencies {
     implementation 'io.github.cdimascio:java-dotenv:5.2.2'
 
     implementation 'com.google.firebase:firebase-admin:9.5.0'
-    implementation 'com.nimbusds:nimbus-jose-jwt:10.4.2'
+    implementation 'com.nimbusds:nimbus-jose-jwt:10.5'
 
     implementation("io.opentelemetry:opentelemetry-api")
     implementation("io.opentelemetry:opentelemetry-sdk")
