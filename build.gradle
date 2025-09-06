@@ -20,8 +20,8 @@ plugins {
 
 dependencyManagement {
     imports {
-        mavenBom "io.opentelemetry:opentelemetry-bom:1.53.0"
-        mavenBom "io.opentelemetry:opentelemetry-bom-alpha:1.53.0-alpha" // alpha BOM 추가
+        mavenBom "io.opentelemetry:opentelemetry-bom:1.54.0"
+        mavenBom "io.opentelemetry:opentelemetry-bom-alpha:1.54.0-alpha" // alpha BOM 추가
     }
 }
 
