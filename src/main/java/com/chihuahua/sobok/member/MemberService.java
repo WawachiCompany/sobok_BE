@@ -112,20 +112,6 @@ public class MemberService {
     return response;
   }
 
-  @Transactional
-  public Member saveOrUpdate(Member member) {
-    Optional<Member> result = memberRepository.findByUsername(member.getUsername());
-    if (result.isPresent()) {
-      Member existingMember = result.get();
-      existingMember.setName(member.getName());
-      existingMember.setEmail(member.getEmail());
-      existingMember.setBirth(member.getBirth());
-      return memberRepository.save(existingMember);
-    } else {
-      return memberRepository.save(member);
-    }
-  }
-
   public Map<String, Object> loginJWT(MemberLoginDto memberLoginDto, HttpServletResponse response) {
     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
         memberLoginDto.getUsername(),

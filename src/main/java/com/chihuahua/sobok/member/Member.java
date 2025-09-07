@@ -96,10 +96,4 @@ public class Member {
     routines.add(routine);
     routine.setMember(this);
   }
-
-  // Member에서 Routine 제거
-  public void removeRoutine(Routine routine) {
-    routines.remove(routine);
-    routine.setMember(null);
-  }
 }
