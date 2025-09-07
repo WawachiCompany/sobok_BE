@@ -112,10 +112,10 @@ common: &default_settings
       # When true, application log metrics will be reported. The default is true.
       enabled: true
 
-      # The agent will add linking metadata to each log line in your application log files.
-      # This feature should only be used if you want to use a third party log forwarder, instead
-      # of the agent's built-in forwarding feature, to send your application log events to New Relic.
-      #local_decorating:
+    # The agent will add linking metadata to each log line in your application log files.
+    # This feature should only be used if you want to use a third party log forwarder, instead
+    # of the agent's built-in forwarding feature, to send your application log events to New Relic.
+    #local_decorating:
 
       # When true, the agent will decorate your application log files with linking metadata. The default is false.
       #enabled: false
@@ -369,8 +369,8 @@ common: &default_settings
   # Names and values may not contain colons (:) or semicolons (;).
   labels:
 
-  # An example label
-  #label_name: label_value
+    # An example label
+    #label_name: label_value
 
 # Application Environments
 # ------------------------------------------
