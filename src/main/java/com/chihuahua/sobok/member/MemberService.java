@@ -15,6 +15,7 @@ import com.chihuahua.sobok.routine.todo.Todo;
 import com.chihuahua.sobok.routine.todo.TodoDto;
 import com.chihuahua.sobok.routine.todo.TodoRepository;
 import io.jsonwebtoken.Claims;
+import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -48,6 +49,8 @@ public class MemberService {
   @Lazy
   private final PasswordEncoder passwordEncoder;
   private final AuthenticationManagerBuilder authenticationManagerBuilder;
+  private final MemberLinkAppRepository memberLinkAppRepository;
+  private final EntityManager entityManager;
 
   public Member createMember(MemberDto memberDto) {
     Member member = new Member();
@@ -294,9 +297,21 @@ public class MemberService {
     return (int) (totalTimeOfAccounts * 0.9);
   }
 
+  @Transactional
   public void updateOrSaveLinkApps(Member member, List<String> linkApps) {
-    member.setLinkApps(linkApps);
-    memberRepository.save(member);
+    // detached 엔티티를 영속 상태로 변경
+    Member persistentMember = entityManager.merge(member);
+
+    // 기존 연결 정보 삭제
+    memberLinkAppRepository.deleteByMemberId(persistentMember.getId());
+
+    // 새로운 연결 정보 저장
+    for (String linkApp : linkApps) {
+      MemberLinkApp memberLinkApp = new MemberLinkApp();
+      memberLinkApp.setMember(persistentMember); // 영속 엔티티 사용
+      memberLinkApp.setLinkApp(linkApp);
+      memberLinkAppRepository.save(memberLinkApp);
+    }
   }
 
   public Map<String, Object> getLinkApps(Member member) {
