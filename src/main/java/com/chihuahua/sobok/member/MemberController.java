@@ -200,6 +200,7 @@ public class MemberController {
     Member member = memberService.getMember();
     memberService.updateOrSaveLinkApps(member, linkApps.get("linkApps"));
     Map<String, Object> response = new HashMap<>();
+    response.put("linkApps", member.getLinkApps());
     response.put("message", "연동 앱 등록 성공");
     return ResponseEntity.ok(response);
   }
