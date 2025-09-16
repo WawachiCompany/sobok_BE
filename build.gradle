@@ -76,7 +76,7 @@ dependencies {
     implementation "io.netty:netty-resolver-dns-native-macos:4.1.96.Final:osx-aarch_64"
     implementation 'io.github.cdimascio:java-dotenv:5.2.2'
 
-    implementation 'com.google.firebase:firebase-admin:9.5.0'
+    implementation 'com.google.firebase:firebase-admin:9.6.0'
     implementation 'com.nimbusds:nimbus-jose-jwt:10.5'
 
     implementation("io.opentelemetry:opentelemetry-api")
