@@ -1,14 +1,27 @@
 {
 # ACME 계정 이메일 (만료/문제 알림용)
   email hjkim4842@gmail.com
-  log {
-        output file /var/log/caddy/access.log {
-                                                roll_size 100mb
-                                                roll_keep 5
-                                                roll_keep_for 720h
-                                              }
-        level INFO
-      }
+  logging {
+            logs {
+                 # Caddy 내부 이벤트/경고/정보 → system.log
+                   default {
+                             level INFO                      # INFO 이상 → WARN/ERROR 포함
+                             output file /var/log/caddy/system.log {
+                                                                     roll_size 100MB
+                                                                     roll_keep 5
+                                                                     roll_keep_for 720h
+                                                                   }
+                           }
+                 # ERROR 이상만 별도 파일로 분리
+                   error {
+                           level ERROR
+                           output file /var/log/caddy/error.log {
+                                                                  roll_size 50MB
+                                                                  roll_keep 5
+                                                                }
+                         }
+                 }
+          }
 # 필요시 테스트용 ACME 사용 예:
 # acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
 }
@@ -26,12 +39,13 @@ sobok-app.com {
 # Spring Boot 앱으로 프록시
   reverse_proxy spring-boot-app:8080
 
+# 사이트별 액세스 로그(요청 로그) → access.log
   log {
-        output file /var/log/caddy/sobok-access.log {
-                                                      roll_size 50mb
-                                                      roll_keep 5
-                                                    }
         level INFO
+        output file /var/log/caddy/access.log {
+                                                roll_size 100MB
+                                                roll_keep 5
+                                              }
       }
 # 필요 시 헤더 추가(옵션)
   header {
