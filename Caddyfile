@@ -1,6 +1,14 @@
 {
 # ACME 계정 이메일 (만료/문제 알림용)
   email hjkim4842@gmail.com
+  log {
+        output file /var/log/caddy/access.log {
+                                                roll_size 100mb
+                                                roll_keep 5
+                                                roll_keep_for 720h
+                                              }
+        level INFO
+      }
 # 필요시 테스트용 ACME 사용 예:
 # acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
 }
@@ -17,6 +25,14 @@ sobok-app.com {
   encode zstd gzip
 # Spring Boot 앱으로 프록시
   reverse_proxy spring-boot-app:8080
+
+  log {
+        output file /var/log/caddy/sobok-access.log {
+                                                      roll_size 50mb
+                                                      roll_keep 5
+                                                    }
+        level INFO
+      }
 # 필요 시 헤더 추가(옵션)
   header {
            Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"

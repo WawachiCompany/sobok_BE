@@ -12,6 +12,7 @@ services:
       - spring-boot-app
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./logs/caddy:/var/log/caddy
       - caddy-data:/data
       - caddy-config:/config
   spring-boot-app:
