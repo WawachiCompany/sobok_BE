@@ -3,8 +3,10 @@ set -e
 
 echo "[INFO] Setting up CloudWatch logs for Caddy..."
 
-# 로그 설정 파일 경로
-CONF_PATH="/etc/awslogs/config/caddy.conf"
+CONF_DIR="/etc/awslogs/config"
+CONF_PATH="$CONF_DIR/caddy.conf"
+
+sudo mkdir -p "$CONF_DIR"
 
 sudo bash -c "cat > $CONF_PATH" << 'EOF'
 [/var/app/current/logs/caddy/access.log]
