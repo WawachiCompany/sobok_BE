@@ -13,11 +13,13 @@
 }
 
 # www → apex 영구 리다이렉트
+
 www.sobok-app.com {
   redir https://sobok-app.com {uri} permanent
 }
 
 # 메인 사이트
+
 sobok-app.com {
   encode zstd gzip
 
