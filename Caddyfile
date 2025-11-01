@@ -1,0 +1,27 @@
+{
+# ACME 계정 이메일 (만료/문제 알림용)
+  email hjkim4842@gmail.com
+# 필요시 테스트용 ACME 사용 예:
+# acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+}
+
+# www → apex로 영구 리다이렉트
+
+www.sobok-app.com {
+  redir https://sobok-app.com {uri} permanent
+}
+
+# 메인 사이트: 자동 HTTPS(80→443), 인증서 자동발급/갱신, 리버스 프록시
+
+sobok-app.com {
+  encode zstd gzip
+# Spring Boot 앱으로 프록시
+  reverse_proxy spring-boot-app:8080
+# 필요 시 헤더 추가(옵션)
+  header {
+           Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+           X-Content-Type-Options "nosniff"
+           Referrer-Policy "strict-origin-when-cross-origin"
+           X-Frame-Options "DENY"
+         }
+}
