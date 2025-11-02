@@ -4,61 +4,60 @@ set -euo pipefail
 LOG_CFG="/opt/aws/amazon-cloudwatch-agent/etc/log-config.json"
 FRAG="/var/app/current/.platform/files/caddy-log-config.json"
 BACKUP="${LOG_CFG}.$(date +%Y%m%d%H%M%S).bak"
+TMP="/tmp/log-config.json.$$"
 
-echo "[INFO] Ensure /var/log/caddy exists and is writable for Caddy(uid 1000)"
+echo "[INFO] ensure /var/log/caddy (uid=1000)"
 sudo mkdir -p /var/log/caddy
 sudo chown -R 1000:1000 /var/log/caddy
 sudo chmod 755 /var/log/caddy
 
-# jq 설치 (환경에 따라 yum 또는 dnf)
+# jq 설치 (환경별)
 if ! command -v jq >/dev/null 2>&1; then
-  echo "[INFO] Installing jq ..."
+  echo "[INFO] installing jq"
   sudo yum -y install jq || sudo dnf -y install jq
 fi
+echo "[INFO] jq version: $(jq --version || echo unknown)"
 
-# 0) 스켈레톤 생성 (객체 보장)
-if [ ! -f "$LOG_CFG" ]; then
-  echo "[INFO] $LOG_CFG not found. Creating skeleton config."
+# 0) 조각 파일 검증 (배열이어야 함)
+if ! jq -e 'type=="array"' "$FRAG" >/dev/null 2>&1; then
+  echo "[ERROR] $FRAG must be a JSON array."; exit 2
+fi
+FRAG_JSON="$(cat "$FRAG")"   # --argjson로 주입할 원본
+
+# 1) 원본 config 보장 (객체 스켈레톤)
+if [ ! -f "$LOG_CFG" ] || ! jq -e 'type=="object"' "$LOG_CFG" >/dev/null 2>&1; then
+  echo "[WARN] $LOG_CFG missing or not an object. Creating skeleton."
   sudo mkdir -p "$(dirname "$LOG_CFG")"
   sudo tee "$LOG_CFG" >/dev/null <<'JSON'
 {
   "logs": {
     "logs_collected": {
-      "files": {
-        "collect_list": []
-      }
+      "files": { "collect_list": [] }
     }
   }
 }
 JSON
 fi
 
-# 1) 백업
-echo "[INFO] Backing up ${LOG_CFG} -> ${BACKUP}"
+# 2) 백업
+echo "[INFO] backup -> $BACKUP"
 sudo cp -a "$LOG_CFG" "$BACKUP"
 
-# 2) 병합 (구버전 jq 호환: -s 사용, 입력 순서 보장)
-#    입력0: 기존 config(객체), 입력1: fragment(배열)
-echo "[INFO] Merging caddy collectors into ${LOG_CFG} (idempotent)"
-sudo jq -s '
-  . as $all
-  | ($all[0] // {}) as $cfg
-  | ($all[1] // []) as $frag
-  | $cfg
-  | .logs = (.logs // {})
-  | .logs.logs_collected = (.logs.logs_collected // {})
-  | .logs.logs_collected.files = (.logs.logs_collected.files // {})
-  | .logs.logs_collected.files.collect_list =
-      (
-        (.logs.logs_collected.files.collect_list // [])
-        + $frag
-      )
-  | .logs.logs_collected.files.collect_list |= unique_by(.file_path)
-' "$LOG_CFG" "$FRAG" | sudo tee "$LOG_CFG" >/dev/null
+# 3) 병합 (idempotent, jq 구버전 호환)
+sudo jq --argjson frag "$FRAG_JSON" '
+  .logs = (.logs // {}) |
+  .logs.logs_collected = (.logs.logs_collected // {}) |
+  .logs.logs_collected.files = (.logs.logs_collected.files // {}) |
+  .logs.logs_collected.files.collect_list =
+     (((.logs.logs_collected.files.collect_list // []) + $frag) | unique_by(.file_path))
+' "$LOG_CFG" | sudo tee "$TMP" >/dev/null
 
-echo "[INFO] Restarting amazon-cloudwatch-agent"
+# 4) 원자적 교체
+sudo mv "$TMP" "$LOG_CFG"
+
+# 5) 에이전트 재시작
 sudo systemctl restart amazon-cloudwatch-agent || true
 sudo systemctl enable amazon-cloudwatch-agent || true
 
-echo "[INFO] Tail agent log:"
+echo "[INFO] tail agent log (last 50 lines):"
 sudo tail -n 50 /opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log || true
