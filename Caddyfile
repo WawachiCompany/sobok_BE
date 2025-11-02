@@ -30,19 +30,13 @@ sobok-app.com {
                                                 roll_size 100MB
                                                 roll_keep 5
                                               }
+        format json
       }
 
   reverse_proxy spring-boot-app:8080
 
-# (선택) 에러 로그 분리
+# 오류 응답만 커스터마이즈 (여기엔 log 넣지 마세요)
   handle_errors {
-                  log {
-                        level ERROR
-                        output file /var/log/caddy/error.log {
-                                                               roll_size 50MB
-                                                               roll_keep 5
-                                                             }
-                      }
                   respond "{http.error.status_code} {http.error.status_text}"
                 }
 }
