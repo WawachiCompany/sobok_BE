@@ -16,15 +16,31 @@ if ! command -v jq >/dev/null 2>&1; then
   sudo yum -y install jq || sudo dnf -y install jq
 fi
 
-# 원본 백업
+# 0) 스켈레톤 생성 (객체 보장)
+if [ ! -f "$LOG_CFG" ]; then
+  echo "[INFO] $LOG_CFG not found. Creating skeleton config."
+  sudo mkdir -p "$(dirname "$LOG_CFG")"
+  sudo tee "$LOG_CFG" >/dev/null <<'JSON'
+{
+  "logs": {
+    "logs_collected": {
+      "files": {
+        "collect_list": []
+      }
+    }
+  }
+}
+JSON
+fi
+
+# 1) 백업
 echo "[INFO] Backing up ${LOG_CFG} -> ${BACKUP}"
 sudo cp -a "$LOG_CFG" "$BACKUP"
 
-# collect_list가 없을 수도 있으니 안전하게 생성 후 병합
-# jq -s 로 [LOG_CFG, FRAG] 두 파일을 배열로 읽어 병합 (구버전 jq 호환)
+# 2) 병합 (구버전 jq 호환: -s 사용, 입력 순서 보장)
+#    입력0: 기존 config(객체), 입력1: fragment(배열)
 echo "[INFO] Merging caddy collectors into ${LOG_CFG} (idempotent)"
 sudo jq -s '
-  # .[0] = 기존 config, .[1] = 우리가 추가할 배열(fragment)
   . as $all
   | ($all[0] // {}) as $cfg
   | ($all[1] // []) as $frag
@@ -41,7 +57,7 @@ sudo jq -s '
 ' "$LOG_CFG" "$FRAG" | sudo tee "$LOG_CFG" >/dev/null
 
 echo "[INFO] Restarting amazon-cloudwatch-agent"
-sudo systemctl restart amazon-cloudwatch-agent
+sudo systemctl restart amazon-cloudwatch-agent || true
 sudo systemctl enable amazon-cloudwatch-agent || true
 
 echo "[INFO] Tail agent log:"
