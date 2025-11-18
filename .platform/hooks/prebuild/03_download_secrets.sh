@@ -1,19 +1,51 @@
 #!/bin/bash
 set -e
 
+# PATH에 /usr/local/bin을 먼저 포함시켜 기존 OCI CLI 설치를 인식하도록 구성
+export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+
 # Object Storage 고정 설정 (환경 변수 없이 직접 지정)
 OCI_NAMESPACE="axtjkitujsdc"
 OCI_BUCKET="Sobok-env"
 ENV_OBJECT=".env"
 FIREBASE_OBJECT="firebase-adminsdk.json"
 
+ensure_oci_cli() {
+  if command -v oci >/dev/null 2>&1; then
+    return
+  fi
+
+  echo "[INFO] OCI CLI가 설치되어 있지 않아 자동 설치를 진행합니다."
+  local tmp_dir
+  tmp_dir=$(mktemp -d)
+  local log_file
+  log_file=$(mktemp /tmp/oci-cli-install.XXXXXX.log)
+  curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh -o "$tmp_dir/install.sh"
+  chmod +x "$tmp_dir/install.sh"
+
+  # 기본 설치 경로( /usr/local/bin )로 설치, 사용자 입력 없이 진행
+  if ! sudo bash -c "\"$tmp_dir/install.sh\" --accept-all-defaults --exec-dir /usr/local/bin --install-dir /usr/local/lib/oci-cli > \"$log_file\" 2>&1"; then
+    echo "[ERROR] OCI CLI 설치에 실패했습니다. 로그: $log_file"
+    exit 1
+  fi
+
+  export PATH="/usr/local/bin:$PATH"
+
+  rm -rf "$tmp_dir"
+
+  if ! command -v oci >/dev/null 2>&1; then
+    echo "[ERROR] OCI CLI 설치 후에도 실행 파일을 찾을 수 없습니다. PATH를 확인하세요."
+    exit 1
+  fi
+
+  echo "[INFO] OCI CLI 설치가 완료되었습니다."
+}
+
+ensure_oci_cli
+
+
 if [ -z "$OCI_NAMESPACE" ] || [ -z "$OCI_BUCKET" ]; then
   echo "[ERROR] OCI namespace 또는 bucket 정보가 없습니다. OCI_NAMESPACE/OCI_BUCKET 환경 변수를 설정하세요."
-  exit 1
-fi
-
-if ! command -v oci >/dev/null 2>&1; then
-  echo "[ERROR] oci CLI를 찾을 수 없습니다. 인스턴스에 OCI CLI를 설치해주세요."
   exit 1
 fi
 
