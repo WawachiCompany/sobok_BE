@@ -1,75 +1,60 @@
-name: Deploy to AWS Elastic Beanstalk
+name: Deploy to OCI Compute
 
 on:
   workflow_run:
     workflows:
-      - CI # CI 완료된 후에 실행
+      - CI
     types:
       - completed
 
 permissions:
-  id-token: write  # GitHub에서 OIDC 토큰 발급을 허용
   contents: read
 
 jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'push' &&
-      github.event.workflow_run.head_commit.author.name != 'dependabot[bot]' }}  # pull_request를 통한 CI인 경우에는 스킵 / push의 주체가 dependabot인 경우 스킵
+      github.event.workflow_run.head_commit.author.name != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
 
     steps:
-      # 1. GitHub 저장소에서 코드 가져오기
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
-      # 2. OIDC를 사용하여 AWS 로그인 (IAM 역할 사용)
-      - name: Configure AWS credentials using OIDC
-        uses: aws-actions/configure-aws-credentials@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          distribution: temurin
+          java-version: '17'
 
-      # 3. Build the JAR file
       - name: Build JAR file
         run: ./gradlew clean build
 
-      # 4. Docker 이미지 빌드 & Docker Hub에 푸시
-      - name: Build and push Docker image
-        run: |
-          docker build -t hjkim4842/sobok:latest .
-          echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
-          docker push hjkim4842/sobok:latest
-          docker logout # 로그아웃
-
-      # 5-1. 고유한 버전 라벨 생성 (중복 방지)
       - name: Generate unique version label
         run: echo "VERSION_LABEL=sobok-app-v$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
 
-      # 5-2. 애플리케이션 패키지 압축 및 업로드
-      - name: Upload application package to S3
+      - name: Build and push Docker image to Docker Hub
+        env:
+          DOCKER_IMAGE: hjkim4842/sobok
         run: |
-          zip -r sobok-app-v${{ github.run_number }}.zip .
-          aws s3 cp sobok-app-v${{ github.run_number }}.zip s3://elasticbeanstalk-ap-northeast-2-140023384172/
+          docker build -t $DOCKER_IMAGE:latest -t $DOCKER_IMAGE:${{ github.sha }} .
+          echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+          docker push $DOCKER_IMAGE:latest
+          docker push $DOCKER_IMAGE:${{ github.sha }}
+          docker logout
 
-      # 5-3. S3 버킷에서 최신 5개 애플리케이션 유지
-      - name: Clean up old application versions in S3
+      - name: Configure SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.OCI_SSH_PRIVATE_KEY }}
+
+      - name: Add OCI host to known_hosts
         run: |
-          aws s3 ls s3://elasticbeanstalk-ap-northeast-2-140023384172/ | 
-          grep sobok-app-v | sort -t'v' -k2 -nr | awk 'NR>5 {print $4}' | while read key; do
-          aws s3 rm s3://elasticbeanstalk-ap-northeast-2-140023384172/$key
-          done
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.OCI_HOST }} >> ~/.ssh/known_hosts
 
-      # 5-3. Elastic Beanstalk 애플리케이션 버전 생성
-      - name: Create new Elastic Beanstalk application version
-        run: |
-          aws elasticbeanstalk create-application-version --application-name sobok-app \
-          --version-label v${{ env.VERSION_LABEL }} \
-          --source-bundle S3Bucket="elasticbeanstalk-ap-northeast-2-140023384172",S3Key="sobok-app-v${{ github.run_number }}.zip"
-
-      # 6-1. BetterStack Monitoring 일시중지
       - name: Pause BetterStack Monitoring
         run: |
           curl --request PATCH \
@@ -78,28 +63,21 @@ jobs:
           --header 'Content-Type: application/json' \
           --data '{"paused": true}'
 
-      # 6-2. Elastic Beanstalk 환경에 배포 (멀티 컨테이너 설정 제거)
-      - name: Deploy to Elastic Beanstalk (Single Container)
+      - name: Deploy to OCI instance
+        env:
+          OCI_HOST: ${{ secrets.OCI_HOST }}
+          OCI_USER: ${{ secrets.OCI_SSH_USER }}
+          DOCKER_IMAGE: hjkim4842/sobok
         run: |
-          aws elasticbeanstalk update-environment --application-name sobok-app \
-          --environment-name sobok-app-env-t4g \
-          --version-label v${{ env.VERSION_LABEL }}
+          ssh $OCI_USER@$OCI_HOST <<EOF
+          set -e
+          docker pull $DOCKER_IMAGE:${{ github.sha }}
+          docker pull $DOCKER_IMAGE:latest
+          cd /var/app/current
+          docker compose down
+          docker compose up -d
+          EOF
 
-      # 6-3. Elastic Beanstalk 환경이 Ready 상태가 될 때까지 대기
-      - name: Wait for Elastic Beanstalk environment to be ready
-        run: |
-          for i in {1..60}; do
-            STATUS=$(aws elasticbeanstalk describe-environments --application-name sobok-app --environment-names sobok-app-env-t4g --query "Environments[0].Status" --output text)
-            HEALTH=$(aws elasticbeanstalk describe-environments --application-name sobok-app --environment-names sobok-app-env-t4g --query "Environments[0].Health" --output text)
-            echo "Current status: $STATUS, health: $HEALTH"
-            if [ "$STATUS" = "Ready" ] && [ "$HEALTH" = "Green" ]; then
-              echo "Environment is ready and healthy!"
-              break
-            fi
-            sleep 10
-          done
-
-      # 6-4. BetterStack Monitoring 재개
       - name: Resume BetterStack Monitoring
         run: |
           sleep 30
@@ -109,7 +87,6 @@ jobs:
           --header 'Content-Type: application/json' \
           --data '{"paused": false}'
 
-      # 7. New Relic Change Tracking 마커 생성 (배포 완료 후)
       - name: New Relic Application Deployment Marker
         uses: newrelic/deployment-marker-action@v2.3.0
         with:
