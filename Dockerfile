@@ -1,5 +1,5 @@
 # 1. Base Image: OpenJDK 사용
-FROM openjdk:21-jdk
+FROM eclipse-temurin:21-jdk
 
 # 2. 작업 디렉토리 설정
 WORKDIR /app
