@@ -62,6 +62,18 @@ jobs:
         run: |
           rsync -az --delete --exclude '.git/' --exclude '.github/' --exclude 'build/' --exclude 'node_modules/' ./ $OCI_USER@$OCI_HOST:/var/app/current
 
+      - name: Prepare secrets on OCI instance
+        env:
+          OCI_HOST: ${{ secrets.OCI_HOST }}
+          OCI_USER: ${{ secrets.OCI_SSH_USER }}
+        run: |
+          ssh $OCI_USER@$OCI_HOST <<EOF
+          set -e
+          cd /var/app/current
+          chmod +x .platform/hooks/prebuild/03_download_secrets.sh
+          sudo bash .platform/hooks/prebuild/03_download_secrets.sh
+          EOF
+
       - name: Pause BetterStack Monitoring
         run: |
           curl --request PATCH \
