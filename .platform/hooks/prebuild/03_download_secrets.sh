@@ -4,6 +4,9 @@ set -e
 # PATH에 /usr/local/bin을 먼저 포함시켜 기존 OCI CLI 설치를 인식하도록 구성
 export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
 
+# OCI CLI가 상주형 인스턴스 자격증명을 사용하도록 설정 (config 파일 프롬프트 방지)
+export OCI_CLI_AUTH="${OCI_CLI_AUTH:-instance_principal}"
+
 # Object Storage 고정 설정 (환경 변수 없이 직접 지정)
 OCI_NAMESPACE="axtjkitujsdc"
 OCI_BUCKET="Sobok-env"
@@ -55,6 +58,7 @@ head_object() {
         --namespace "$OCI_NAMESPACE" \
         --bucket-name "$OCI_BUCKET" \
         --name "$object_name" \
+        --auth "$OCI_CLI_AUTH" \
         --query 'data."etag"' \
         --raw-output 2>/dev/null || echo ""
 }
@@ -66,6 +70,7 @@ download_object() {
         --namespace "$OCI_NAMESPACE" \
         --bucket-name "$OCI_BUCKET" \
         --name "$object_name" \
+        --auth "$OCI_CLI_AUTH" \
         --file "$target_path"
 }
 
