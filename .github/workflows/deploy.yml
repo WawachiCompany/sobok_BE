@@ -60,7 +60,7 @@ jobs:
           OCI_HOST: ${{ secrets.OCI_HOST }}
           OCI_USER: ${{ secrets.OCI_SSH_USER }}
         run: |
-          rsync -az --delete --exclude '.git/' --exclude '.github/' --exclude 'build/' --exclude 'node_modules/' ./ $OCI_USER@$OCI_HOST:/var/app/current
+          rsync -az --delete --exclude '.git/' --exclude '.github/' --exclude 'node_modules/' ./ $OCI_USER@$OCI_HOST:/var/app/current
 
       - name: Prepare secrets on OCI instance
         env:
