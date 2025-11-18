@@ -65,19 +65,6 @@ management:
     metrics:
       export:
         enabled: true
-otel:
-  exporter:
-    otlp:
-      endpoint: http://158.179.169.43:4317
-      protocol: grpc
-  metrics:
-    exporter: otlp
-  logs:
-    exporter: otlp
-  traces:
-    exporter: otlp
-  sdk:
-    disabled: false
 ---
 # 로컬 개발 환경 (Docker MySQL + Liquibase)
 spring:
