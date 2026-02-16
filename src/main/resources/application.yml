@@ -53,18 +53,18 @@ social-login:
     apple:
       client-id: "com.wawachi.sobok"  # 일관된 클라이언트 ID 사용
 
-management:
-  tracing:
-    sampling:
-      probability: 1.0
-  endpoints:
-    web:
-      exposure:
-        include: health,info,prometheus
-  prometheus:
-    metrics:
-      export:
-        enabled: true
+#management:
+#  tracing:
+#    sampling:
+#      probability: 1.0
+#  endpoints:
+#    web:
+#      exposure:
+#        include: health,info,prometheus
+#  prometheus:
+#    metrics:
+#      export:
+#        enabled: true
 ---
 # 로컬 개발 환경 (Docker MySQL + Liquibase)
 spring:
