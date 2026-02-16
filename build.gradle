@@ -72,14 +72,14 @@ dependencies {
     implementation "io.netty:netty-resolver-dns-native-macos:4.1.96.Final:osx-aarch_64"
     implementation 'io.github.cdimascio:java-dotenv:5.2.2'
 
-    implementation('com.google.firebase:firebase-admin:9.7.0') {
+    implementation('com.google.firebase:firebase-admin:9.7.1') {
         exclude group: 'io.opentelemetry'
         exclude group: 'io.opentelemetry.contrib'
         exclude group: 'io.opentelemetry.instrumentation'
         exclude group: 'io.opentelemetry.semconv'
         exclude group: 'com.google.cloud.opentelemetry'
     }
-    implementation 'com.nimbusds:nimbus-jose-jwt:10.5'
+    implementation 'com.nimbusds:nimbus-jose-jwt:10.7'
 
     implementation 'org.liquibase:liquibase-core:4.33.0'
     liquibaseRuntime 'org.liquibase:liquibase-core:4.33.0'
@@ -88,8 +88,8 @@ dependencies {
     liquibaseRuntime 'info.picocli:picocli:4.7.7'
     liquibaseRuntime 'org.liquibase.ext:liquibase-hibernate6:4.33.0'
     liquibaseRuntime group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
-    liquibaseRuntime "ch.qos.logback:logback-core:1.5.19"
-    liquibaseRuntime "ch.qos.logback:logback-classic:1.5.19"
+    liquibaseRuntime "ch.qos.logback:logback-core:1.5.32"
+    liquibaseRuntime "ch.qos.logback:logback-classic:1.5.32"
     liquibaseRuntime sourceSets.main.output
     liquibaseRuntime sourceSets.main.runtimeClasspath
 
