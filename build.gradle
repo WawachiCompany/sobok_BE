@@ -31,6 +31,9 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    all {
+        exclude group: 'io.grpc', module: 'grpc-opentelemetry'
+    }
 }
 
 repositories {
@@ -69,7 +72,13 @@ dependencies {
     implementation "io.netty:netty-resolver-dns-native-macos:4.1.96.Final:osx-aarch_64"
     implementation 'io.github.cdimascio:java-dotenv:5.2.2'
 
-    implementation 'com.google.firebase:firebase-admin:9.7.0'
+    implementation('com.google.firebase:firebase-admin:9.7.0') {
+        exclude group: 'io.opentelemetry'
+        exclude group: 'io.opentelemetry.contrib'
+        exclude group: 'io.opentelemetry.instrumentation'
+        exclude group: 'io.opentelemetry.semconv'
+        exclude group: 'com.google.cloud.opentelemetry'
+    }
     implementation 'com.nimbusds:nimbus-jose-jwt:10.5'
 
     implementation 'org.liquibase:liquibase-core:4.33.0'
