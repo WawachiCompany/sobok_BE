@@ -106,10 +106,3 @@ jobs:
           --header 'Content-Type: application/json' \
           --data '{"paused": false}'
 
-      - name: New Relic Application Deployment Marker
-        uses: newrelic/deployment-marker-action@v2.3.0
-        with:
-          apiKey: ${{ secrets.NEW_RELIC_API_KEY }}
-          guid: ${{ secrets.NEW_RELIC_DEPLOYMENT_ENTITY_GUID }}
-          version: "v${{ env.VERSION_LABEL }}"
-          user: "${{ github.actor }}"

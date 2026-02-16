@@ -33,13 +33,6 @@ updates:
           - "info.picocli:*"
           - "javax.xml.bind:*"
 
-      observability:
-        # Micrometer & OpenTelemetry 일괄
-        patterns:
-          - "io.micrometer:*"
-          - "io.opentelemetry:*"
-          - "io.opentelemetry.instrumentation:*"
-
       testing:
         # 테스트 스택 전부 한 PR
         patterns:

@@ -31,27 +31,6 @@ services:
       - /opt/secrets/.env
     environment:
       DOCKER_ENV: "true"
-  newrelic-infra:
-    image: newrelic-infra
-    container_name: newrelic-infra
-    build:
-      context: .
-      dockerfile_inline: |
-        FROM newrelic/infrastructure:latest
-        ADD newrelic-infra.yml /etc/newrelic-infra.yml
-    networks:
-      - app-network
-    env_file:
-      - /opt/secrets/.env
-    cap_add:
-      - SYS_PTRACE
-    privileged: true
-    pid: host
-    volumes:
-      - /opt/secrets:/opt/secrets:ro
-      - /:/host:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-    restart: unless-stopped
 
 networks:
   app-network:
