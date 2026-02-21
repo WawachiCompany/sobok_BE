@@ -79,7 +79,7 @@ dependencies {
         exclude group: 'io.opentelemetry.semconv'
         exclude group: 'com.google.cloud.opentelemetry'
     }
-    implementation 'com.nimbusds:nimbus-jose-jwt:10.7'
+    implementation 'com.nimbusds:nimbus-jose-jwt:10.8'
 
     implementation 'org.liquibase:liquibase-core:4.33.0'
     liquibaseRuntime 'org.liquibase:liquibase-core:4.33.0'
