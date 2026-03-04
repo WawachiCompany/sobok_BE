@@ -1,4 +1,11 @@
 HELP.md
+
+### Terraform ###
+terraform/terraform.tfvars
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
